@@ -854,7 +854,8 @@
         "mortefi.echo.impermanence-heron",
         "mortefi.outro.violent-finish",
         "augusta.sonata.crown-of-valor-atk",
-        "augusta.sonata.crown-of-valor-cd"
+        "augusta.sonata.crown-of-valor-cd",
+        "augusta.weapon.thunderflare-heavy-dmg"
       ],
       "timeline": [
         {
@@ -1231,8 +1232,154 @@
         "mortefi.outro.violent-finish": [
           14,
           null
+        ],
+        "augusta.sonata.crown-of-valor-atk": [
+          15,
+          null
+        ],
+        "augusta.sonata.crown-of-valor-cd": [
+          15,
+          null
+        ],
+        "augusta.weapon.thunderflare-heavy-dmg": [
+          15,
+          null
         ]
       }
+    },
+    {
+      "id": "hiyuki-team",
+      "sort": 4,
+      "name": "Hiyuki — Glacio carry (hypothetical)",
+      "sub": "NOT OWNED. Modelled for the post-3.6 study: Lv90, S3, skills 10, forte nodes, Frostburn R1, Wishes of Quiet Snowfall 5pc.",
+      "team": [
+        "hiyuki",
+        "suisui",
+        "mornye"
+      ],
+      "enemy": {
+        "level": 100,
+        "res": 20
+      },
+      "buffs": [],
+      "windows": {},
+      "timeline": [],
+      "notes": [],
+      "groups": [
+        {
+          "title": "Hiyuki",
+          "steps": [
+            {
+              "char": "hiyuki",
+              "action": "Intro Skill",
+              "hits": [
+                "Intro Skill - Frostedge DMG"
+              ]
+            },
+            {
+              "char": "hiyuki",
+              "action": "Heavy — Frost Splinter",
+              "hits": [
+                "Frost Splinter: Present Self DMG"
+              ]
+            },
+            {
+              "char": "hiyuki",
+              "action": "Res. Skill (Present)",
+              "hits": [
+                "Resonance Skill - Present Self DMG"
+              ]
+            },
+            {
+              "char": "hiyuki",
+              "action": "Basic x3 (Present)",
+              "hits": [
+                "Basic Attack - Present Self Stage 1 DMG",
+                "Basic Attack - Present Self Stage 2 DMG",
+                "Basic Attack - Present Self Stage 3 DMG"
+              ]
+            },
+            {
+              "char": "hiyuki",
+              "action": "Lib — Inward Vision",
+              "hits": [
+                "Foreclaiming: Inward Vision DMG"
+              ]
+            },
+            {
+              "char": "hiyuki",
+              "action": "Glacio Chafe x4",
+              "hits": [
+                {
+                  "ability": "Glacio Chafe DMG",
+                  "times": 4
+                }
+              ]
+            },
+            {
+              "char": "hiyuki",
+              "action": "Snow Rust 2 — Bite x4",
+              "hits": [
+                {
+                  "ability": "Glacio Bite DMG",
+                  "times": 4
+                }
+              ]
+            },
+            {
+              "char": "hiyuki",
+              "action": "Iai x3 (Frostharden)",
+              "hits": [
+                {
+                  "ability": "Iai DMG",
+                  "times": 3
+                }
+              ]
+            },
+            {
+              "char": "hiyuki",
+              "action": "Res. Skill x2 (Frostblight)",
+              "hits": [
+                "Frostblight: Jade Cleave DMG",
+                "Frostblight: Petalfall DMG"
+              ]
+            },
+            {
+              "char": "hiyuki",
+              "action": "Basic x5 (Foreclaimed)",
+              "hits": [
+                "Basic Attack - Foreclaimed Self Stage 1 DMG",
+                "Basic Attack - Foreclaimed Self Stage 2 DMG",
+                "Basic Attack - Foreclaimed Self Stage 3 DMG",
+                "Basic Attack - Foreclaimed Self Stage 4 DMG",
+                "Basic Attack - Foreclaimed Self Stage 5 DMG"
+              ]
+            },
+            {
+              "char": "hiyuki",
+              "action": "Dodge Counter",
+              "hits": [
+                "Dodge Counter - Foreclaimed Self DMG"
+              ]
+            },
+            {
+              "char": "hiyuki",
+              "action": "Enhanced Heavy — Bitterfrost",
+              "hits": [
+                "Bitterfrost: Foreclaimed Self DMG"
+              ]
+            },
+            {
+              "char": "hiyuki",
+              "action": "HOLD Lib — Blade Liberation (3 Snowforged Blade)",
+              "hits": [
+                "Foreclaiming: Blade Liberation Hit 1 DMG",
+                "Foreclaiming: Blade Liberation Hit 2 DMG"
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 }

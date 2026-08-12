@@ -246,6 +246,25 @@ console.log('\nBUFF WIRING — the class of bug the damage loop cannot see');
     const cost = (ch.echoes || []).reduce((a, e) => a + (e.cost || 0), 0);
     if (cost > 12) fail(`${cid} echo cost is ${cost}/12`);
   }
+  // 6b. weapon passives are hand-written, and the engine never reads passiveBuffs from
+  //     weapons.json — so a signature can quietly contribute a fraction of what it should.
+  //     Six were missing across three characters on 2026-08-12, one of them a TEAM buff.
+  {
+    const wl = live.ref?.weapons || read('ref/weapons.json');
+    const W = Array.isArray(wl) ? wl : Object.values(wl).flat();
+    for (const [cid, ch] of Object.entries(chars.characters)) {
+      if (!ch.weapon?.id) continue;
+      const w = W.find(x => x.id === ch.weapon.id);
+      if (!w) continue;
+      const want = (w.passiveBuffs || []).length;
+      const have = (ch.buffs || []).filter(b => /\.weapon\./.test(b.id)).length;
+      if (want > have)
+        console.log(`  NOTE  ${cid}'s ${w.name} has ${want} passives; only ${have} are modelled as buffs`);
+      if ((ch.weapon.rank || 1) > 1)
+        console.log(`  NOTE  ${cid}'s weapon is set to R${ch.weapon.rank}, but the engine ignores rank — passives are hand-written at R1 values`);
+    }
+  }
+
   // 6. a sonata the echoes wear but no buff implements — how Crown of Valor 3pc went missing
   for (const [cid, ch] of Object.entries(chars.characters)) {
     const counts = {};

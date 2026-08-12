@@ -1143,6 +1143,17 @@
           "stat": "critDmg",
           "value": 20,
           "default": true
+        },
+        {
+          "id": "augusta.weapon.thunderflare-heavy-dmg",
+          "name": "Thunderflare Dominion R1 — Heavy Attack DMG Bonus +20% (15s on Intro or Resonance Skill)",
+          "target": "self",
+          "owner": "augusta",
+          "kind": "stat",
+          "stat": "heavyDmg",
+          "value": 20,
+          "default": true,
+          "_note": "79.1% of her damage is Heavy-typed, including her Liberation. She casts Intro at step 14 and Resonance Skill at 16, so it is live for the run. Found 2026-08-12 by a new validator check: her weapon has THREE passives and none were modelled."
         }
       ],
       "_echoCostNote": "12/12 as of 2026-08-12 (4/3/3/1/1)."
@@ -1537,6 +1548,59 @@
           "value": 12,
           "panel": true,
           "default": true
+        },
+        {
+          "id": "denia.s1.crit-dmg",
+          "name": "S1 — Crit DMG +30% (self)",
+          "target": "self",
+          "owner": "denia",
+          "kind": "stat",
+          "stat": "critDmg",
+          "value": 30,
+          "default": false,
+          "_note": "Self only. Does nothing for a carry standing next to her."
+        },
+        {
+          "id": "denia.s2.fusion-burst-inflicter",
+          "name": "S2 — inflicter of Fusion Burst gains +50% Fusion DMG (15s)",
+          "target": "team",
+          "kind": "stat",
+          "stat": "elemDmg:fusion",
+          "value": 50,
+          "default": false,
+          "_note": "Verbatim: \"When Denia is in Resonance Mode - Fusion Burst, after a Resonator in the team inflicts Fusion Burst on the target, they gain 50% Fusion DMG Bonus for 15s.\" Aemeath inflicts Fusion Burst through six different skills, so she holds this for the whole window. This is the single largest sequence node on any of the three."
+        },
+        {
+          "id": "denia.s3.final-act-mv",
+          "name": "S3 — Final Act (Breakdown) DMG Multiplier +80% (self)",
+          "target": "self",
+          "owner": "denia",
+          "kind": "mvPct",
+          "value": 80,
+          "abilities": [
+            "Final Act - Breakdown Form DMG"
+          ],
+          "default": false
+        },
+        {
+          "id": "denia.weapon.dwarf-star-lib",
+          "name": "Forged Dwarf Star R1 — Liberation DMG Bonus +36% on inflicting Fusion Burst (5s)",
+          "target": "self",
+          "owner": "denia",
+          "kind": "stat",
+          "stat": "libDmg",
+          "value": 36,
+          "default": true
+        },
+        {
+          "id": "denia.weapon.dwarf-star-team-atk",
+          "name": "Forged Dwarf Star R1 — TEAM ATK +24% for 15s when they inflict Fusion Burst",
+          "target": "team",
+          "kind": "stat",
+          "stat": "atkPct",
+          "value": 24,
+          "default": true,
+          "_note": "A team buff on a support weapon — this one DOES reach Aemeath, who inflicts Fusion Burst through six skills. It changes the earlier finding that Denia's weapon was worthless."
         }
       ]
     },
@@ -1570,7 +1634,7 @@
         {
           "cost": 4,
           "name": "(Cost-4 main)",
-          "set": "freezing-frost",
+          "set": "wishes-of-quiet-snowfall",
           "main": "critDmg",
           "subs": [
             [
@@ -1598,7 +1662,7 @@
         {
           "cost": 3,
           "name": "(Cost-3)",
-          "set": "freezing-frost",
+          "set": "wishes-of-quiet-snowfall",
           "main": "elemDmg:glacio",
           "subs": [
             [
@@ -1626,7 +1690,7 @@
         {
           "cost": 3,
           "name": "(Cost-3)",
-          "set": "freezing-frost",
+          "set": "wishes-of-quiet-snowfall",
           "main": "elemDmg:glacio",
           "subs": [
             [
@@ -1654,7 +1718,7 @@
         {
           "cost": 1,
           "name": "(Cost-1)",
-          "set": "freezing-frost",
+          "set": "wishes-of-quiet-snowfall",
           "main": "atkPct",
           "subs": [
             [
@@ -1682,7 +1746,7 @@
         {
           "cost": 1,
           "name": "(Cost-1)",
-          "set": "freezing-frost",
+          "set": "wishes-of-quiet-snowfall",
           "main": "atkPct",
           "subs": [
             [
@@ -1709,28 +1773,6 @@
         }
       ],
       "buffs": [
-        {
-          "id": "hiyuki.sonata.freezing-frost-2pc",
-          "name": "Freezing Frost 2pc — Glacio DMG +10%",
-          "target": "self",
-          "owner": "hiyuki",
-          "kind": "stat",
-          "stat": "elemDmg:glacio",
-          "value": 10,
-          "panel": true,
-          "default": true
-        },
-        {
-          "id": "hiyuki.sonata.freezing-frost-5pc",
-          "name": "Freezing Frost 5pc — Glacio DMG +30% (3 stacks)",
-          "target": "self",
-          "owner": "hiyuki",
-          "kind": "stat",
-          "stat": "elemDmg:glacio",
-          "value": 30,
-          "default": true,
-          "_note": "\"Upon using Basic Attack or Heavy Attack, Glacio DMG increases by 10%, stacking up to three times, lasting 15s.\" Her combo opens with Heavy then Basic x5, so 3 stacks are reached early and held."
-        },
         {
           "id": "hiyuki.inherent.snow-rust-critdmg",
           "name": "Inherent: Fine Snow — Crit DMG +40% (1 Snow Rust stack)",
@@ -1773,6 +1815,155 @@
           "value": 20,
           "default": false,
           "_note": "OFF by default. Only helps OTHER Glacio characters (\"Resonators other than Hiyuki\"), and only against targets already carrying Glacio Chafe. Useless next to a Fusion carry. Switch on only for a Glacio-on-Glacio team."
+        },
+        {
+          "id": "hiyuki.s1.foreclaimed-mv",
+          "name": "S1 — Foreclaimed Self basic/heavy/mid-air/dodge Multipliers +120%",
+          "target": "self",
+          "owner": "hiyuki",
+          "kind": "mvPct",
+          "value": 120,
+          "abilities": [
+            "Basic Attack - Foreclaimed Self Stage 1 DMG",
+            "Basic Attack - Foreclaimed Self Stage 2 DMG",
+            "Basic Attack - Foreclaimed Self Stage 3 DMG",
+            "Basic Attack - Foreclaimed Self Stage 4 DMG",
+            "Basic Attack - Foreclaimed Self Stage 5 DMG",
+            "Heavy Attack - Foreclaimed Self DMG",
+            "Mid-Air Attack - Foreclaimed Self Stage 1 DMG",
+            "Mid-Air Attack - Foreclaimed Self Stage 2 DMG",
+            "Mid-Air Heavy Attack - Foreclaimed Self DMG",
+            "Dodge Counter - Foreclaimed Self DMG"
+          ],
+          "default": false
+        },
+        {
+          "id": "hiyuki.s2.iai-mv",
+          "name": "S2 — Iai DMG Multiplier +125%",
+          "target": "self",
+          "owner": "hiyuki",
+          "kind": "mvPct",
+          "value": 125,
+          "abilities": [
+            "Iai DMG"
+          ],
+          "default": false
+        },
+        {
+          "id": "hiyuki.s3.heavy-mv",
+          "name": "S3 — Frost Splinter and Bitterfrost Multipliers +160%",
+          "target": "self",
+          "owner": "hiyuki",
+          "kind": "mvPct",
+          "value": 160,
+          "abilities": [
+            "Frost Splinter: Present Self DMG",
+            "Bitterfrost: Foreclaimed Self DMG"
+          ],
+          "default": false
+        },
+        {
+          "id": "hiyuki.s3.free-snow-rust",
+          "name": "S3 — one free Snow Rust stack (reaches 2 with no other applier)",
+          "target": "self",
+          "owner": "hiyuki",
+          "kind": "status",
+          "status": "glacioBite",
+          "bucket": "amplify",
+          "value": 0,
+          "default": false,
+          "_note": "Bookkeeping only. The real effect is that S3 grants a free stack, so Hiyuki reaches Snow Rust 2 without a second Glacio Chafe applier. The 2-stack payload (an extra 102% Glacio Bite per Chafe application) is modelled as extra hits in the rotation, not here."
+        },
+        {
+          "id": "hiyuki.snowrust3.bite-amp",
+          "name": "Snow Rust 3 — Glacio Bite additionally Amplified 30%",
+          "target": "self",
+          "owner": "hiyuki",
+          "kind": "status",
+          "status": "glacioBite",
+          "bucket": "amplify",
+          "value": 30,
+          "default": false,
+          "_note": "Needs THREE separate Resonators to have applied Glacio Chafe or Havoc Bane; each counts once. Roster appliers: Hiyuki herself, and Suisui. Nobody else. So 3 stacks is unreachable at S0 and needs S3 plus Suisui."
+        },
+        {
+          "id": "hiyuki.sonata.quiet-snowfall-2pc",
+          "name": "Wishes of Quiet Snowfall 2pc — Glacio DMG +10%",
+          "target": "self",
+          "owner": "hiyuki",
+          "kind": "stat",
+          "stat": "elemDmg:glacio",
+          "value": 10,
+          "panel": true,
+          "default": true
+        },
+        {
+          "id": "hiyuki.sonata.quiet-snowfall-5pc-glacio",
+          "name": "Wishes of Quiet Snowfall 5pc — Glacio DMG +10% on inflicting Glacio Chafe (15s)",
+          "target": "self",
+          "owner": "hiyuki",
+          "kind": "stat",
+          "stat": "elemDmg:glacio",
+          "value": 10,
+          "default": true
+        },
+        {
+          "id": "hiyuki.sonata.quiet-snowfall-5pc-crit",
+          "name": "Wishes of Quiet Snowfall 5pc — Snowfall: Crit Rate +25% on Liberation DMG (6s, extends to 30s)",
+          "target": "self",
+          "owner": "hiyuki",
+          "kind": "stat",
+          "stat": "critRate",
+          "value": 25,
+          "default": true,
+          "_note": "The set Kuro built for her — it appears in her own guide payload. Liberation branch chosen over the Outro branch: she is the carry, so +25% Crit Rate on herself beats handing 25% Glacio DMG to whoever comes in next. Extends 4s per Liberation instance up to 30s, and Blade Liberation alone is 8 instances."
+        },
+        {
+          "id": "hiyuki.forte.snowforged-blade-3",
+          "name": "Blade Liberation consuming 3 Snowforged Blade — +240% Multiplier on both hits",
+          "target": "self",
+          "owner": "hiyuki",
+          "kind": "mvPct",
+          "value": 240,
+          "abilities": [
+            "Foreclaiming: Blade Liberation Hit 1 DMG",
+            "Foreclaiming: Blade Liberation Hit 2 DMG"
+          ],
+          "default": true,
+          "_note": "The projection carries \"MV per Snowforged Blade\" as modifier rows with no damageType, so the engine correctly refuses them as standalone abilities — they ADD to the parent. Hit 1 gains 159.05% per blade on a 198.81% base and Hit 2 gains 636.19% on 795.24%; both are exactly 0.8x per blade, so 3 blades is +240% on each. Blade Liberation at 3 blades is 676% + 2704% = 3380%, against 994% without. This was the single largest thing missing from her model."
+        },
+        {
+          "id": "hiyuki.weapon.frostburn-glacio-amp",
+          "name": "Frostburn R1 — Glacio DMG Amplified 28% (on applying Glacio Chafe)",
+          "target": "self",
+          "owner": "hiyuki",
+          "kind": "amplify",
+          "attackType": "all",
+          "value": 28,
+          "default": true,
+          "_note": "Her Inward Vision applies 4 stacks of Glacio Chafe, so this is live for the whole window. Every ability she has is Glacio. R5 would be 56% — refinement is NOT modelled by the engine."
+        },
+        {
+          "id": "hiyuki.weapon.frostburn-lib-defign",
+          "name": "Frostburn R1 — Resonance Liberation DEF Ignore 10%",
+          "target": "self",
+          "owner": "hiyuki",
+          "kind": "defIgnore",
+          "attackType": "liberation",
+          "value": 10,
+          "default": true,
+          "_note": "Matters more than it looks: Blade Liberation, Bitterfrost, Iai, Inward Vision, Frost Splinter and her Intro are ALL typed liberation."
+        },
+        {
+          "id": "hiyuki.weapon.frostburn-chafe-amp",
+          "name": "Frostburn R1 — Glacio Chafe DMG Amplified 20%",
+          "target": "self",
+          "owner": "hiyuki",
+          "kind": "status",
+          "status": "glacioChafe",
+          "bucket": "amplify",
+          "value": 20,
+          "default": true
         }
       ]
     },
@@ -1974,6 +2165,48 @@
           "value": 10,
           "panel": true,
           "default": true
+        },
+        {
+          "id": "mornye.s1.interfered-marker",
+          "name": "S1 — Interfered Marker uptime and application (self/utility)",
+          "target": "self",
+          "owner": "mornye",
+          "kind": "stat",
+          "stat": "atkPct",
+          "value": 0,
+          "default": false,
+          "_note": "Modelled as zero. S1 is marker uptime and interrupt immunity — real in play, but it does not map to a stat the engine reads."
+        },
+        {
+          "id": "mornye.s2.team-crit-dmg",
+          "name": "S2 — team Crit DMG +30% vs Interfered Marker (0.2% per 1% ER over 100, cap 32%)",
+          "target": "team",
+          "kind": "stat",
+          "stat": "critDmg",
+          "value": 30,
+          "default": false,
+          "_note": "Verbatim: \"Every 1% of Mornye Energy Regen over 100% grants 0.2% Crit DMG increase, up to 32%.\" At her modelled 250% ER that is 0.2 x 150 = 30%. Conditional on the target carrying Interfered Marker, which she applies."
+        },
+        {
+          "id": "mornye.s3.concerto",
+          "name": "S3 — Concerto and Relative Momentum restore (utility)",
+          "target": "self",
+          "owner": "mornye",
+          "kind": "stat",
+          "stat": "energyRegen",
+          "value": 0,
+          "default": false,
+          "_note": "Modelled as zero — pure resource generation."
+        },
+        {
+          "id": "mornye.weapon.starfield-team-critdmg",
+          "name": "Starfield Calibrator R1 — team Crit DMG +20% (4s)",
+          "target": "team",
+          "kind": "stat",
+          "stat": "critDmg",
+          "value": 20,
+          "default": true,
+          "_note": "Also a team buff on a support weapon. Same correction as Denia's."
         }
       ]
     }
