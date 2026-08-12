@@ -117,6 +117,7 @@ const fail = (msg) => { failures++; console.log(`  FAIL  ${msg}`); };
 const chars = read('data/characters.json');
 const parityChars = JSON.parse(JSON.stringify(chars));
 const a = parityChars.characters.aemeath;
+delete a.stats;            // the fixture IS a reconstruction: weapon at Lv90, no ascension
 delete a.baseScale;
 delete a.weapon.atkOverride;
 delete a.weapon.subOverride;
@@ -153,6 +154,7 @@ console.log(`\n  ${exact}/${Object.keys(ABILITIES).length} exact to the integer`
 console.log('\nFUSION BURST ISOLATION — bare Aemeath, no ATK involved');
 const bare = JSON.parse(JSON.stringify(chars));
 Object.assign(bare.characters.aemeath, { echoes: [], weapon: null, buffs: [], forteNodes: false });
+delete bare.characters.aemeath.stats;
 delete bare.characters.aemeath.baseScale;
 const eng2 = loadEngine(bare);
 const map2 = eng2.abilities('aemeath');
@@ -181,11 +183,29 @@ for (const cid of Object.keys(chars.characters)) {
   }
 }
 
+console.log('\nPANEL MODE vs RECONSTRUCTION — same rotation, two independent stat sources');
+{
+  const recon = JSON.parse(JSON.stringify(chars));
+  for (const c of Object.values(recon.characters)) delete c.stats;
+  const eA = loadEngine(chars), eB = loadEngine(recon);
+  for (const r of eA.rotations.rotations) {
+    const a2 = eA.runRotation(r.id).total, b2 = eB.runRotation(r.id).total;
+    const drift = Math.abs(a2 - b2) / b2 * 100;
+    const ok = drift < 0.1;
+    if (!ok) fail(`${r.id}: panel vs reconstruction differ by ${drift.toFixed(3)}%`);
+    console.log(`  ${r.id.padEnd(32)} panel ${Math.round(a2).toLocaleString('en-US').padStart(11)}`
+      + `   rebuilt ${Math.round(b2).toLocaleString('en-US').padStart(11)}`
+      + `   drift ${drift.toFixed(3)}%  ${ok ? 'ok' : 'TOO BIG'}`);
+  }
+}
+
 console.log('\nROTATIONS');
 for (const r of live.rotations.rotations) {
   const res = live.runRotation(r.id);
-  console.log(`  ${r.id.padEnd(32)} ${Math.round(res.total).toLocaleString('en-US').padStart(12)}  (${res.steps.length} steps)`);
-  for (const w of res.warnings) { fail(`rotation ${r.id}: ${w}`); }
+  const counted = res.steps.filter(s => s.counts && s.average > 0).length;
+  console.log(`  ${r.id.padEnd(20)} ${Math.round(res.total).toLocaleString('en-US').padStart(12)}`
+    + `   ${String(res.steps.length).padStart(3)} steps, ${String(counted).padStart(3)} deal damage`);
+  for (const w of res.warnings) fail(`rotation ${r.id}: ${w}`);
 }
 
 console.log(failures === 0 ? '\nALL CHECKS PASSED' : `\n${failures} FAILURE(S)`);

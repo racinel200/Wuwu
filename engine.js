@@ -58,6 +58,25 @@ export function parseMV(expr) {
   return total;
 }
 
+/**
+ * Split an MV expression into its individual damage instances.
+ * '13.10%*4+26.20%*3+130.96%' -> eight numbers, not one.
+ *
+ * This matters for variance: WuWa rolls crit independently per damage instance, so an
+ * ability that lands eight hits is far steadier than one that lands a single hit of the
+ * same total size. Summing first and rolling once would badly overstate the spread.
+ */
+export function parseMVInstances(expr) {
+  if (typeof expr !== 'string' || !expr.includes('%')) return null;
+  const out = [];
+  for (const m of expr.matchAll(MV_TOKEN)) {
+    const v = parseFloat(m[1]) / 100;
+    const n = m[2] ? parseInt(m[2], 10) : 1;
+    for (let i = 0; i < n; i++) out.push(v);
+  }
+  return out;
+}
+
 export function parseTuneAmp(expr) {
   const m = /([\d.]+)%\s*Tune\s*AMP/i.exec(expr || '');
   return m ? parseFloat(m[1]) / 100 : null;
@@ -135,10 +154,20 @@ export class Engine {
    * Build one character's resolved state under a set of active buffs.
    * `activeBuffs` is an array of resolved buff objects (already filtered for target).
    */
-  buildState(charId, activeBuffs = []) {
+  buildState(charId, activeBuffs = [], { forceRebuild = false } = {}) {
     const c = this.characters.characters[charId];
     if (!c) throw new Error(`character "${charId}" is not in characters.json`);
     const proj = this.projection(charId);
+
+    // ---- PANEL MODE -------------------------------------------------------
+    // If the character carries a `stats` block, those numbers are read straight off
+    // the in-game stats page and used as-is. No level-derived base stats, no weapon
+    // level curve, no ascension scale, no echo arithmetic, no forte-node guessing —
+    // the game already did all of that. Buffs marked panel:true are skipped here,
+    // because the panel reading already contains them.
+    if (c.stats && !forceRebuild) {
+      return this._stateFromStats(charId, c, proj, activeBuffs.filter(b => b.panel !== true));
+    }
 
     const tier = LEVEL_TIERS.indexOf(c.level);
     if (tier < 0) throw new Error(`${charId}: level ${c.level} is not one of ${LEVEL_TIERS.join(', ')}`);
@@ -173,8 +202,17 @@ export class Engine {
       }
     }
 
-    // forte stat nodes
-    if (c.forteNodes) for (const n of (proj.forteSkills || [])) add(n.statKey, parseFloat(n.value));
+    // Forte stat nodes. `forteNodes` is either a boolean (all eight / none) or an object
+    // keyed by statKey, because the ATK nodes and the Crit Rate nodes sit on different
+    // branches of the Forte Circuit and are unlocked independently:
+    //   "forteNodes": { "atkPct": true, "critRate": false }
+    const fn = c.forteNodes;
+    if (fn) {
+      for (const n of (proj.forteSkills || [])) {
+        const on = typeof fn === 'object' ? fn[n.statKey] === true : fn === true;
+        if (on) add(n.statKey, parseFloat(n.value));
+      }
+    }
 
     // echoes
     for (const e of (c.echoes || [])) {
@@ -187,59 +225,8 @@ export class Engine {
     }
 
     // buffs
-    const amplify = {};       // key: 'all' | attackType | ability label -> percent
-    const defIgnore = {};     // key: 'all' | attackType -> percent
-    const resShred = [];      // {element, attackType, value}
-    const mvPct = {};         // ability label -> percent
-    const abilityCritDmg = {};// ability label -> percent
-    const vulnerability = {}; // key: 'all' | attackType -> percent
-    const status = {};        // status -> {mvPct, addMV, mvMult, amplify, dmgBonus, vulnerability, defRed, resRed}
-    const tuneBreak = {};
-
-    const bumpScoped = (map, buff, v) => {
-      const keys = buff.abilities && buff.abilities.length
-        ? buff.abilities
-        : [buff.attackType || 'all'];
-      for (const k of keys) map[k] = (map[k] || 0) + v;
-    };
-
-    for (const b of activeBuffs) {
-      const v = Number(b.value) || 0;
-      switch (b.kind) {
-        case 'stat':
-          add(b.stat, v);
-          break;
-        case 'amplify':
-          bumpScoped(amplify, b, v);
-          break;
-        case 'vulnerability':
-          bumpScoped(vulnerability, b, v);
-          break;
-        case 'defIgnore':
-          defIgnore[b.attackType || 'all'] = (defIgnore[b.attackType || 'all'] || 0) + v;
-          break;
-        case 'resRed':
-          resShred.push({ element: b.element || 'all', attackType: b.attackType || 'all', value: v });
-          break;
-        case 'mvPct':
-          for (const a of (b.abilities || [])) mvPct[a] = (mvPct[a] || 0) + v;
-          break;
-        case 'abilityCritDmg':
-          for (const a of (b.abilities || [])) abilityCritDmg[a] = (abilityCritDmg[a] || 0) + v;
-          break;
-        case 'status': {
-          const st = b.status;
-          status[st] = status[st] || {};
-          status[st][b.bucket] = (status[st][b.bucket] || 0) + v;
-          break;
-        }
-        case 'tuneBreak':
-          tuneBreak[b.bucket] = (tuneBreak[b.bucket] || 0) + v;
-          break;
-        default:
-          this.warnings.push(`buff "${b.id}": unknown kind "${b.kind}"`);
-      }
-    }
+    const buckets = this._applyBuffs(activeBuffs, add, charId);
+    const { amplify, defIgnore, resShred, mvPct, abilityCritDmg, vulnerability, status, tuneBreak } = buckets;
 
     const hp = baseHP * (1 + (S.hpPct || 0) / 100) + (S.hp || 0);
     const atk = (baseATK + weaponATK) * (1 + (S.atkPct || 0) / 100) + (S.flatAtk || 0);
@@ -253,6 +240,77 @@ export class Engine {
   }
 
   /**
+   * Build a state directly from the in-game stats page.
+   *
+   * The one subtlety: an ATK% buff in WuWa multiplies the WHITE base number
+   * (character base + weapon base), not the green total. So `atkBase` is required
+   * alongside `atk` — both are shown on the same screen. Same for HP and DEF.
+   */
+  _stateFromStats(charId, c, proj, activeBuffs) {
+    const st = c.stats;
+    for (const k of ['atk', 'atkBase']) {
+      if (st[k] == null) throw new Error(`${charId}: stats.${k} is required (read it off the in-game stats page)`);
+    }
+    const S = {};
+    const add = (k, v) => { S[k] = (S[k] || 0) + v; };
+    add('critRate', st.critRate ?? 5);
+    add('critDmg', st.critDmg ?? 150);
+    add('energyRegen', st.energyRegen ?? 100);
+    for (const k of ['basicDmg', 'heavyDmg', 'skillDmg', 'libDmg', 'introDmg',
+                     'outroDmg', 'echoDmg', 'healingBonus']) {
+      if (st[k] != null) add(k, st[k]);
+    }
+    // the game folds All-Attribute DMG into the element line, which is exactly how the
+    // damage formula consumes it — one additive bucket. Keep it there.
+    if (st.elemDmg != null) add(`elemDmg:${proj.element}`, st.elemDmg);
+
+    const buckets = this._applyBuffs(activeBuffs, add, charId);
+
+    // percentage stat buffs scale the base, flat ones add to the total
+    const hpBase = st.hpBase ?? 0, defBase = st.defBase ?? 0;
+    const hp = (st.hp ?? 0) + hpBase * ((S.hpPct || 0) / 100) + (S.hp || 0);
+    const atk = st.atk + st.atkBase * ((S.atkPct || 0) / 100) + (S.flatAtk || 0);
+    const def = (st.def ?? 0) + defBase * ((S.defPct || 0) / 100) + (S.def || 0);
+
+    return {
+      charId, element: proj.element, level: c.level, talents: c.talents,
+      stats: S, hp, atk, def, source: 'panel',
+      baseATK: st.atkBase, baseHP: hpBase, baseDEF: defBase,
+      tuneBreakPoints: c.tuneBreakPoints ?? parseFloat(proj.stats[LEVEL_TIERS.indexOf(c.level)][8]),
+      ...buckets,
+    };
+  }
+
+  /** Resolve a buff list into the non-stat damage buckets. Shared by both modes. */
+  _applyBuffs(activeBuffs, add, charId) {
+    const amplify = {}, defIgnore = {}, resShred = [], mvPct = {},
+          abilityCritDmg = {}, vulnerability = {}, status = {}, tuneBreak = {};
+    const bumpScoped = (map, buff, v) => {
+      const keys = buff.abilities && buff.abilities.length ? buff.abilities : [buff.attackType || 'all'];
+      for (const k of keys) map[k] = (map[k] || 0) + v;
+    };
+    for (const b of activeBuffs) {
+      const v = Number(b.value) || 0;
+      switch (b.kind) {
+        case 'stat': add(b.stat, v); break;
+        case 'amplify': bumpScoped(amplify, b, v); break;
+        case 'vulnerability': bumpScoped(vulnerability, b, v); break;
+        case 'defIgnore': defIgnore[b.attackType || 'all'] = (defIgnore[b.attackType || 'all'] || 0) + v; break;
+        case 'resRed': resShred.push({ element: b.element || 'all', attackType: b.attackType || 'all', value: v }); break;
+        case 'mvPct': for (const a of (b.abilities || [])) mvPct[a] = (mvPct[a] || 0) + v; break;
+        case 'abilityCritDmg': for (const a of (b.abilities || [])) abilityCritDmg[a] = (abilityCritDmg[a] || 0) + v; break;
+        case 'status': {
+          const st = (status[b.status] = status[b.status] || {});
+          st[b.bucket] = (st[b.bucket] || 0) + v; break;
+        }
+        case 'tuneBreak': tuneBreak[b.bucket] = (tuneBreak[b.bucket] || 0) + v; break;
+        default: this.warnings.push(`buff "${b.id}": unknown kind "${b.kind}"`);
+      }
+    }
+    return { amplify, defIgnore, resShred, mvPct, abilityCritDmg, vulnerability, status, tuneBreak };
+  }
+
+  /**
    * Recompute a character's stats using ONLY the buffs marked panel:true — that is,
    * exactly what the in-game character panel shows — and compare against the recorded
    * panel readings. This is the guard that makes it safe for any chat to edit
@@ -262,7 +320,7 @@ export class Engine {
     const c = this.characters.characters[charId];
     if (!c || !c.panel) return null;
     const panelBuffs = (c.buffs || []).filter(b => b.panel === true).map(b => ({ ...b, owner: charId }));
-    const state = this.buildState(charId, panelBuffs);
+    const state = this.buildState(charId, panelBuffs, { forceRebuild: true });
     const S = state.stats;
     const got = {
       atk: state.atk, hp: state.hp, def: state.def,
@@ -276,7 +334,8 @@ export class Engine {
     const rows = [];
     for (const [k, want] of Object.entries(c.panel)) {
       if (got[k] == null) continue;
-      const tol = ['atk', 'hp', 'def'].includes(k) ? 1.0 : 0.06;
+      // absolute stats carry rounding from several sources; percentages are exact
+      const tol = ['atk', 'hp', 'def'].includes(k) ? Math.max(1.0, want * 0.0005) : 0.06;
       rows.push({ stat: k, computed: got[k], panel: want, ok: Math.abs(got[k] - want) <= tol });
     }
     return { accountAccurate: c.accountAccurate === true, rows, allOk: rows.every(r => r.ok) };
@@ -380,6 +439,67 @@ export class Engine {
 
   // -------------------------------------------------------------- rotations
 
+  /**
+   * Monte Carlo over a rotation, rolling crit independently for every damage instance.
+   *
+   * The deterministic total is the expected value and stays the number to compare builds
+   * on. This answers the different question: how much does a single run actually swing?
+   */
+  simulateRotation(id, trials = 20000) {
+    const det = this.runRotation(id);
+    const rot = det.rotation;
+    const enemy0 = det.enemy;
+
+    // flatten the rotation into independent crit rolls
+    const pool = [];   // { each, critMult, critRate }  one entry per damage instance
+    let fixed = 0;     // damage that cannot crit at all
+    for (const step of det.steps) {
+      if (!step.counts) continue;
+      if (step.raw != null) { fixed += step.average; continue; }
+      const state = det.states[step.char];
+      if (!state) continue;
+      const map = this.abilities(step.char);
+      for (const label of (step.hits || [])) {
+        const entry = map.get(label);
+        if (!entry) continue;
+        const d = this.abilityDamage(state, entry, enemy0);
+        if (!d) continue;
+        const scaling = entry.scaling || 'ATK';
+        if (NEGATIVE_STATUS.includes(scaling) || scaling === 'tuneBreakSystem') {
+          fixed += d.average; continue;             // fixed-damage paths never crit
+        }
+        const tl = entry.talentKey ? (state.talents[entry.talentKey] ?? 10) : 10;
+        const rawMV = (entry.values || [])[Math.max(0, Math.min(9, tl - 1))] || '';
+        const inst = parseMVInstances(rawMV) || [];
+        const totalMV = inst.reduce((a, b) => a + b, 0);
+        if (!totalMV) { fixed += d.average; continue; }
+        const cd = ((state.stats.critDmg || 0) + (state.abilityCritDmg[entry.label] || 0)) / 100;
+        const cr = Math.min(1, (state.stats.critRate || 0) / 100);
+        for (const mv of inst) pool.push({ each: d.noncrit * (mv / totalMV), critMult: cd, critRate: cr });
+      }
+    }
+
+    const totals = new Float64Array(trials);
+    for (let t = 0; t < trials; t++) {
+      let sum = fixed;
+      for (const h of pool) sum += Math.random() < h.critRate ? h.each * h.critMult : h.each;
+      totals[t] = sum;
+    }
+    totals.sort();
+    const q = (p) => totals[Math.min(trials - 1, Math.floor(p * trials))];
+    const mean = totals.reduce((a, b) => a + b, 0) / trials;
+    const sd = Math.sqrt(totals.reduce((a, b) => a + (b - mean) ** 2, 0) / trials);
+
+    return {
+      expected: det.total, instances: pool.length, fixed, trials,
+      mean, sd, cv: sd / mean,
+      min: totals[0], max: totals[trials - 1],
+      p10: q(0.10), p50: q(0.50), p90: q(0.90),
+      // sanity: the simulated mean must converge on the analytic expected value
+      meanDrift: Math.abs(mean - det.total) / det.total,
+    };
+  }
+
   rotation(id) {
     const r = (this.rotations.rotations || []).find(x => x.id === id);
     if (!r) throw new Error(`no rotation with id "${id}"`);
@@ -417,36 +537,53 @@ export class Engine {
       abilityMaps[cid] = this.abilities(cid);
     }
 
+    // a rotation carries either a flat `steps` array or `groups[].steps[]`
+    const flat = [];
+    if (rot.groups) {
+      rot.groups.forEach((g, gi) => (g.steps || []).forEach((st, si) =>
+        flat.push({ ...st, _group: gi, _idx: si, _counts: g.count !== false })));
+    } else {
+      (rot.steps || []).forEach((st, si) => flat.push({ ...st, _group: 0, _idx: si, _counts: true }));
+    }
+
     const steps = [];
     let total = 0;
-    for (const step of (rot.steps || [])) {
+    for (const step of flat) {
       // a step may inject a known fixed number (e.g. main-echo damage, which the
       // character projection data does not carry)
+      // `hits` is the list of ability instances this step actually fires. Entries are a
+      // label, or { ability, times }. A step with no hits is a switch / wait / buff press.
+      const hits = [];
+      for (const h of (step.hits || [])) {
+        const label = typeof h === 'string' ? h : h.ability;
+        const times = typeof h === 'string' ? 1 : (h.times ?? 1);
+        for (let i = 0; i < times; i++) hits.push(label);
+      }
+
+      let noncrit = 0, average = 0, crit = 0, ok = true;
       if (step.raw != null) {
-        const count = step.count ?? 1;
-        const sub = Number(step.raw) * count;
-        total += sub;
-        steps.push({ ...step, count, each: Number(step.raw), total: sub, note: step.note || '' });
-        continue;
+        noncrit = average = crit = Number(step.raw);
+      } else if (hits.length) {
+        const cid = step.char;
+        if (!states[cid]) {
+          this.warnings.push(`step "${step.action || ''}" references "${cid}", who is not on this rotation's team`);
+          ok = false;
+        } else {
+          for (const label of hits) {
+            const entry = abilityMaps[cid].get(label);
+            if (!entry) {
+              this.warnings.push(`"${cid}" has no ability named "${label}" — check it against the ability list`);
+              ok = false; continue;
+            }
+            const d = this.abilityDamage(states[cid], entry, enemy);
+            if (!d) { this.warnings.push(`could not evaluate "${label}"`); ok = false; continue; }
+            noncrit += d.noncrit; average += d.average; crit += d.crit;
+          }
+        }
       }
-      const cid = step.char;
-      if (!states[cid]) {
-        this.warnings.push(`step references "${cid}", who is not in this rotation's team`);
-        continue;
-      }
-      const entry = abilityMaps[cid].get(step.ability);
-      if (!entry) {
-        this.warnings.push(`"${cid}" has no ability named "${step.ability}" — check spelling against the ability list`);
-        continue;
-      }
-      const d = this.abilityDamage(states[cid], entry, enemy);
-      if (!d) { this.warnings.push(`could not evaluate "${step.ability}"`); continue; }
-      const mode = step.crit || rot.critMode || 'average';
-      const each = d[mode === 'noncrit' ? 'noncrit' : mode === 'crit' ? 'crit' : 'average'];
-      const count = step.count ?? 1;
-      const sub = each * count;
-      total += sub;
-      steps.push({ ...step, count, each, total: sub, note: step.note || '' });
+      if (step._counts && ok) total += average;
+      steps.push({ ...step, hits, noncrit, average, crit, counts: step._counts,
+                   each: average, total: average, note: step.note || '' });
     }
 
     const panels = {};

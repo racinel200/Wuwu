@@ -1,32 +1,37 @@
 {
-  "schema": "wuwa.rotations.v2",
+  "schema": "wuwa.rotations.v3",
   "_howToEdit": [
-    "A rotation is: a team, an enemy, the buffs that are live, and an ordered list of steps.",
-    "Steps may switch character freely — write the whole loop as one list, in the order you press things.",
+    "A rotation is display and damage in one object, so editing it can never desync the two.",
     "",
-    "  { \"char\": \"aemeath\", \"ability\": \"<exact label>\", \"count\": 1, \"note\": \"...\" }",
+    "  groups[].steps[] = { icon, action, char, note, flags, hits }",
     "",
-    "'ability' must match the label in ref/proj-<char>.json exactly. The runner page lists every",
-    "valid label per character, and any typo shows up as a loud warning rather than a silent zero.",
+    "  icon   -> icons/<icon>.png. Missing files fall back to a letter tile, so add art any time.",
+    "  flags  -> 'key' (gold ring), 'opt' (faded), 'xN' (badge). Display only.",
+    "  hits   -> the ability instances this press actually fires, as exact labels from",
+    "            ref/proj-<char>.json. A string, or { ability, times }. Omit for a switch or a wait.",
+    "  raw    -> a fixed number instead (echo-skill damage, which the reference data lacks).",
     "",
-    "'count' repeats the step. 'crit' can be \"average\" (default), \"noncrit\" or \"crit\".",
-    "'raw' injects a fixed number instead of computing one — used for main-echo damage, which the",
-    "character projection files do not carry.",
+    "  A group with count:false is shown but excluded from the total (loop repeats, traversal).",
     "",
-    "'buffs' lists buff ids from characters.json. A buff only reaches a character if it is",
-    "target:'team' or owned by that character. Delete an id to test without it.",
-    "",
-    "enemy.res may be a single number (applied to every element) or an object per element."
+    "To add a character: put them in characters.json, run tools/refresh-ref.sh, then use their",
+    "labels here. To try a variant, copy a rotation, change its id, and edit the steps."
   ],
-
   "rotations": [
     {
-      "id": "team1-standard",
-      "name": "Team 1 — Suisui / Verina / Aemeath (Fusion Burst)",
-      "team": ["suisui", "verina", "aemeath"],
-      "enemy": { "level": 100, "res": 20 },
-      "critMode": "average",
-      "notes": "One full ~25s team loop from claude/aemeath-how-to-play.md. Supports open, Aemeath does her 12–14s window, then swaps out. Fusion Burst count is an estimate — see the note on that step.",
+      "id": "aemeath-team",
+      "sort": 1,
+      "name": "Aemeath — Suisui Team",
+      "sub": "The main team. One full ~25s loop. Badges show how long each team buff lasts.",
+      "order": "Party order: Suisui (1) · Verina (2) · Aemeath (3) — the slot order is load-bearing",
+      "team": [
+        "suisui",
+        "verina",
+        "aemeath"
+      ],
+      "enemy": {
+        "level": 100,
+        "res": 20
+      },
       "buffs": [
         "aemeath.sonata.trailblazing-2pc",
         "aemeath.echo.sigillum-lib",
@@ -54,113 +59,454 @@
         "verina.outro.blossom",
         "verina.inherent.gift-of-nature"
       ],
-      "steps": [
-        { "char": "suisui", "ability": "Intro Skill - Tinkling Jade DMG", "count": 1, "note": "Suisui opens" },
-        { "char": "suisui", "ability": "Resonance Skill - Zephyr Stance DMG", "count": 1 },
-        { "char": "suisui", "ability": "Basic Attack - Zephyr Stance Stage 1 DMG", "count": 1 },
-        { "char": "suisui", "ability": "Basic Attack - Zephyr StanceStage 2 DMG", "count": 1, "note": "label typo is in Kuro's own data" },
-        { "char": "suisui", "ability": "Resonance Skill - Drizzle Stance DMG", "count": 1 },
-        { "char": "suisui", "ability": "Glacio Chafe DMG", "count": 3, "note": "raises the Fusion Burst stack cap to 13; that is her real contribution" },
-
-        { "char": "verina", "ability": "Verdant Growth", "count": 1, "note": "Verina intro" },
-        { "char": "verina", "ability": "Botany Experiment", "count": 1 },
-        { "char": "verina", "ability": "Arboreal Flourish", "count": 1, "note": "liberation, sets Gift of Nature ATK" },
-        { "char": "verina", "ability": "Heavy Attack: Starflower Blooms DMG", "count": 1 },
-
-        { "char": "aemeath", "ability": "Debut of Meteoric Radiance DMG", "count": 1, "note": "step 2 — Intro. Starts the 15s Starlume clock" },
-        { "char": "aemeath", "ability": "Basic Attack - Mech Stage 3 DMG", "count": 1, "note": "step 3" },
-        { "char": "aemeath", "ability": "Basic Attack - Mech Stage 4 DMG", "count": 1, "note": "step 3 — cancel into Ultimate the instant this lands" },
-        { "char": "aemeath", "ability": "Heavenfall Edict: Overdrive DMG", "count": 1, "note": "step 4 — +2 stars, Unbound on, Stardust Resonance on" },
-        { "char": "aemeath", "ability": "Basic Attack - Mech Stage 2 DMG", "count": 1, "note": "step 5" },
-        { "char": "aemeath", "ability": "Basic Attack - Mech Stage 3 DMG", "count": 1, "note": "step 5" },
-        { "char": "aemeath", "ability": "Basic Attack - Mech Stage 4 DMG", "count": 1, "note": "step 5" },
-        { "char": "aemeath", "ability": "Seraphic Duet: Overture DMG", "count": 1, "note": "step 6 — enhanced skill #1" },
-        { "char": "aemeath", "ability": "Basic Attack - Mech Stage 2 DMG", "count": 1, "note": "step 7 — rebuild blue bar" },
-        { "char": "aemeath", "ability": "Basic Attack - Mech Stage 3 DMG", "count": 1, "note": "step 7" },
-        { "char": "aemeath", "ability": "Basic Attack - Mech Stage 4 DMG", "count": 1, "note": "step 7" },
-        { "char": "aemeath", "ability": "Seraphic Duet: Encore DMG", "count": 1, "note": "step 8 — enhanced skill #2, 4/4 stars" },
-        { "char": "aemeath", "ability": "Heavy Attack - Mech Charged II DMG", "count": 1, "note": "step 9 — hold through the skill animation. Refills to 200" },
-        { "char": "aemeath", "ability": "Heavenfall Edict: Finale DMG", "count": 1, "note": "step 10 — the payoff" },
-        { "char": "aemeath", "ability": "Sync Strike: Armament Merge DMG", "count": 1, "note": "step 11 — form switch, sets up next cycle" },
-
-        { "char": "aemeath", "ability": "Fusion Burst Hit (13 stacks)", "count": 6,
-          "note": "ESTIMATE. Her Forte inflicts Fusion Burst through BA3, BA4, both Sync Strikes and both Intros (3s per-target cooldown each). Six applications is a reasonable single-target loop — count them in-game and change this number." },
-
-        { "char": "aemeath", "raw": 14817, "count": 1,
-          "note": "Sigillum main-echo damage (hit 1 + hit 2, average). Injected because the character projection files do not carry echo-skill multipliers. Taken from arabwuwa's Main Echo Damage panel under the same build." }
-      ]
-    },
-
-    {
-      "id": "team1-no-suisui-cap",
-      "name": "Team 1 — what Suisui's +3 stack cap is actually worth",
-      "team": ["suisui", "verina", "aemeath"],
-      "enemy": { "level": 100, "res": 20 },
-      "critMode": "average",
-      "notes": "Identical to team1-standard except Fusion Burst runs at 10 stacks instead of 13, and the per-trail-stack bonus drops from 65% to 50%. Diff the totals to price Suisui's stack-cap raise.",
-      "buffs": [
-        "aemeath.sonata.trailblazing-2pc",
-        "aemeath.echo.sigillum-lib",
-        "aemeath.weapon.all-attribute",
-        "aemeath.sonata.trailblazing-5pc-crit",
-        "aemeath.sonata.trailblazing-5pc-fusion",
-        "aemeath.weapon.lib-def-ignore",
-        "aemeath.weapon.lib-fusion-res",
-        "aemeath.s3.between-the-stars-critdmg",
-        "aemeath.s3.finale-amplify",
-        "aemeath.s3.finale-mv",
-        "aemeath.s3.overdrive-mv",
-        "aemeath.s2.overture-mv",
-        "aemeath.s2.encore-mv",
-        "aemeath.s1.instant-response-heavy-critdmg",
-        "aemeath.inherent.instant-response-heavy-amp",
-        "aemeath.fb.stardust-passive",
-        "aemeath.s2.fb-stardust-extra",
-        "suisui.outro.rippling-waters",
-        "suisui.outro.floral-400",
-        "suisui.sonata.feathered-trace-5pc",
-        "suisui.weapon.firstlights-herald",
-        "verina.outro.blossom",
-        "verina.inherent.gift-of-nature"
+      "timeline": [
+        {
+          "name": "Ceaseless Landscape",
+          "dur": "30s",
+          "src": "Suisui Liberation"
+        },
+        {
+          "name": "25% All DMG Amp",
+          "dur": "30s",
+          "src": "Suisui Outro"
+        },
+        {
+          "name": "25% team ATK",
+          "dur": "10s",
+          "src": "Song of Feathered Trace"
+        },
+        {
+          "name": "+20% team ATK",
+          "dur": "6s",
+          "src": "Firstlight's Herald"
+        },
+        {
+          "name": "+3 Fusion Burst cap",
+          "dur": "15s",
+          "src": "Suisui Liberation"
+        },
+        {
+          "name": "+15% DMG Amp",
+          "dur": "30s",
+          "src": "Verina Outro"
+        }
       ],
-      "steps": [
-        { "char": "suisui", "ability": "Intro Skill - Tinkling Jade DMG", "count": 1 },
-        { "char": "suisui", "ability": "Resonance Skill - Zephyr Stance DMG", "count": 1 },
-        { "char": "suisui", "ability": "Basic Attack - Zephyr Stance Stage 1 DMG", "count": 1 },
-        { "char": "suisui", "ability": "Basic Attack - Zephyr StanceStage 2 DMG", "count": 1 },
-        { "char": "suisui", "ability": "Resonance Skill - Drizzle Stance DMG", "count": 1 },
-        { "char": "suisui", "ability": "Glacio Chafe DMG", "count": 3 },
-        { "char": "verina", "ability": "Verdant Growth", "count": 1 },
-        { "char": "verina", "ability": "Botany Experiment", "count": 1 },
-        { "char": "verina", "ability": "Arboreal Flourish", "count": 1 },
-        { "char": "verina", "ability": "Heavy Attack: Starflower Blooms DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Debut of Meteoric Radiance DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Basic Attack - Mech Stage 3 DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Basic Attack - Mech Stage 4 DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Heavenfall Edict: Overdrive DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Basic Attack - Mech Stage 2 DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Basic Attack - Mech Stage 3 DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Basic Attack - Mech Stage 4 DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Seraphic Duet: Overture DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Basic Attack - Mech Stage 2 DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Basic Attack - Mech Stage 3 DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Basic Attack - Mech Stage 4 DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Seraphic Duet: Encore DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Heavy Attack - Mech Charged II DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Heavenfall Edict: Finale DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Sync Strike: Armament Merge DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Fusion Burst Hit (10 stacks)", "count": 6 },
-        { "char": "aemeath", "raw": 14817, "count": 1, "note": "Sigillum main-echo damage" }
+      "groups": [
+        {
+          "title": "Suisui — opening rotation",
+          "sub": "First cycle only. No Intro Skill in slot 1.",
+          "steps": [
+            {
+              "icon": "Suisui_B",
+              "action": "Basic Attack",
+              "char": "suisui",
+              "note": "Zephyr Stance. Fills Cloud Breath toward its 120 cap.",
+              "flags": [
+                "x3"
+              ],
+              "hits": [
+                "Basic Attack - Zephyr Stance Stage 1 DMG",
+                "Basic Attack - Zephyr StanceStage 2 DMG",
+                "Basic Attack - Zephyr Stance Stage 3 DMG"
+              ]
+            },
+            {
+              "icon": "Suisui_R",
+              "action": "Awakening Spring",
+              "char": "suisui",
+              "note": "The Skill button becomes this at full Cloud Breath. Applies Glacio Chafe, <b>+18 Concerto</b>, team heal.",
+              "flags": [
+                "key"
+              ],
+              "hits": [
+                "Awakening Spring DMG"
+              ]
+            },
+            {
+              "icon": "Suisui_B",
+              "action": "Basic Attack",
+              "char": "suisui",
+              "note": "Drizzle chain. <b>Stage 4 applies Glacio Chafe</b>, switching on the 25% team ATK and the weapon's 20%.",
+              "flags": [
+                "x4"
+              ],
+              "hits": [
+                "Basic Attack - Drizzle Stance Stage 1 DMG",
+                "Basic Attack - Drizzle Stance Stage 2 DMG",
+                "Basic Attack - Drizzle Stance Stage 3 DMG",
+                "Basic Attack - Drizzle Stance Stage 4 DMG",
+                "Glacio Chafe DMG"
+              ]
+            },
+            {
+              "icon": "Suisui_H",
+              "action": "Dodge — Parting Mist",
+              "char": "suisui",
+              "note": "<b>+102 Floral Epistle</b>, and it does not reset the basic chain. Guarantees 600 on the opener.",
+              "flags": [
+                "key"
+              ],
+              "hits": [
+                "Dodge Counter - Zephyr Stance DMG"
+              ]
+            },
+            {
+              "icon": "Suisui_E",
+              "action": "Echo — Forbidden Bastion",
+              "char": "suisui",
+              "note": "20s cooldown. Echo-skill damage is not in the reference data; add a raw value if you want it counted."
+            },
+            {
+              "icon": "Suisui_L",
+              "action": "Liberation",
+              "char": "suisui",
+              "note": "Deploys <b>Ceaseless Landscape, 30s</b>, and raises the Fusion Burst stack cap by 3. <b>Never skip before the Outro.</b>",
+              "flags": [
+                "key"
+              ]
+            },
+            {
+              "icon": "Suisui_Switch",
+              "action": "Outro → Verina",
+              "char": "suisui",
+              "note": "25% All DMG Amp for 30s, and starts the ~6-second Plume Step clock.",
+              "flags": [
+                "key"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Verina",
+          "sub": "Hold the field to the 6-second mark.",
+          "steps": [
+            {
+              "icon": "Verina_Switch",
+              "action": "Intro Skill",
+              "char": "verina",
+              "hits": [
+                "Verdant Growth"
+              ]
+            },
+            {
+              "icon": "Fallacy_of_No_Return_echo",
+              "action": "Echo — Fallacy of No Return",
+              "char": "verina",
+              "note": "Pulls scattered enemies into one pile before Aemeath's AoE."
+            },
+            {
+              "icon": "Verina_R",
+              "action": "Resonance Skill",
+              "char": "verina",
+              "note": "Her biggest single Concerto chunk.",
+              "hits": [
+                "Botany Experiment"
+              ]
+            },
+            {
+              "icon": "Verina_L",
+              "action": "Liberation",
+              "char": "verina",
+              "note": "Heal plus team buff. Skip if not charged.",
+              "flags": [
+                "opt"
+              ],
+              "hits": [
+                "Arboreal Flourish"
+              ]
+            },
+            {
+              "icon": "Verina_Switch",
+              "action": "Outro → Aemeath",
+              "char": "verina",
+              "note": "<b>Do not press before ~6 seconds have passed.</b> +15% Amplification for 30s, and this is the Outro that hands Aemeath the Suisui chain.",
+              "flags": [
+                "key"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Aemeath — open",
+          "sub": "Intro first. This is what makes Overdrive worth 2 stars.",
+          "steps": [
+            {
+              "icon": "Aemeath_Switch",
+              "action": "Intro Skill",
+              "char": "aemeath",
+              "note": "+40 blue and <b>starts the 15-second Starlume clock</b>. Everything below depends on this landing first.",
+              "flags": [
+                "key"
+              ],
+              "hits": [
+                "Debut of Meteoric Radiance DMG"
+              ]
+            },
+            {
+              "icon": "Aemeath_B",
+              "action": "Basic Attack",
+              "char": "aemeath",
+              "note": "Lands as stages 3 and 4. <b>Stage 3 applies Fusion Burst.</b>",
+              "flags": [
+                "x2"
+              ],
+              "hits": [
+                "Basic Attack - Mech Stage 3 DMG",
+                "Basic Attack - Mech Stage 4 DMG",
+                "Fusion Burst Hit (13 stacks)"
+              ]
+            },
+            {
+              "icon": "Aemeath_L",
+              "action": "Liberation — Overdrive",
+              "char": "aemeath",
+              "note": "Press while Starlume is up. <b>+2 stars (2/4)</b>, Mech form, <b>Unbound 60s</b>, Stardust Resonance 30s.",
+              "flags": [
+                "key"
+              ],
+              "hits": [
+                "Heavenfall Edict: Overdrive DMG"
+              ]
+            },
+            {
+              "icon": "Sigillum_echo",
+              "action": "Echo — Sigillum",
+              "char": "aemeath",
+              "note": "Fire it here, right after Overdrive. Raw value taken from arabwuwa's Main Echo Damage panel.",
+              "raw": 14817
+            }
+          ]
+        },
+        {
+          "title": "Aemeath — build the stars",
+          "sub": "Both Duets are mandatory. 2/4 → 4/4.",
+          "steps": [
+            {
+              "icon": "Aemeath_B",
+              "action": "Basic Attack",
+              "char": "aemeath",
+              "note": "Stages 2, 3, <b>4</b>. Stage 4 opens Seraphic Duo.",
+              "flags": [
+                "x3"
+              ],
+              "hits": [
+                "Basic Attack - Mech Stage 2 DMG",
+                "Basic Attack - Mech Stage 3 DMG",
+                "Basic Attack - Mech Stage 4 DMG",
+                "Fusion Burst Hit (13 stacks)"
+              ]
+            },
+            {
+              "icon": "Aemeath_H",
+              "action": "Tune Break",
+              "char": "aemeath",
+              "note": "Press <b>F</b> only if the enemy's Off-Tune bar is actually full. If it isn't, skip and move on.",
+              "flags": [
+                "opt"
+              ],
+              "hits": [
+                "Tune Rupture Response - Starburst DMG"
+              ]
+            },
+            {
+              "icon": "Aemeath_R",
+              "action": "Seraphic Duet #1",
+              "char": "aemeath",
+              "note": "Press while the skill icon has its <b>red ring</b> and the bar has ≥100. −100 blue, <b>+1 star (3/4)</b>.",
+              "flags": [
+                "key"
+              ],
+              "hits": [
+                "Seraphic Duet: Overture DMG",
+                "Fusion Burst Hit (13 stacks)"
+              ]
+            },
+            {
+              "icon": "Aemeath_B",
+              "action": "Basic Attack",
+              "char": "aemeath",
+              "note": "Stages 2, 3, <b>4</b> again. Rebuilds blue past 100 and reopens Seraphic Duo.",
+              "flags": [
+                "x3"
+              ],
+              "hits": [
+                "Basic Attack - Mech Stage 2 DMG",
+                "Basic Attack - Mech Stage 3 DMG",
+                "Basic Attack - Mech Stage 4 DMG",
+                "Fusion Burst Hit (13 stacks)"
+              ]
+            },
+            {
+              "icon": "Aemeath_R",
+              "action": "Seraphic Duet #2",
+              "char": "aemeath",
+              "note": "Red ring again. −100 blue, <b>+1 star → 4/4</b>. Instant Response turns on and the Heavy starts glowing.",
+              "flags": [
+                "key"
+              ],
+              "hits": [
+                "Seraphic Duet: Encore DMG",
+                "Fusion Burst Hit (13 stacks)"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Aemeath — payoff",
+          "sub": "Stars are full, blue is empty. The Heavy fixes that.",
+          "steps": [
+            {
+              "icon": "Aemeath_H",
+              "action": "Heavy Attack — Charged II",
+              "char": "aemeath",
+              "note": "<b>Must be a full Charged II.</b> Start holding <i>during</i> the skill animation. Refills blue to 200/200 and hits with +200% amplification.",
+              "flags": [
+                "key"
+              ],
+              "hits": [
+                "Heavy Attack - Mech Charged II DMG"
+              ]
+            },
+            {
+              "icon": "Aemeath_L",
+              "action": "Liberation — FINALE",
+              "char": "aemeath",
+              "note": "All three conditions met. Depletes both bars and ends Unbound. <b>35% of the whole rotation sits in this one hit.</b>",
+              "flags": [
+                "key"
+              ],
+              "hits": [
+                "Heavenfall Edict: Finale DMG"
+              ]
+            },
+            {
+              "icon": "Aemeath_R",
+              "action": "Resonance Skill",
+              "char": "aemeath",
+              "note": "Optional. Finale already switches her back, so this is a spare Sync Strike — applies Fusion Burst but costs time.",
+              "flags": [
+                "opt"
+              ],
+              "hits": [
+                "Sync Strike: Armament Merge DMG"
+              ]
+            },
+            {
+              "icon": "Aemeath_Switch",
+              "action": "Outro → Suisui",
+              "char": "aemeath",
+              "note": "Loop. Ceaseless Landscape runs 30s, so it should still be up when you arrive."
+            }
+          ]
+        },
+        {
+          "title": "Suisui — the loop",
+          "sub": "Every cycle after the first. Shown for reference; NOT counted in the total.",
+          "count": false,
+          "steps": [
+            {
+              "icon": "Suisui_Switch",
+              "action": "Intro Skill",
+              "char": "suisui",
+              "note": "Fires automatically on swap-in. Applies Glacio Chafe, <b>+18 Concerto</b>.",
+              "flags": [
+                "key"
+              ],
+              "hits": [
+                "Intro Skill - Tinkling Jade DMG"
+              ]
+            },
+            {
+              "icon": "Suisui_R",
+              "action": "Resonance Skill — Drizzle",
+              "char": "suisui",
+              "note": "<b>+100 Floral Epistle.</b> Available now because Awakening Spring wasn't used.",
+              "hits": [
+                "Resonance Skill - Drizzle Stance DMG"
+              ]
+            },
+            {
+              "icon": "Suisui_B",
+              "action": "Basic Attack",
+              "char": "suisui",
+              "note": "Stages 1 through 4. Stage 4 applies Glacio Chafe.",
+              "flags": [
+                "x4"
+              ],
+              "hits": [
+                "Basic Attack - Drizzle Stance Stage 1 DMG",
+                "Basic Attack - Drizzle Stance Stage 2 DMG",
+                "Basic Attack - Drizzle Stance Stage 3 DMG",
+                "Basic Attack - Drizzle Stance Stage 4 DMG",
+                "Glacio Chafe DMG"
+              ]
+            },
+            {
+              "icon": "Suisui_E",
+              "action": "Echo — Forbidden Bastion",
+              "char": "suisui"
+            },
+            {
+              "icon": "Suisui_L",
+              "action": "Liberation",
+              "char": "suisui",
+              "note": "Refreshes Ceaseless Landscape before the Outro spends your Floral Epistle.",
+              "flags": [
+                "key"
+              ]
+            },
+            {
+              "icon": "Suisui_Switch",
+              "action": "Outro → Verina",
+              "char": "suisui",
+              "note": "And round again. Same 6-second rule on Verina.",
+              "flags": [
+                "key"
+              ]
+            }
+          ]
+        }
+      ],
+      "notes": [
+        {
+          "t": "STEP ZERO — check Aemeath's Resonance Mode",
+          "b": "In the team-building menu, under her portrait, there is a toggle: <b>Tune Rupture</b> or <b>Fusion Burst</b>. <b>It must say Fusion Burst.</b> <b>Never switch modes mid-fight</b> — it resets Aemeath's 60% Crit DMG and her 25% Finale amplification."
+        },
+        {
+          "t": "The star budget has ZERO slack",
+          "b": "Overdrive after an Intro = <b>+2</b>. Duet #1 = <b>+3</b>. Duet #2 = <b>+4</b>. Those are the only three sources in her kit. <b>Only the Finale spends them.</b> If one Duet fails to fire you finish at 3/4 and the Finale can never light up that rotation."
+        },
+        {
+          "t": "The single most common mistake — Stage 4 only",
+          "b": "Seraphic Duet needs <b>two</b> things at once: you are in <b>Seraphic Duo</b>, and you have <b>at least 100</b> in the bar. Seraphic Duo opens on <b>Basic Attack Stage 4 only</b> and lasts 5s. The <b>Sync Strike</b> window is wider — stages 2, 3 or 4 — and stages 2 and 3 can never give you a star. A full bar with two stars is exactly what that looks like.<br><b>Shortcut:</b> Dodge Counter → Normal Attack casts Stage 4 directly."
+        },
+        {
+          "t": "The 6-second rule on Suisui — this is the whole trick",
+          "b": "Suisui's biggest buff is a <b>two-hop chain</b>. She Outros out, and about <b>6 seconds later</b> her first Plume Step lands. Only then does the character on field gain \"your Outro hands Undulating Mist to the next character in\". So <b>Verina must hold the field to at least the 6-second mark</b>. Swap early and the chain never forms."
+        },
+        {
+          "t": "What Aemeath actually gets from Suisui at S0",
+          "b": "The headline <b>+50% ATK</b> needs a character who <i>consumes</i> Negative Status stacks. Aemeath inflicts without consuming, so <b>at S0 it does not reach her</b> — Suisui S1 is the fix. What does land: <b>+3 to the Fusion Burst max stack limit (10 → 13)</b>, worth about 18% of the whole rotation, plus 25% All DMG Amp, 25% team ATK, 20% from Firstlight's Herald and healing."
+        },
+        {
+          "t": "If the loop feels like it's failing",
+          "b": "Her <b>+18 Concerto</b> and the team heal share a <b>25-second internal cooldown</b>. A full team loop runs about 25.3 seconds, so the margin is a fraction of a second. Play faster than that and Suisui loses both on alternating cycles and <b>will fail to Outro</b>. Slow down rather than adding presses."
+        }
       ]
     },
-
     {
-      "id": "team1-forte-nodes-unlocked",
-      "name": "Team 1 — with Aemeath's four Forte stat nodes unlocked",
-      "team": ["suisui", "verina", "aemeath"],
-      "enemy": { "level": 100, "res": 20 },
-      "critMode": "average",
-      "notes": "Same rotation as team1-standard. To use it, flip aemeath.forteNodes to true in characters.json and re-run — this entry exists so you remember to compare. The nodes are worth +8% Crit Rate and +12% ATK and cost only ascension materials.",
+      "id": "aemeath-solo",
+      "sort": 2,
+      "name": "Aemeath — Solo",
+      "sub": "No supports, no Intro — and she still fires the Finale. Open world, trash, anything not worth a team loop.",
+      "order": "Aemeath on field the whole time",
+      "team": [
+        "aemeath"
+      ],
+      "enemy": {
+        "level": 100,
+        "res": 20
+      },
       "buffs": [
         "aemeath.sonata.trailblazing-2pc",
         "aemeath.echo.sigillum-lib",
@@ -177,36 +523,632 @@
         "aemeath.s2.encore-mv",
         "aemeath.s1.instant-response-heavy-critdmg",
         "aemeath.inherent.instant-response-heavy-amp",
-        "aemeath.fb.fusion-trail-13",
         "aemeath.fb.stardust-passive",
         "aemeath.s2.fb-stardust-extra",
         "aemeath.s2.fb-per-trail-stack",
-        "suisui.outro.rippling-waters",
-        "suisui.outro.floral-400",
-        "suisui.sonata.feathered-trace-5pc",
-        "suisui.weapon.firstlights-herald",
-        "suisui.outro.floral-600-atk",
-        "verina.outro.blossom",
-        "verina.inherent.gift-of-nature"
+        "aemeath.fb.fusion-trail-10-solo"
       ],
-      "steps": [
-        { "char": "aemeath", "ability": "Debut of Meteoric Radiance DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Basic Attack - Mech Stage 3 DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Basic Attack - Mech Stage 4 DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Heavenfall Edict: Overdrive DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Basic Attack - Mech Stage 2 DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Basic Attack - Mech Stage 3 DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Basic Attack - Mech Stage 4 DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Seraphic Duet: Overture DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Basic Attack - Mech Stage 2 DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Basic Attack - Mech Stage 3 DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Basic Attack - Mech Stage 4 DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Seraphic Duet: Encore DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Heavy Attack - Mech Charged II DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Heavenfall Edict: Finale DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Sync Strike: Armament Merge DMG", "count": 1 },
-        { "char": "aemeath", "ability": "Fusion Burst Hit (13 stacks)", "count": 6 },
-        { "char": "aemeath", "raw": 14817, "count": 1 }
+      "timeline": [
+        {
+          "name": "Unbound",
+          "dur": "60s",
+          "src": "Overdrive"
+        },
+        {
+          "name": "Stardust Resonance",
+          "dur": "30s",
+          "src": "Overdrive"
+        }
+      ],
+      "groups": [
+        {
+          "title": "Pre-fight",
+          "sub": "S1 pre-bank. Worth the 8 seconds.",
+          "steps": [
+            {
+              "icon": "Aemeath_R",
+              "action": "Resonance Skill",
+              "char": "aemeath",
+              "note": "Puts her in Mech form so she enters combat as Mech.",
+              "hits": [
+                "Sync Strike: Armament Merge DMG"
+              ]
+            },
+            {
+              "icon": "Aemeath_H",
+              "action": "Stand still ~4s, then Heavy Charged II",
+              "char": "aemeath",
+              "note": "<b>Instant Response - Brilliance</b> grants <b>+100 Synchronization</b> out of combat.",
+              "flags": [
+                "key"
+              ],
+              "hits": [
+                "Heavy Attack - Mech Charged II DMG"
+              ]
+            },
+            {
+              "icon": "Aemeath_H",
+              "action": "Wait ~4s, Heavy Charged II again",
+              "char": "aemeath",
+              "note": "State re-arms after the first heavy drops it. <b>Now at 200/200.</b>",
+              "flags": [
+                "key"
+              ],
+              "hits": [
+                "Heavy Attack - Mech Charged II DMG"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Open",
+          "steps": [
+            {
+              "icon": "Aemeath_B",
+              "action": "Basic Attack",
+              "char": "aemeath",
+              "note": "Run the chain to stage 4. Stage 3 applies Fusion Burst, turning on your S3.",
+              "flags": [
+                "x4"
+              ],
+              "hits": [
+                "Basic Attack - Mech Stage 1 DMG",
+                "Basic Attack - Mech Stage 2 DMG",
+                "Basic Attack - Mech Stage 3 DMG",
+                "Basic Attack - Mech Stage 4 DMG",
+                "Fusion Burst Hit (10 stacks)"
+              ]
+            },
+            {
+              "icon": "Aemeath_L",
+              "action": "Liberation — Overdrive",
+              "char": "aemeath",
+              "note": "<b>+1 star</b> — no Intro, so no Starlume. Unavoidable solo. Grants <b>Unbound 60s</b> and Stardust.",
+              "flags": [
+                "key"
+              ],
+              "hits": [
+                "Heavenfall Edict: Overdrive DMG"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Build to 4/4",
+          "sub": "Three Duets. Basics pay for each one.",
+          "steps": [
+            {
+              "icon": "Aemeath_R",
+              "action": "Enhanced Skill — Duet #1",
+              "char": "aemeath",
+              "note": "−100 Sync. <b>2/4.</b> Stardust-enhanced — 10 damage instances.",
+              "flags": [
+                "key"
+              ],
+              "hits": [
+                "Seraphic Duet: Overture DMG",
+                "Fusion Burst Hit (10 stacks)"
+              ]
+            },
+            {
+              "icon": "Aemeath_B",
+              "action": "Basic Attack",
+              "char": "aemeath",
+              "note": "Rebuild to 100.",
+              "flags": [
+                "x3"
+              ],
+              "hits": [
+                "Basic Attack - Mech Stage 2 DMG",
+                "Basic Attack - Mech Stage 3 DMG",
+                "Basic Attack - Mech Stage 4 DMG"
+              ]
+            },
+            {
+              "icon": "Aemeath_R",
+              "action": "Enhanced Skill — Duet #2",
+              "char": "aemeath",
+              "note": "−100 Sync. <b>3/4.</b> Stardust-enhanced. Stardust now ends.",
+              "flags": [
+                "key"
+              ],
+              "hits": [
+                "Seraphic Duet: Encore DMG",
+                "Fusion Burst Hit (10 stacks)"
+              ]
+            },
+            {
+              "icon": "Aemeath_B",
+              "action": "Basic Attack",
+              "char": "aemeath",
+              "note": "Rebuild to 100.",
+              "flags": [
+                "x3"
+              ],
+              "hits": [
+                "Basic Attack - Mech Stage 2 DMG",
+                "Basic Attack - Mech Stage 3 DMG",
+                "Basic Attack - Mech Stage 4 DMG"
+              ]
+            },
+            {
+              "icon": "Aemeath_R",
+              "action": "Enhanced Skill — Duet #3",
+              "char": "aemeath",
+              "note": "−100 Sync. <b>4/4 → Instant Response.</b> Not enhanced — this press is for the star, not the damage.",
+              "flags": [
+                "key"
+              ],
+              "hits": [
+                "Seraphic Duet: Overture DMG"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Payoff",
+          "steps": [
+            {
+              "icon": "Aemeath_H",
+              "action": "Heavy Attack — HOLD",
+              "char": "aemeath",
+              "note": "Refills Synchronization to <b>200/200</b> in one press and hits for +200% amplified damage.",
+              "flags": [
+                "key"
+              ],
+              "hits": [
+                "Heavy Attack - Mech Charged II DMG"
+              ]
+            },
+            {
+              "icon": "Aemeath_L",
+              "action": "Liberation — FINALE",
+              "char": "aemeath",
+              "note": "All three gates met. Resonance Skill also works as the input.",
+              "flags": [
+                "key"
+              ],
+              "hits": [
+                "Heavenfall Edict: Finale DMG"
+              ]
+            },
+            {
+              "icon": "Aemeath_R",
+              "action": "Resonance Skill",
+              "char": "aemeath",
+              "note": "Form switch, sets up the next cycle.",
+              "hits": [
+                "Sync Strike: Armament Merge DMG"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Traversal",
+          "count": false,
+          "steps": [
+            {
+              "icon": "Sigillum_echo",
+              "action": "Starflux Thrust",
+              "char": "aemeath",
+              "note": "In Mech form the utility button is real flight. Needs 200 Starflux — a separate resource, unrelated to the rotation.",
+              "flags": [
+                "opt"
+              ]
+            }
+          ]
+        }
+      ],
+      "notes": [
+        {
+          "t": "The trick: cast a THIRD enhanced skill",
+          "b": "Overdrive without an Intro gives <b>+1</b> Resonance Rate instead of +2, so two enhanced skills only reach 3 of 4. The fix is a <b>third Seraphic Duet</b>. There is no cast limit — the \"2\" people remember is <b>Stardust Resonance</b>, the damage buff, which stops enhancing after two casts. Overdrive (1) + three Duets (3) = <b>4/4</b>."
+        },
+        {
+          "t": "Pre-load Synchronization before you engage",
+          "b": "Stand <b>out of combat ~4 seconds</b> without heavy-attacking and she enters <b>Instant Response - Brilliance</b>. A <b>Heavy Charged II</b> there grants <b>100 Synchronization</b>, even outside Unbound. The heavy drops the state, so wait ~4s and repeat: <b>you enter the fight at 200/200</b>. This is what your S1 node is actually for."
+        },
+        {
+          "t": "No Suisui means no stack-cap raise",
+          "b": "Fusion Burst runs at <b>10 stacks solo, not 13</b>, because the +3 comes from Suisui's Ceaseless Landscape. That alone is most of the gap between these two numbers."
+        },
+        {
+          "t": "The real solo constraint is energy, not stars",
+          "b": "Overdrive costs Resonance Energy and there is no Outro or off-field generation feeding you. Energy does carry between fights in the open world."
+        }
+      ]
+    },
+    {
+      "id": "augusta-team",
+      "sort": 3,
+      "name": "Augusta — Full Team",
+      "sub": "Heavy Attack carry. Half her damage sits in the second Ultimate, so the whole loop exists to reach it.",
+      "order": "Party order: Augusta (1) · Baizhi (2) · Mortefi (3) — forced, not preference",
+      "team": [
+        "augusta",
+        "baizhi",
+        "mortefi"
+      ],
+      "enemy": {
+        "level": 100,
+        "res": 20
+      },
+      "buffs": [
+        "augusta.sonata.void-thunder-2pc",
+        "mortefi.weapon.static-mist",
+        "mortefi.sonata.moonlit-clouds-5pc",
+        "mortefi.echo.impermanence-heron"
+      ],
+      "timeline": [
+        {
+          "name": "38% Heavy Attack Deepen",
+          "dur": "14s",
+          "src": "Mortefi Outro"
+        },
+        {
+          "name": "Burning Rhapsody",
+          "dur": "—",
+          "src": "Mortefi Liberation"
+        },
+        {
+          "name": "Sworn Allegiance (time stop)",
+          "dur": "7s",
+          "src": "Augusta 2nd Ultimate"
+        }
+      ],
+      "groups": [
+        {
+          "title": "Pre-fight",
+          "sub": "Mandatory. Watch for the Majesty pip.",
+          "steps": [
+            {
+              "icon": "Augusta_Switch",
+              "action": "Stand still, out of combat",
+              "char": "augusta",
+              "note": "~5 seconds. <b>Blazing Valor</b> fires: +1 Majesty, Crown of Wills refilled. Confirm the pip appears before engaging.",
+              "flags": [
+                "key"
+              ]
+            },
+            {
+              "icon": "Augusta_E",
+              "action": "Echo, swap-cancelled",
+              "char": "augusta",
+              "note": "Only if the enemy is already in range — pre-banks resources and burns Echo charge 1.",
+              "flags": [
+                "opt"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Baizhi",
+          "sub": "Heal, drop the field, fill Concerto.",
+          "steps": [
+            {
+              "icon": "Baizhi_B",
+              "action": "Basic Attack",
+              "char": "baizhi",
+              "note": "Build 4 Concentration.",
+              "flags": [
+                "x3"
+              ],
+              "hits": [
+                "Part 1 DMG",
+                "Part 2 DMG",
+                "Part 3 DMG"
+              ]
+            },
+            {
+              "icon": "Baizhi_R",
+              "action": "Resonance Skill",
+              "char": "baizhi",
+              "note": "Team heal, and drops the <b>Euphonia</b> field.",
+              "hits": [
+                "Emergency Plan"
+              ]
+            },
+            {
+              "icon": "Baizhi_B",
+              "action": "Basic Attack",
+              "char": "baizhi",
+              "note": "Fill Concerto. Jump-attacks work too.",
+              "flags": [
+                "x3"
+              ],
+              "hits": [
+                "Part 1 DMG",
+                "Part 2 DMG",
+                "Part 3 DMG"
+              ]
+            },
+            {
+              "icon": "Baizhi_L",
+              "action": "Liberation",
+              "char": "baizhi",
+              "note": "Off-field healing entities.",
+              "hits": [
+                "Remnant Entities DMG"
+              ]
+            },
+            {
+              "icon": "Baizhi_E",
+              "action": "Echo",
+              "char": "baizhi",
+              "note": "Concerto plus damage.",
+              "flags": [
+                "opt"
+              ]
+            },
+            {
+              "icon": "Baizhi_Switch",
+              "action": "Outro → Mortefi",
+              "char": "baizhi",
+              "note": "<b>She must Outro, not be swapped.</b> This hand-off is what pays Augusta her Majesty.",
+              "flags": [
+                "key"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Mortefi",
+          "sub": "Get the Liberation up before Augusta lands.",
+          "steps": [
+            {
+              "icon": "Mortefi_R",
+              "action": "Resonance Skill → Forte",
+              "char": "mortefi",
+              "note": "<i>Fury Fugue</i>. Fastest Concerto generation.",
+              "hits": [
+                "Passionate Variation",
+                "Fury Fugue DMG"
+              ]
+            },
+            {
+              "icon": "Mortefi_B",
+              "action": "Basic Attack",
+              "char": "mortefi",
+              "note": "Dodge-cancel where you can. Get just past 3/4 Concerto.",
+              "flags": [
+                "x3"
+              ],
+              "hits": [
+                "Basic Attack Part 1 DMG",
+                "Basic Attack Part 2 DMG",
+                "Basic Attack Part 3 DMG"
+              ]
+            },
+            {
+              "icon": "Mortefi_L",
+              "action": "Liberation",
+              "char": "mortefi",
+              "note": "<i>Burning Rhapsody</i>. Heavy Attacks now trigger two coordinated strikes each — must be up <b>before</b> Augusta arrives.",
+              "flags": [
+                "key"
+              ],
+              "hits": [
+                "Violent Finale DMG"
+              ]
+            },
+            {
+              "icon": "Impermanence_Heron_echo",
+              "action": "Echo",
+              "char": "mortefi",
+              "flags": [
+                "opt"
+              ]
+            },
+            {
+              "icon": "Mortefi_Switch",
+              "action": "Outro → Augusta",
+              "char": "mortefi",
+              "note": "<b>38% Heavy Attack Deepen for 14s.</b> Augusta's entire window has to fit inside this.",
+              "flags": [
+                "key"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Augusta — open",
+          "sub": "Intro fires automatically on swap-in.",
+          "steps": [
+            {
+              "icon": "Augusta_Switch",
+              "action": "Intro Skill",
+              "char": "augusta",
+              "note": "Prowess refills, +20% Ascendancy. <b>The False Sovereign auto-summons for 405% Electro — free, no button press.</b>",
+              "flags": [
+                "key"
+              ],
+              "hits": [
+                "Stride of Goldenflare"
+              ]
+            },
+            {
+              "icon": "Augusta_H",
+              "action": "Heavy — HOLD, release on the backstep",
+              "char": "augusta",
+              "note": "<b>Thunderoar: Backstep → Spinslash.</b> One hold-release, not two presses.",
+              "flags": [
+                "key"
+              ],
+              "hits": [
+                "Heavy Attack - Thunderoar: Backstep DMG",
+                "Heavy Attack - Thunderoar: Spinslash DMG"
+              ]
+            },
+            {
+              "icon": "Augusta_R",
+              "action": "Resonance Skill",
+              "char": "augusta",
+              "note": "<i>Warrior's Blade</i>. Cancels the Spinslash endlag and refills Prowess.",
+              "hits": [
+                "Warrior's Blade"
+              ]
+            },
+            {
+              "icon": "Augusta_B",
+              "action": "Basic Attack",
+              "char": "augusta",
+              "note": "<b>One tap.</b> Anti-uppercut — do not hold straight after the Skill.",
+              "flags": [
+                "key"
+              ],
+              "hits": [
+                "Stage 1 DMG"
+              ]
+            },
+            {
+              "icon": "Augusta_H",
+              "action": "Heavy — HOLD, release",
+              "char": "augusta",
+              "note": "Second Backstep → Spinslash.",
+              "hits": [
+                "Heavy Attack - Thunderoar: Backstep DMG",
+                "Heavy Attack - Thunderoar: Spinslash DMG"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Augusta — first Ultimate",
+          "sub": "Tap, not hold.",
+          "steps": [
+            {
+              "icon": "Augusta_L",
+              "action": "Liberation — TAP",
+              "char": "augusta",
+              "note": "<i>Sword of Eternal Oath</i>. Counts as Heavy Attack damage. Its real job is <b>+40% Ascendancy</b>.",
+              "flags": [
+                "key"
+              ],
+              "hits": [
+                "Resonance Liberation - Sword of Eternal Oath DMG"
+              ]
+            },
+            {
+              "icon": "Augusta_R",
+              "action": "Resonance Skill",
+              "char": "augusta",
+              "note": "<i>Undying Sunlight: Strike</i>",
+              "hits": [
+                "Resonance Skill - Undying Sunlight: Strike DMG"
+              ]
+            },
+            {
+              "icon": "Augusta_R",
+              "action": "Skill or Basic",
+              "char": "augusta",
+              "note": "<i>Undying Sunlight: Leap</i> — she goes airborne.",
+              "hits": [
+                "Resonance Skill - Undying Sunlight: Leap DMG"
+              ]
+            },
+            {
+              "icon": "Augusta_R",
+              "action": "Skill or Basic",
+              "char": "augusta",
+              "note": "<i>Undying Sunlight: Plunge</i> — Griffin slam. Consumes all Ascendancy, <b>+1 Majesty → 2/2</b>. One interruption here was measured at ~200k lost.",
+              "flags": [
+                "key"
+              ],
+              "hits": [
+                "Resonance Skill - Undying Sunlight: Plunge DMG"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Augusta — second Ultimate",
+          "sub": "The payoff. Half her damage.",
+          "steps": [
+            {
+              "icon": "Augusta_L",
+              "action": "Liberation — HOLD",
+              "char": "augusta",
+              "note": "<i>Sublime is the Sun</i>. Costs 0 energy and 2 Majesty. Time stops, 7s. <b>Hold only after you land.</b>",
+              "flags": [
+                "key"
+              ]
+            },
+            {
+              "icon": "Augusta_B",
+              "action": "Basic Attack",
+              "char": "augusta",
+              "note": "<i>Sunborne</i> ×9. Spam it.",
+              "flags": [
+                "x9"
+              ],
+              "hits": [
+                {
+                  "ability": "Sublime is the Sun - Sunborne DMG",
+                  "times": 9
+                }
+              ]
+            },
+            {
+              "icon": "Augusta_B",
+              "action": "Basic — finisher",
+              "char": "augusta",
+              "note": "<i>Everbright Protector</i>. Heavy Attack damage, consumes all Crown of Wills. Auto-fires when the 7s expires.",
+              "flags": [
+                "key"
+              ],
+              "hits": [
+                "Sublime is the Sun - Everbright Protector DMG"
+              ]
+            },
+            {
+              "icon": "Augusta_H",
+              "action": "Heavy — HOLD, release",
+              "char": "augusta",
+              "note": "Optional filler if Concerto isn't full yet.",
+              "flags": [
+                "opt"
+              ],
+              "hits": [
+                "Heavy Attack - Thunderoar: Backstep DMG",
+                "Heavy Attack - Thunderoar: Spinslash DMG"
+              ]
+            },
+            {
+              "icon": "Augusta_E",
+              "action": "Echo, then immediately Outro",
+              "char": "augusta",
+              "note": "The False Sovereign manual cast, swap-cancelled into the Outro."
+            },
+            {
+              "icon": "Augusta_Switch",
+              "action": "Outro → Baizhi",
+              "char": "augusta",
+              "note": "<i>Battlesong of the Unyielding</i>. Then loop from Baizhi."
+            }
+          ]
+        }
+      ],
+      "notes": [
+        {
+          "t": "The pre-fight wait is mandatory",
+          "b": "Her passive <b>Blazing Valor</b> only fires after she has been <b>out of combat for more than 4 seconds</b>, and it is what gives her the first Majesty stack. Stand still ~5s and <b>watch for the Majesty pip</b>. It does not re-trigger mid-fight."
+        },
+        {
+          "t": "Why the party order is fixed",
+          "b": "Mortefi's Outro (<b>38% Heavy Attack Deepen, 14s</b>) has to land on Augusta, so he is always the last hop. Augusta's Outro has to land on someone who Outros onward within 14s — that hand-off pays her a Majesty stack. So Baizhi sits in the middle."
+        },
+        {
+          "t": "Two Ultimates on one button — TAP vs HOLD",
+          "b": "<b>Tap</b> for <b>Sword of Eternal Oath</b> (stage 1, costs energy, counts as Heavy Attack damage, +40% Ascendancy). <b>Hold</b> for <b>Sublime is the Sun</b> (stage 2, <b>zero energy</b>, 2 Majesty, stops time 7s). Tapping when you meant to hold wastes the cycle."
+        },
+        {
+          "t": "Buffs freeze during the time stop",
+          "b": "Mortefi's 38% and Augusta's own buffs do not tick down during the 7s of Sworn Allegiance. That is why her backloaded finisher still lands fully buffed."
+        },
+        {
+          "t": "⚠️ These numbers are not trustworthy yet",
+          "b": "Baizhi has never been captured — no weapon, no echoes, no stats. Mortefi is Lv50 with every echo at +0 and all skills at Lv1. Augusta reconciles against her panel, but her supports do not, so treat the total as a floor rather than a reading."
+        }
       ]
     }
   ]
