@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build 2026-08-13-3 -->
+<!-- build 2026-08-13-4 -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -131,7 +131,7 @@ button.gh:hover{color:var(--txt);border-color:#3a465c}
 <div class="wrap">
   <h1>WuWa Rotations</h1>
   <div class="sub">Hover any step for its notes and damage split, click to pin the box. Press <b>Simulate DPS</b> to put damage on every icon.
-    <span style="float:right">build 2026-08-13-3</span></div>
+    <span style="float:right">build 2026-08-13-4</span></div>
   <div id="boot"></div>
   <div id="app" hidden>
     <div class="tabs" id="tabs"></div>
@@ -341,7 +341,9 @@ function render() {
   $('#notes').innerHTML = (rot.notes || []).map(nt =>
     `<div class="note"><h3>${esc(nt.t)}</h3><div>${nt.b}</div></div>`).join('');
 
-  $('#foot').innerHTML = `Enemy level ${rot.enemy?.level ?? 100} at ${rot.enemy?.res ?? 20}% resistance &middot;
+  $('#foot').innerHTML = `Data source: <b>${esc(eng.source || 'repo files')}</b>${
+      eng.sourceUpdatedAt ? ` (updated ${esc(String(eng.sourceUpdatedAt).slice(0, 16).replace('T', ' '))})` : ''
+    } &middot; Enemy level ${rot.enemy?.level ?? 100} at ${rot.enemy?.res ?? 20}% resistance &middot;
     ${rot.groups.reduce((a, g) => a + g.steps.length, 0)} steps &middot;
     builds from <code>data/characters.json</code>, rotation from <code>data/rotations.json</code>`;
 

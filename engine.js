@@ -97,13 +97,49 @@ export class Engine {
     this.warnings = [];
   }
 
+  /**
+   * Fetch the two editable documents from Supabase, or null if that is not usable.
+   * Never throws: a Supabase problem must degrade to the committed files, never to a
+   * broken page. Returns { characters, rotations, source }.
+   */
+  static async fromSupabase(cfg) {
+    if (!cfg || cfg.enabled === false || !cfg.url || !cfg.key) return null;
+    try {
+      const url = `${cfg.url}/rest/v1/${cfg.table || 'docs'}?select=key,doc,updated_at`;
+      const headers = { apikey: cfg.key, Authorization: `Bearer ${cfg.key}` };
+      if (cfg.schema && cfg.schema !== 'public') headers['Accept-Profile'] = cfg.schema;
+      const r = await fetch(url, { headers, cache: 'no-store' });
+      if (!r.ok) return null;
+      const rows = await r.json();
+      if (!Array.isArray(rows)) return null;
+      const byKey = Object.fromEntries(rows.map(x => [x.key, x]));
+      if (!byKey.characters?.doc || !byKey.rotations?.doc) return null;
+      return {
+        characters: byKey.characters.doc,
+        rotations: byKey.rotations.doc,
+        updatedAt: byKey.characters.updated_at,
+      };
+    } catch { return null; }
+  }
+
   static async load(refDir = './ref', dataDir = './data') {
     const get = async (p) => {
       const r = await fetch(p, { cache: 'no-store' });
       if (!r.ok) throw new Error(`could not load ${p} (HTTP ${r.status})`);
       return r.json();
     };
-    const characters = await get(`${dataDir}/characters.json`);
+
+    let source = 'repo files';
+    let characters = null, rotations = null, updatedAt = null;
+    let cfg = null;
+    try { cfg = (await get(`${dataDir}/source.json`)).supabase; } catch { cfg = null; }
+    const remote = await Engine.fromSupabase(cfg);
+    if (remote) {
+      characters = remote.characters; rotations = remote.rotations;
+      updatedAt = remote.updatedAt; source = 'Supabase';
+    }
+
+    if (!characters) characters = await get(`${dataDir}/characters.json`);
     const ids = Object.keys(characters.characters);
     const projections = {};
     await Promise.all(ids.map(async id => { projections[id] = await get(`${refDir}/proj-${id}.json`); }));
@@ -113,8 +149,11 @@ export class Engine {
       sonata: await get(`${refDir}/sonata-sets.json`),
       statusLevels: await get(`${refDir}/status-level-table.json`),
     };
-    const rotations = await get(`${dataDir}/rotations.json`);
-    return new Engine(ref, characters, rotations);
+    if (!rotations) rotations = await get(`${dataDir}/rotations.json`);
+    const eng = new Engine(ref, characters, rotations);
+    eng.source = source;
+    eng.sourceUpdatedAt = updatedAt;
+    return eng;
   }
 
   projection(id) {
@@ -561,8 +600,10 @@ export class Engine {
       }
 
       let noncrit = 0, average = 0, crit = 0, ok = true;
+      const breakdown = [];   // one row per ability instance, so the UI can show the split
       if (step.raw != null) {
         noncrit = average = crit = Number(step.raw);
+        breakdown.push({ label: 'fixed amount', noncrit, average, crit, fixed: true });
       } else if (hits.length) {
         const cid = step.char;
         if (!states[cid]) {
@@ -578,11 +619,15 @@ export class Engine {
             const d = this.abilityDamage(states[cid], entry, enemy);
             if (!d) { this.warnings.push(`could not evaluate "${label}"`); ok = false; continue; }
             noncrit += d.noncrit; average += d.average; crit += d.crit;
+            const prev = breakdown.find(b => b.label === label);
+            if (prev) { prev.times++; prev.noncrit += d.noncrit; prev.average += d.average; prev.crit += d.crit; }
+            else breakdown.push({ label, times: 1, noncrit: d.noncrit, average: d.average, crit: d.crit,
+                                  fixed: NEGATIVE_STATUS.includes(entry.scaling) || entry.scaling === 'tuneBreakSystem' });
           }
         }
       }
       if (step._counts && ok) total += average;
-      steps.push({ ...step, hits, noncrit, average, crit, counts: step._counts,
+      steps.push({ ...step, hits, breakdown, noncrit, average, crit, counts: step._counts,
                    each: average, total: average, note: step.note || '' });
     }
 

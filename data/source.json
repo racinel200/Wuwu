@@ -1,0 +1,25 @@
+{
+  "_note": [
+    "Where the calculator reads its two data documents from.",
+    "",
+    "The page tries Supabase first, then falls back to data/characters.json and",
+    "data/rotations.json in this repo. If Supabase is unreachable, misconfigured or",
+    "empty, the page still works — it just uses the committed files.",
+    "",
+    "Set enabled:false to ignore Supabase entirely and always read the local files.",
+    "",
+    "The key below is the PUBLISHABLE (anon) key. It is meant to be public. It grants",
+    "SELECT on wuwa.docs and nothing else — every other table in the project is",
+    "protected by its own row-level security.",
+    "",
+    "Writes never happen from the page. Claude updates wuwa.docs through the Supabase",
+    "MCP, or you run tools/sync-supabase.mjs to push the local files up."
+  ],
+  "supabase": {
+    "enabled": true,
+    "url": "https://wopiuwndpuxzywtchbtt.supabase.co",
+    "key": "sb_publishable_RpO9TVBWHAB6lAwi264W2A_T-ofVxuA",
+    "schema": "wuwa",
+    "table": "docs"
+  }
+}
