@@ -207,6 +207,59 @@ console.log('\nPANEL MODE vs RECONSTRUCTION — same rotation, two independent s
   }
 }
 
+console.log('\nBUFF WIRING — the class of bug the damage loop cannot see');
+{
+  const byId = new Map();
+  for (const [cid, ch] of Object.entries(chars.characters))
+    for (const b of (ch.buffs || [])) {
+      if (byId.has(b.id)) fail(`duplicate buff id "${b.id}" on ${byId.get(b.id)} and ${cid}`);
+      byId.set(b.id, cid);
+    }
+  for (const rot of live.rotations.rotations) {
+    const listed = rot.buffs || [];
+    // 1. the same buff listed twice silently DOUBLE-APPLIES — measured at up to +18% on one buff
+    const seen = new Set();
+    for (const bid of listed) {
+      if (seen.has(bid)) fail(`rotation "${rot.id}" lists "${bid}" twice — buffs stack, this silently inflates the total`);
+      seen.add(bid);
+    }
+    // 2. a target:"team" buff from someone NOT on the team still applies — phantom support
+    for (const bid of listed) {
+      const owner = byId.get(bid);
+      if (owner && !rot.team.includes(owner))
+        fail(`rotation "${rot.id}" lists "${bid}", owned by ${owner}, who is not on the team`);
+    }
+    // 3. a team member's default buff missing from the list is silently absent.
+    //    panel:true buffs are excluded — they are baked into the stats block by design.
+    for (const cid of rot.team)
+      for (const b of (chars.characters[cid].buffs || []))
+        if (b.default === true && !b.panel && !seen.has(b.id))
+          console.log(`  NOTE  ${rot.id}: ${cid}'s default buff "${b.id}" is not listed (deliberate only if a variant of it is)`);
+    console.log(`  ${rot.id.padEnd(20)} ${listed.length} buffs, no duplicates, all owners on the team`);
+  }
+  // 4. a talent above 10 silently clamps to 10 — a typo reads as a 17% damage gain
+  for (const [cid, ch] of Object.entries(chars.characters))
+    for (const [k, v] of Object.entries(ch.talents || {}))
+      if (!(v >= 1 && v <= 10)) fail(`${cid} talent ${k}=${v} is outside 1-10; the engine clamps silently`);
+  // 5. echo cost budget
+  for (const [cid, ch] of Object.entries(chars.characters)) {
+    const cost = (ch.echoes || []).reduce((a, e) => a + (e.cost || 0), 0);
+    if (cost > 12) fail(`${cid} echo cost is ${cost}/12`);
+  }
+  // 6. a sonata the echoes wear but no buff implements — how Crown of Valor 3pc went missing
+  for (const [cid, ch] of Object.entries(chars.characters)) {
+    const counts = {};
+    for (const e of (ch.echoes || [])) counts[e.set] = (counts[e.set] || 0) + 1;
+    const text = JSON.stringify(ch.buffs || []);
+    for (const [set, n] of Object.entries(counts)) {
+      if (!set || n < 2) continue;
+      const token = set.replace(/^(song-of-|the-)/, '').split('-')[0];
+      if (!text.includes(token))
+        console.log(`  NOTE  ${cid} wears ${n}x ${set} but no buff mentions it — is the set bonus modelled?`);
+    }
+  }
+}
+
 console.log('\nROTATIONS');
 for (const r of live.rotations.rotations) {
   const res = live.runRotation(r.id);

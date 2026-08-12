@@ -898,6 +898,16 @@
           "value": 15,
           "default": false,
           "notes": "OFF: Verina is S3."
+        },
+        {
+          "id": "verina.sonata.rejuvenating-glow-5pc",
+          "name": "Rejuvenating Glow 5pc — team ATK +15% (30s)",
+          "target": "team",
+          "kind": "stat",
+          "stat": "atkPct",
+          "value": 15,
+          "default": true,
+          "_note": "Verbatim: \"Upon healing allies, increase ATK of the entire team by 15% for 30s.\" She heals on her Outro every loop. MISSING until 2026-08-12. Distinct from her Inherent Gift of Nature (+20% team ATK, 20s) which was already modelled."
         }
       ]
     },
@@ -1112,6 +1122,27 @@
           "value": 10,
           "panel": true,
           "default": true
+        },
+        {
+          "id": "augusta.sonata.crown-of-valor-atk",
+          "name": "Crown of Valor 3pc — ATK +30% (5 stacks)",
+          "target": "self",
+          "owner": "augusta",
+          "kind": "stat",
+          "stat": "atkPct",
+          "value": 30,
+          "default": true,
+          "_note": "Verbatim: \"Upon gaining a Shield, increase the Resonator ATK by 6% and Crit. DMG by 4% for 4s, once every 0.5s, stacking up to 5 times.\" She shields herself constantly through Majesty, so 5 stacks is the working assumption; the 4s refresh window is the risk. MISSING from the engine until 2026-08-12 — worth 21.4% of augusta-team on its own."
+        },
+        {
+          "id": "augusta.sonata.crown-of-valor-cd",
+          "name": "Crown of Valor 3pc — Crit DMG +20% (5 stacks)",
+          "target": "self",
+          "owner": "augusta",
+          "kind": "stat",
+          "stat": "critDmg",
+          "value": 20,
+          "default": true
         }
       ],
       "_echoCostNote": "12/12 as of 2026-08-12 (4/3/3/1/1)."
@@ -1285,6 +1316,666 @@
       "weapon": null,
       "echoes": [],
       "buffs": []
+    },
+    "denia": {
+      "name": "Denia",
+      "level": 70,
+      "sequence": 0,
+      "baseScale": 1,
+      "accountAccurate": false,
+      "_hypothetical": "NOT OWNED. Modelled 2026-08-12 for the post-3.6 team study. Lv70 post-ascension, S0, signature R1, 5pc sonata, all echoes +25 with account-average substats.",
+      "talents": {
+        "basic": 6,
+        "skill": 6,
+        "liberation": 6,
+        "forte": 6,
+        "intro": 6
+      },
+      "forteNodes": false,
+      "weapon": {
+        "id": "forged-dwarf-star",
+        "rank": 1,
+        "level": 70,
+        "atkOverride": 382.8,
+        "subOverride": {
+          "stat": "critRate",
+          "value": 29.6
+        },
+        "_note": "Lv90 is 500 ATK / 36% Crit Rate. Lv70 solved with the account curves (ATK x0.766, substat x0.823), which reproduce all three owned signatures to within 1%."
+      },
+      "echoes": [
+        {
+          "cost": 4,
+          "name": "(Cost-4 main)",
+          "set": "flaming-clawprint",
+          "main": "critDmg",
+          "subs": [
+            [
+              "critRate",
+              7.7
+            ],
+            [
+              "critDmg",
+              13.8
+            ],
+            [
+              "atkPct",
+              8.5
+            ],
+            [
+              "libDmg",
+              8.8
+            ],
+            [
+              "flatAtk",
+              46
+            ]
+          ]
+        },
+        {
+          "cost": 3,
+          "name": "(Cost-3)",
+          "set": "flaming-clawprint",
+          "main": "elemDmg:fusion",
+          "subs": [
+            [
+              "critRate",
+              7.7
+            ],
+            [
+              "critDmg",
+              13.8
+            ],
+            [
+              "atkPct",
+              8.5
+            ],
+            [
+              "energyRegen",
+              10.1
+            ],
+            [
+              "libDmg",
+              8.8
+            ]
+          ]
+        },
+        {
+          "cost": 3,
+          "name": "(Cost-3)",
+          "set": "flaming-clawprint",
+          "main": "elemDmg:fusion",
+          "subs": [
+            [
+              "critRate",
+              7.7
+            ],
+            [
+              "critDmg",
+              13.8
+            ],
+            [
+              "atkPct",
+              8.5
+            ],
+            [
+              "energyRegen",
+              10.1
+            ],
+            [
+              "skillDmg",
+              8.8
+            ]
+          ]
+        },
+        {
+          "cost": 1,
+          "name": "(Cost-1)",
+          "set": "flaming-clawprint",
+          "main": "atkPct",
+          "subs": [
+            [
+              "critRate",
+              7.7
+            ],
+            [
+              "critDmg",
+              13.8
+            ],
+            [
+              "atkPct",
+              8.5
+            ],
+            [
+              "libDmg",
+              8.8
+            ],
+            [
+              "flatAtk",
+              46
+            ]
+          ]
+        },
+        {
+          "cost": 1,
+          "name": "(Cost-1)",
+          "set": "flaming-clawprint",
+          "main": "atkPct",
+          "subs": [
+            [
+              "critRate",
+              7.7
+            ],
+            [
+              "critDmg",
+              13.8
+            ],
+            [
+              "atkPct",
+              8.5
+            ],
+            [
+              "skillDmg",
+              8.8
+            ],
+            [
+              "flatAtk",
+              46
+            ]
+          ]
+        }
+      ],
+      "buffs": [
+        {
+          "id": "denia.inherent.etched-colors",
+          "name": "Inherent: Etched Colors — team Fusion DMG +30% (Fusion Burst mode)",
+          "target": "team",
+          "kind": "stat",
+          "stat": "elemDmg:fusion",
+          "value": 30,
+          "default": true,
+          "_note": "Verbatim (Kuro guide API, roleGbId 1211): \"While in the Entropy Shift states... Resonance Mode - Fusion Burst: All Resonators in the team gain 30% Fusion DMG Bonus.\" Requires Denia herself to be in Fusion Burst mode, which is also the mode Aemeath runs."
+        },
+        {
+          "id": "denia.outro.unfinished-lies",
+          "name": "Outro: Unfinished Lies — Fusion Burst DMG Amplified 60% (30s)",
+          "target": "team",
+          "kind": "status",
+          "value": 60,
+          "default": true,
+          "_note": "Verbatim: \"When in Resonance Mode - Fusion Burst, Fusion Burst DMG against targets near the active Resonator in the team is Amplified by 60% for 30s.\" Scoped to the Fusion Burst status only — it does NOT touch her ordinary Fusion damage. MODEL NOTE: this has to be kind:status / status:fusionBurst / bucket:amplify. A plain kind:amplify with attackType:fusionBurst lands in the ordinary-ability amplify map, which the negative-status path never reads — it would silently do nothing.",
+          "status": "fusionBurst",
+          "bucket": "amplify"
+        },
+        {
+          "id": "denia.sonata.flaming-clawprint-5pc",
+          "name": "Flaming Clawprint 5pc — team Fusion DMG +15% (35s)",
+          "target": "team",
+          "kind": "stat",
+          "stat": "elemDmg:fusion",
+          "value": 15,
+          "default": true,
+          "_note": "Verbatim from sonata data: \"Casting Resonance Liberation grants all Resonators in the team 15% Fusion DMG Bonus and the caster 20% Resonance Liberation DMG Bonus, lasting for 35s.\" 35s comfortably covers a 25s loop, which is why this set is chosen over Trailblazing Star for her."
+        },
+        {
+          "id": "denia.sonata.flaming-clawprint-self",
+          "name": "Flaming Clawprint 5pc — caster Liberation DMG +20% (35s)",
+          "target": "self",
+          "owner": "denia",
+          "kind": "stat",
+          "stat": "libDmg",
+          "value": 20,
+          "default": true
+        },
+        {
+          "id": "denia.weapon.forged-dwarf-star-atk",
+          "name": "Forged Dwarf Star R1 — ATK +12%",
+          "target": "self",
+          "owner": "denia",
+          "kind": "stat",
+          "stat": "atkPct",
+          "value": 12,
+          "panel": true,
+          "default": true
+        }
+      ]
+    },
+    "hiyuki": {
+      "name": "Hiyuki",
+      "level": 70,
+      "sequence": 0,
+      "baseScale": 1,
+      "accountAccurate": false,
+      "_hypothetical": "NOT OWNED. Modelled 2026-08-12. Glacio sword carry. Lv70 post-ascension, S0, Frostburn R1, Freezing Frost 5pc, echoes +25 at account-average substats.",
+      "talents": {
+        "basic": 6,
+        "skill": 6,
+        "liberation": 6,
+        "forte": 6,
+        "intro": 6
+      },
+      "forteNodes": false,
+      "weapon": {
+        "id": "frostburn",
+        "rank": 1,
+        "level": 70,
+        "atkOverride": 450.2,
+        "subOverride": {
+          "stat": "critRate",
+          "value": 20
+        },
+        "_note": "Lv90 588 ATK / 24.3% Crit Rate — identical statline to Everbright Polestar, so the Lv70 solve is the same 449/20."
+      },
+      "echoes": [
+        {
+          "cost": 4,
+          "name": "(Cost-4 main)",
+          "set": "freezing-frost",
+          "main": "critDmg",
+          "subs": [
+            [
+              "critRate",
+              7.7
+            ],
+            [
+              "critDmg",
+              13.8
+            ],
+            [
+              "atkPct",
+              8.5
+            ],
+            [
+              "basicDmg",
+              8.8
+            ],
+            [
+              "flatAtk",
+              46
+            ]
+          ]
+        },
+        {
+          "cost": 3,
+          "name": "(Cost-3)",
+          "set": "freezing-frost",
+          "main": "elemDmg:glacio",
+          "subs": [
+            [
+              "critRate",
+              7.7
+            ],
+            [
+              "critDmg",
+              13.8
+            ],
+            [
+              "atkPct",
+              8.5
+            ],
+            [
+              "energyRegen",
+              10.1
+            ],
+            [
+              "heavyDmg",
+              8.8
+            ]
+          ]
+        },
+        {
+          "cost": 3,
+          "name": "(Cost-3)",
+          "set": "freezing-frost",
+          "main": "elemDmg:glacio",
+          "subs": [
+            [
+              "critRate",
+              7.7
+            ],
+            [
+              "critDmg",
+              13.8
+            ],
+            [
+              "atkPct",
+              8.5
+            ],
+            [
+              "energyRegen",
+              10.1
+            ],
+            [
+              "skillDmg",
+              8.8
+            ]
+          ]
+        },
+        {
+          "cost": 1,
+          "name": "(Cost-1)",
+          "set": "freezing-frost",
+          "main": "atkPct",
+          "subs": [
+            [
+              "critRate",
+              7.7
+            ],
+            [
+              "critDmg",
+              13.8
+            ],
+            [
+              "atkPct",
+              8.5
+            ],
+            [
+              "basicDmg",
+              8.8
+            ],
+            [
+              "flatAtk",
+              46
+            ]
+          ]
+        },
+        {
+          "cost": 1,
+          "name": "(Cost-1)",
+          "set": "freezing-frost",
+          "main": "atkPct",
+          "subs": [
+            [
+              "critRate",
+              7.7
+            ],
+            [
+              "critDmg",
+              13.8
+            ],
+            [
+              "atkPct",
+              8.5
+            ],
+            [
+              "heavyDmg",
+              8.8
+            ],
+            [
+              "flatAtk",
+              46
+            ]
+          ]
+        }
+      ],
+      "buffs": [
+        {
+          "id": "hiyuki.sonata.freezing-frost-2pc",
+          "name": "Freezing Frost 2pc — Glacio DMG +10%",
+          "target": "self",
+          "owner": "hiyuki",
+          "kind": "stat",
+          "stat": "elemDmg:glacio",
+          "value": 10,
+          "panel": true,
+          "default": true
+        },
+        {
+          "id": "hiyuki.sonata.freezing-frost-5pc",
+          "name": "Freezing Frost 5pc — Glacio DMG +30% (3 stacks)",
+          "target": "self",
+          "owner": "hiyuki",
+          "kind": "stat",
+          "stat": "elemDmg:glacio",
+          "value": 30,
+          "default": true,
+          "_note": "\"Upon using Basic Attack or Heavy Attack, Glacio DMG increases by 10%, stacking up to three times, lasting 15s.\" Her combo opens with Heavy then Basic x5, so 3 stacks are reached early and held."
+        },
+        {
+          "id": "hiyuki.inherent.snow-rust-critdmg",
+          "name": "Inherent: Fine Snow — Crit DMG +40% (1 Snow Rust stack)",
+          "target": "self",
+          "owner": "hiyuki",
+          "kind": "stat",
+          "stat": "critDmg",
+          "value": 40,
+          "default": true,
+          "_note": "Verbatim: \"When a Resonator in the team applies Glacio Chafe or Havoc Bane, Hiyuki gains 1 stack of Snow Rust... 1 stack: Glacio Bite DMG is Amplified by 30%... Hiyuki's Crit. DMG is increased by 40%.\" She self-applies Glacio Chafe, so 1 stack is free. Stacks 2 and 3 need OTHER Glacio Chafe / Havoc Bane appliers in the team — each Resonator triggers it only once."
+        },
+        {
+          "id": "hiyuki.inherent.snow-rust-bite-amp",
+          "name": "Inherent: Fine Snow — Glacio Bite DMG Amplified 30%",
+          "target": "self",
+          "owner": "hiyuki",
+          "kind": "status",
+          "value": 30,
+          "default": true,
+          "status": "glacioBite",
+          "bucket": "amplify"
+        },
+        {
+          "id": "hiyuki.weapon.frostburn-atk",
+          "name": "Frostburn R1 — ATK +12%",
+          "target": "self",
+          "owner": "hiyuki",
+          "kind": "stat",
+          "stat": "atkPct",
+          "value": 12,
+          "panel": true,
+          "default": true
+        },
+        {
+          "id": "hiyuki.outro.snowlight-blessing",
+          "name": "Outro: Snowlight Blessing — allies' Glacio DMG Amplified 20% vs Glacio Chafe (20s)",
+          "target": "team",
+          "kind": "amplify",
+          "attackType": "all",
+          "value": 20,
+          "default": false,
+          "_note": "OFF by default. Only helps OTHER Glacio characters (\"Resonators other than Hiyuki\"), and only against targets already carrying Glacio Chafe. Useless next to a Fusion carry. Switch on only for a Glacio-on-Glacio team."
+        }
+      ]
+    },
+    "mornye": {
+      "name": "Mornye",
+      "level": 70,
+      "sequence": 0,
+      "baseScale": 1,
+      "accountAccurate": false,
+      "_hypothetical": "NOT OWNED. Modelled 2026-08-12. Fusion broadblade support/healer. Kuro tracks exactly one stat for her: Energy Regen, target 250%.",
+      "talents": {
+        "basic": 6,
+        "skill": 6,
+        "liberation": 6,
+        "forte": 6,
+        "intro": 6
+      },
+      "forteNodes": false,
+      "weapon": {
+        "id": "starfield-calibrator",
+        "rank": 1,
+        "level": 70,
+        "atkOverride": 316.2,
+        "subOverride": {
+          "stat": "energyRegen",
+          "value": 63.4
+        },
+        "_note": "Lv90 413 ATK / 77% ER. Near-identical statline to Suisui's Firstlight's Herald (412.5 / 77.04), whose solved Lv70 is 315 / 63.7 — so this solve is corroborated by an owned weapon."
+      },
+      "echoes": [
+        {
+          "cost": 4,
+          "name": "(Cost-4 main)",
+          "set": "moonlit-clouds",
+          "main": "critRate",
+          "subs": [
+            [
+              "energyRegen",
+              10.1
+            ],
+            [
+              "critRate",
+              7.7
+            ],
+            [
+              "critDmg",
+              13.8
+            ],
+            [
+              "atkPct",
+              8.5
+            ],
+            [
+              "flatAtk",
+              46
+            ]
+          ]
+        },
+        {
+          "cost": 3,
+          "name": "(Cost-3)",
+          "set": "moonlit-clouds",
+          "main": "energyRegen",
+          "subs": [
+            [
+              "energyRegen",
+              10.1
+            ],
+            [
+              "critRate",
+              7.7
+            ],
+            [
+              "critDmg",
+              13.8
+            ],
+            [
+              "atkPct",
+              8.5
+            ],
+            [
+              "skillDmg",
+              8.8
+            ]
+          ]
+        },
+        {
+          "cost": 3,
+          "name": "(Cost-3)",
+          "set": "moonlit-clouds",
+          "main": "energyRegen",
+          "subs": [
+            [
+              "energyRegen",
+              10.1
+            ],
+            [
+              "critRate",
+              7.7
+            ],
+            [
+              "critDmg",
+              13.8
+            ],
+            [
+              "atkPct",
+              8.5
+            ],
+            [
+              "libDmg",
+              8.8
+            ]
+          ]
+        },
+        {
+          "cost": 1,
+          "name": "(Cost-1)",
+          "set": "moonlit-clouds",
+          "main": "atkPct",
+          "subs": [
+            [
+              "energyRegen",
+              10.1
+            ],
+            [
+              "critRate",
+              7.7
+            ],
+            [
+              "critDmg",
+              13.8
+            ],
+            [
+              "atkPct",
+              8.5
+            ],
+            [
+              "flatAtk",
+              46
+            ]
+          ]
+        },
+        {
+          "cost": 1,
+          "name": "(Cost-1)",
+          "set": "moonlit-clouds",
+          "main": "atkPct",
+          "subs": [
+            [
+              "energyRegen",
+              10.1
+            ],
+            [
+              "critRate",
+              7.7
+            ],
+            [
+              "critDmg",
+              13.8
+            ],
+            [
+              "atkPct",
+              8.5
+            ],
+            [
+              "flatAtk",
+              46
+            ]
+          ]
+        }
+      ],
+      "buffs": [
+        {
+          "id": "mornye.outro.recursion",
+          "name": "Outro: Recursion — team +25% All DMG Amplification (30s)",
+          "target": "team",
+          "kind": "amplify",
+          "attackType": "all",
+          "value": 25,
+          "default": true,
+          "_note": "Verbatim (roleGbId 1209): \"Resonators in the team gain 25% All DMG Amplification for 30s.\" Unconditional — no status, no mode, no stack requirement. This is the whole reason to run her."
+        },
+        {
+          "id": "mornye.sonata.moonlit-clouds-5pc",
+          "name": "Moonlit Clouds 5pc — incoming Resonator ATK +22.5% (15s)",
+          "target": "team",
+          "kind": "stat",
+          "stat": "atkPct",
+          "value": 22.5,
+          "default": true
+        },
+        {
+          "id": "mornye.inherent.blueprint",
+          "name": "Inherent: Blueprint — Energy Regen +10%",
+          "target": "self",
+          "owner": "mornye",
+          "kind": "stat",
+          "stat": "energyRegen",
+          "value": 10,
+          "panel": true,
+          "default": true
+        }
+      ]
     }
   }
 }

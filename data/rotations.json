@@ -58,7 +58,8 @@
         "suisui.sonata.feathered-trace-5pc",
         "suisui.weapon.firstlights-herald",
         "verina.outro.blossom",
-        "verina.inherent.gift-of-nature"
+        "verina.inherent.gift-of-nature",
+        "verina.sonata.rejuvenating-glow-5pc"
       ],
       "timeline": [
         {
@@ -534,6 +535,10 @@
         "aemeath.s3.finale-amplify": [
           14,
           null
+        ],
+        "verina.sonata.rejuvenating-glow-5pc": [
+          13,
+          null
         ]
       }
     },
@@ -847,7 +852,9 @@
         "mortefi.weapon.static-mist",
         "mortefi.sonata.moonlit-clouds-5pc",
         "mortefi.echo.impermanence-heron",
-        "mortefi.outro.violent-finish"
+        "mortefi.outro.violent-finish",
+        "augusta.sonata.crown-of-valor-atk",
+        "augusta.sonata.crown-of-valor-cd"
       ],
       "timeline": [
         {
