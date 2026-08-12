@@ -1,0 +1,256 @@
+{
+  "schema": "wuwa.characters.v2",
+  "account": { "ign": "bobmarleyman", "playerId": "508268090" },
+  "_howToEdit": [
+    "This file is the source of truth for builds. Any chat can edit it; the runner page reads it directly.",
+    "Substat and main-stat keys use arabwuwa's own vocabulary:",
+    "  hp flatAtk def hpPct atkPct defPct critRate critDmg energyRegen healingBonus",
+    "  basicDmg heavyDmg skillDmg libDmg introDmg outroDmg echoDmg attrDmg",
+    "  elemDmg:fusion | elemDmg:glacio | elemDmg:electro | elemDmg:aero | elemDmg:spectro | elemDmg:havoc",
+    "'level' must be one of 1,10,20,30,40,50,60,70,80,90 (the tiers the reference data ships).",
+    "Echo main/secondary values are auto-derived from cost for a 5-star +25 echo. Override with",
+    "  'mainValue' and 'secondary' when an echo is unleveled.",
+    "baseScale < 1 means the character is at that level PRE-ascension. Solve it as",
+    "  (in-game base DEF) / (reference base DEF); it must also reconcile against HP.",
+    "weapon.atkOverride / weapon.subOverride give the weapon's REAL values at its actual level.",
+    "  Without them the model uses the Lv90 numbers, like arabwuwa does.",
+    "Set accountAccurate:true only once the panel check passes; the page greys the badge otherwise.",
+    "Buffs live on whoever provides them. target:'team' reaches everyone, target:'self' only the owner.",
+    "  panel:true means the buff is already baked into the in-game character panel reading.",
+    "  default:true means rotations should normally switch it on."
+  ],
+
+  "characters": {
+
+    "aemeath": {
+      "name": "Aemeath",
+      "level": 70,
+      "sequence": 3,
+      "baseScale": 0.9342,
+      "accountAccurate": true,
+      "talents": { "basic": 6, "skill": 6, "liberation": 6, "forte": 6, "intro": 6 },
+      "forteNodes": false,
+      "_forteNodesNote": "The four stat nodes are NOT unlocked. Proved by reconciling the panel: 5 base + 20.0 weapon + 30.6 echo substats = 55.6% Crit Rate exactly, with no room for the nodes' +8%. Unlocking them is worth +8% Crit Rate and +12% ATK and costs only ascension materials.",
+      "weapon": {
+        "id": "everbright-polestar", "rank": 1, "level": 70,
+        "atkOverride": 449.4,
+        "subOverride": { "stat": "critRate", "value": 20.0 },
+        "_note": "arabwuwa hard-codes this weapon to Lv90 (587 ATK / 24.3% crit). These are the solved Lv70 values."
+      },
+      "panel": { "atk": 1727, "hp": 14481, "def": 950, "critRate": 55.6, "critDmg": 222.8, "energyRegen": 120.0, "elemDmg": 82.0, "basicDmg": 8.6, "heavyDmg": 17.2, "skillDmg": 7.9, "libDmg": 59.5 },
+      "echoes": [
+        { "cost": 4, "name": "Sigillum", "set": "trailblazing-star", "main": "critDmg",
+          "subs": [["critDmg",12.6],["defPct",9.0],["critRate",6.3],["hp",390],["atkPct",9.4]] },
+        { "cost": 1, "name": "Iceglint Dancer", "set": "trailblazing-star", "main": "atkPct",
+          "subs": [["hpPct",7.9],["libDmg",8.6],["critDmg",16.2],["atkPct",11.6],["heavyDmg",10.1]] },
+        { "cost": 3, "name": "Reminiscence: Kronaclaw", "set": "trailblazing-star", "main": "elemDmg:fusion",
+          "subs": [["atkPct",7.1],["skillDmg",7.9],["hp",510],["libDmg",7.9],["critRate",7.5]] },
+        { "cost": 3, "name": "Kronablight", "set": "trailblazing-star", "main": "elemDmg:fusion",
+          "subs": [["libDmg",8.6],["basicDmg",8.6],["critRate",6.3],["flatAtk",40],["energyRegen",10.8]] },
+        { "cost": 1, "name": "Geospider S4", "set": "trailblazing-star", "main": "atkPct",
+          "subs": [["atkPct",7.9],["heavyDmg",7.1],["critRate",10.5],["energyRegen",9.2],["libDmg",9.4]] }
+      ],
+      "buffs": [
+        { "id": "aemeath.sonata.trailblazing-2pc", "name": "Trailblazing Star 2pc — Fusion DMG +10%",
+          "target": "self", "kind": "stat", "stat": "elemDmg:fusion", "value": 10, "panel": true, "default": true },
+        { "id": "aemeath.echo.sigillum-lib", "name": "Sigillum main-slot echo skill — Liberation DMG +25%",
+          "target": "self", "kind": "stat", "stat": "libDmg", "value": 25, "panel": true, "default": true },
+        { "id": "aemeath.weapon.all-attribute", "name": "Everbright Polestar — All-Attribute DMG +12%",
+          "target": "self", "kind": "stat", "stat": "attrDmg", "value": 12, "panel": true, "default": true },
+
+        { "id": "aemeath.sonata.trailblazing-5pc-crit", "name": "Trailblazing Star 5pc — Crit Rate +20% (8s after inflicting Fusion Burst)",
+          "target": "self", "kind": "stat", "stat": "critRate", "value": 20, "default": true,
+          "notes": "Conditional. arabwuwa's own UI never surfaces a toggle for this, so their numbers omit it. It is live during her burst window." },
+        { "id": "aemeath.sonata.trailblazing-5pc-fusion", "name": "Trailblazing Star 5pc — Fusion DMG +20% (8s)",
+          "target": "self", "kind": "stat", "stat": "elemDmg:fusion", "value": 20, "default": true },
+
+        { "id": "aemeath.weapon.lib-def-ignore", "name": "Everbright Polestar — Liberation DEF Ignore 32%",
+          "target": "self", "kind": "defIgnore", "value": 32, "attackType": "liberation", "default": true },
+        { "id": "aemeath.weapon.lib-fusion-res", "name": "Everbright Polestar — Liberation Fusion RES −10%",
+          "target": "self", "kind": "resRed", "value": 10, "element": "fusion", "attackType": "liberation", "default": true },
+
+        { "id": "aemeath.s3.between-the-stars-critdmg", "name": "S3 Between the Stars (Fusion Burst) — Crit DMG +60%",
+          "target": "self", "kind": "stat", "stat": "critDmg", "value": 60, "default": true,
+          "notes": "At S3 the inherent is replaced: one teammate Fusion Burst trigger grants the full 60%, no stacking." },
+        { "id": "aemeath.s3.finale-amplify", "name": "S3 Between the Stars — Finale DMG Amplify +25%",
+          "target": "self", "kind": "amplify", "value": 25, "abilities": ["Heavenfall Edict: Finale DMG"], "default": true },
+        { "id": "aemeath.s3.finale-mv", "name": "S3 — Finale DMG Multiplier +100% (doubles it)",
+          "target": "self", "kind": "mvPct", "value": 100, "abilities": ["Heavenfall Edict: Finale DMG"], "default": true },
+        { "id": "aemeath.s3.overdrive-mv", "name": "S3 — Overdrive DMG Multiplier +40%",
+          "target": "self", "kind": "mvPct", "value": 40, "abilities": ["Heavenfall Edict: Overdrive DMG"], "default": true },
+        { "id": "aemeath.s2.overture-mv", "name": "S2 — Seraphic Duet: Overture Multiplier +100%",
+          "target": "self", "kind": "mvPct", "value": 100, "abilities": ["Seraphic Duet: Overture DMG"], "default": true },
+        { "id": "aemeath.s2.encore-mv", "name": "S2 — Seraphic Duet: Encore Multiplier +100%",
+          "target": "self", "kind": "mvPct", "value": 100, "abilities": ["Seraphic Duet: Encore DMG"], "default": true },
+
+        { "id": "aemeath.s1.instant-response-heavy-critdmg", "name": "S1 — Instant Response heavies Crit DMG +300%",
+          "target": "self", "kind": "abilityCritDmg", "value": 300, "default": true,
+          "abilities": ["Heavy Attack - Aemeath Charged I DMG","Heavy Attack - Aemeath Charged II DMG","Heavy Attack - Mech Charged I DMG","Heavy Attack - Mech Charged II DMG"] },
+        { "id": "aemeath.inherent.instant-response-heavy-amp", "name": "Inherent: Before All Sounds — heavies +200% Amplify",
+          "target": "self", "kind": "amplify", "value": 200, "default": true,
+          "abilities": ["Heavy Attack - Aemeath Charged I DMG","Heavy Attack - Aemeath Charged II DMG","Heavy Attack - Mech Charged I DMG","Heavy Attack - Mech Charged II DMG"] },
+
+        { "id": "aemeath.fb.fusion-trail-13", "name": "Fusion Trail stacks removed = 13 (+10% MV per stack)",
+          "target": "self", "kind": "status", "status": "fusionBurst", "bucket": "mvPct", "value": 130, "default": true,
+          "notes": "13 stacks because Suisui raises the Fusion Burst cap from 10 to 13. At 10 stacks this would be 100." },
+        { "id": "aemeath.fb.stardust-passive", "name": "Stardust Resonance (passive) — Fusion Burst +200% MV",
+          "target": "self", "kind": "status", "status": "fusionBurst", "bucket": "mvPct", "value": 200, "default": true },
+        { "id": "aemeath.s2.fb-stardust-extra", "name": "S2 — Stardust Extra Multiplier +200%",
+          "target": "self", "kind": "status", "status": "fusionBurst", "bucket": "mvPct", "value": 200, "default": true },
+        { "id": "aemeath.s2.fb-per-trail-stack", "name": "S2 — +5% MV per Fusion Trail stack (13 stacks = 65%)",
+          "target": "self", "kind": "status", "status": "fusionBurst", "bucket": "mvPct", "value": 65, "default": true }
+      ]
+    },
+
+    "suisui": {
+      "name": "Suisui",
+      "level": 70,
+      "sequence": 0,
+      "accountAccurate": false,
+      "_unreconciled": "Weapon Lv70 values and ascension scale not solved yet, so her stat block runs at arabwuwa defaults (weapon at Lv90). Panel target: ATK 979 / HP 18351 / DEF 955 / CR 19.4 / CD 150.0 / ER 249.3 / Healing 36.4.",
+      "talents": { "basic": 2, "skill": 1, "liberation": 3, "forte": 3, "intro": 1 },
+      "forteNodes": false,
+      "weapon": { "id": "firstlights-herald", "rank": 1, "level": 70 },
+      "panel": { "atk": 979, "hp": 18351, "def": 955, "critRate": 19.4, "critDmg": 150.0, "energyRegen": 249.3 },
+      "echoes": [
+        { "cost": 3, "name": "Forbidden Bastion", "set": "song-of-feathered-trace", "main": "energyRegen",
+          "subs": [["basicDmg",8.6],["def",60],["atkPct",7.9],["skillDmg",10.9],["energyRegen",11.6]] },
+        { "cost": 4, "name": "Thousand-Puppet Pavilion", "set": "song-of-feathered-trace", "main": "healingBonus",
+          "subs": [["heavyDmg",7.9],["critRate",6.9],["flatAtk",50],["hpPct",7.9],["skillDmg",8.6]] },
+        { "cost": 3, "name": "Fog Lionarch", "set": "song-of-feathered-trace", "main": "energyRegen",
+          "subs": [["basicDmg",9.4],["def",60],["hpPct",8.6],["skillDmg",10.1],["critRate",7.5]] },
+        { "cost": 1, "name": "Fog Lionarch: Head", "set": "song-of-feathered-trace", "main": "hpPct",
+          "mainValue": 4.5, "secondary": { "stat": "hp", "value": 456 }, "subs": [],
+          "_note": "UNLEVELED (+0). Zero substats. Levelling this is one of the cheapest gains on the account." },
+        { "cost": 1, "name": "Kernel Puppet: Joy", "set": "song-of-feathered-trace", "main": "hpPct",
+          "mainValue": 4.5, "secondary": { "stat": "hp", "value": 456 }, "subs": [],
+          "_note": "UNLEVELED (+0). Zero substats." }
+      ],
+      "buffs": [
+        { "id": "suisui.outro.rippling-waters", "name": "Outro: Rippling Waters — All DMG Amplify +25%",
+          "target": "team", "kind": "amplify", "value": 25, "attackType": "all", "default": true },
+        { "id": "suisui.outro.floral-400", "name": "Outro 400 Floral Epistle — DMG Bonus, ER-scaled",
+          "target": "team", "kind": "stat", "stat": "attrDmg", "value": 9.8, "default": true,
+          "notes": "0.2% per 1% of Suisui's ER above 200, cap 12%. At her 249.3 ER that is 9.8%. Recompute if her ER changes." },
+        { "id": "suisui.sonata.feathered-trace-5pc", "name": "Song of Feathered Trace 5pc — team ATK, ER-scaled",
+          "target": "team", "kind": "stat", "stat": "atkPct", "value": 24.9, "default": true,
+          "notes": "0.1% per 1% of Suisui's ER, cap 25%. At 249.3 ER that is 24.9%." },
+        { "id": "suisui.weapon.firstlights-herald", "name": "Firstlight's Herald — team ATK +20%",
+          "target": "team", "kind": "stat", "stat": "atkPct", "value": 20, "default": true },
+        { "id": "suisui.outro.floral-600-atk", "name": "Outro 600 Floral Epistle — Undulating Mist ATK +50%",
+          "target": "team", "kind": "stat", "stat": "atkPct", "value": 50, "default": false,
+          "notes": "OFF: requires the ally to CONSUME Negative Status stacks. Aemeath inflicts without consuming, so at Suisui S0 this never reaches her. Suisui S1 is the fix — flip this on if you pull it." },
+        { "id": "suisui.s2.team-critdmg", "name": "S2 — team Crit DMG +50%",
+          "target": "team", "kind": "stat", "stat": "critDmg", "value": 50, "default": false,
+          "notes": "OFF: Suisui is S0." }
+      ]
+    },
+
+    "verina": {
+      "name": "Verina",
+      "level": 70,
+      "sequence": 3,
+      "accountAccurate": false,
+      "_unreconciled": "Weapon Lv70 values not solved. Panel target: ATK 1398 / HP 17963 / DEF 1142 / CR 20.0 / CD 191.4 / ER 216.0.",
+      "talents": { "basic": 1, "skill": 1, "liberation": 4, "forte": 4, "intro": 1 },
+      "forteNodes": false,
+      "weapon": { "id": "variation", "rank": 4, "level": 70 },
+      "panel": { "atk": 1398, "hp": 17963, "def": 1142, "critRate": 20.0, "critDmg": 191.4, "energyRegen": 216.0 },
+      "echoes": [
+        { "cost": 4, "name": "Fallacy of No Return", "set": "rejuvenating-glow", "main": "atkPct",
+          "subs": [["atkPct",7.9],["critRate",8.1],["skillDmg",8.6],["def",60],["critDmg",12.6]] },
+        { "cost": 3, "name": "Chasm Guardian", "set": "rejuvenating-glow", "main": "energyRegen",
+          "subs": [["critRate",6.9],["libDmg",10.1],["flatAtk",50],["hp",430],["defPct",10.9]] },
+        { "cost": 3, "name": "Rocksteady Guardian", "set": "rejuvenating-glow", "main": "energyRegen",
+          "subs": [["skillDmg",9.4],["critDmg",13.8],["energyRegen",9.2],["hpPct",7.9],["basicDmg",7.1]] },
+        { "cost": 1, "name": "Tick Tack", "set": "rejuvenating-glow", "main": "atkPct",
+          "subs": [["hp",470],["libDmg",8.6],["defPct",12.8],["atkPct",7.9],["def",50]] },
+        { "cost": 1, "name": "Fission Junrock", "set": "rejuvenating-glow", "main": "atkPct",
+          "subs": [["critDmg",15.0],["skillDmg",8.6],["basicDmg",8.6],["flatAtk",40],["hpPct",7.9]] }
+      ],
+      "buffs": [
+        { "id": "verina.outro.blossom", "name": "Outro: Blossom — All-Type DMG Deepen +15%",
+          "target": "team", "kind": "amplify", "value": 15, "attackType": "all", "default": true },
+        { "id": "verina.inherent.gift-of-nature", "name": "Inherent: Gift of Nature — team ATK +20%",
+          "target": "team", "kind": "stat", "stat": "atkPct", "value": 20, "default": true },
+        { "id": "verina.s4.blossoming-embrace", "name": "S4 — team Spectro DMG +15%",
+          "target": "team", "kind": "stat", "stat": "elemDmg:spectro", "value": 15, "default": false,
+          "notes": "OFF: Verina is S3." }
+      ]
+    },
+
+    "augusta": {
+      "name": "Augusta",
+      "level": 70,
+      "sequence": 0,
+      "accountAccurate": false,
+      "_unreconciled": "OPEN QUESTION: her panel Crit Rate is 61.3% but the build only accounts for 51.3% (5 base + 22.0 echo main + 24.3 echo subs). The missing 10.0 is either Thunderflare Dominion's substat at Lv70 or forte stat nodes she does have unlocked. Settle this before trusting any Augusta number.",
+      "talents": { "basic": 6, "skill": 3, "liberation": 6, "forte": 6, "intro": 4 },
+      "forteNodes": false,
+      "weapon": { "id": "thunderflare-dominion", "rank": 1, "level": 70 },
+      "panel": { "atk": 1913, "hp": 16150, "def": 1320, "critRate": 61.3, "critDmg": 177.6, "energyRegen": 109.2, "elemDmg": 40.0 },
+      "echoes": [
+        { "cost": 4, "name": "The False Sovereign", "set": "crown-of-valor", "main": "critRate",
+          "subs": [["critDmg",13.8],["critRate",10.5],["skillDmg",9.4],["def",50],["basicDmg",8.6]] },
+        { "cost": 3, "name": "Nightmare: Violet-Feathered Heron", "set": "crown-of-valor", "main": "elemDmg:electro",
+          "subs": [["defPct",11.8],["basicDmg",11.6],["hpPct",10.1],["critRate",6.3],["def",50]] },
+        { "cost": 1, "name": "Nightmare: Electro Predator", "set": "crown-of-valor", "main": "atkPct",
+          "subs": [["flatAtk",50],["heavyDmg",7.9],["skillDmg",8.6],["atkPct",8.6],["defPct",12.8]] },
+        { "cost": 1, "name": "Fission Junrock", "set": "void-thunder", "main": "atkPct",
+          "subs": [["critDmg",13.8],["energyRegen",9.2],["hp",390],["critRate",7.5],["basicDmg",10.1]] },
+        { "cost": 1, "name": "Aero Predator", "set": "void-thunder", "main": "atkPct",
+          "subs": [["atkPct",10.1],["skillDmg",9.4],["hp",320],["def",60],["defPct",12.8]] }
+      ],
+      "buffs": [
+        { "id": "augusta.sonata.void-thunder-2pc", "name": "Void Thunder 2pc — Electro DMG +10%",
+          "target": "self", "kind": "stat", "stat": "elemDmg:electro", "value": 10, "panel": true, "default": true }
+      ],
+      "_echoCostNote": "Echo cost is 10/12 — two points unused. Three Cost-1 echoes where a second Cost-3 would fit."
+    },
+
+    "mortefi": {
+      "name": "Mortefi",
+      "level": 50,
+      "sequence": 6,
+      "accountAccurate": false,
+      "_unreconciled": "Every echo is +0 with zero substats and all skills are Lv1. Numbers here are near-worthless until he is built.",
+      "talents": { "basic": 1, "skill": 1, "liberation": 1, "forte": 1, "intro": 1 },
+      "forteNodes": false,
+      "weapon": { "id": "static-mist", "rank": 1, "level": 70 },
+      "panel": { "atk": 688, "hp": 6094, "def": 589, "critRate": 29.4, "critDmg": 150.0, "energyRegen": 135.6 },
+      "echoes": [
+        { "cost": 4, "name": "Impermanence Heron", "set": "moonlit-clouds", "main": "critRate",
+          "mainValue": 4.4, "secondary": { "stat": "flatAtk", "value": 30 }, "subs": [] },
+        { "cost": 3, "name": "Stonewall Bracer", "set": "moonlit-clouds", "main": "energyRegen",
+          "mainValue": 6.4, "secondary": { "stat": "flatAtk", "value": 20 }, "subs": [] },
+        { "cost": 3, "name": "Viridblaze Saurian", "set": "moonlit-clouds", "main": "energyRegen",
+          "mainValue": 6.4, "secondary": { "stat": "flatAtk", "value": 20 }, "subs": [] },
+        { "cost": 1, "name": "Fission Junrock", "set": "moonlit-clouds", "main": "atkPct",
+          "mainValue": 3.6, "secondary": { "stat": "hp", "value": 456 }, "subs": [] },
+        { "cost": 1, "name": "Sabyr Boar", "set": "moonlit-clouds", "main": "atkPct",
+          "mainValue": 3.6, "secondary": { "stat": "hp", "value": 456 }, "subs": [] }
+      ],
+      "buffs": [
+        { "id": "mortefi.weapon.static-mist", "name": "Static Mist — incoming Resonator ATK +10%",
+          "target": "team", "kind": "stat", "stat": "atkPct", "value": 10, "default": true },
+        { "id": "mortefi.sonata.moonlit-clouds-5pc", "name": "Moonlit Clouds 5pc — incoming Resonator ATK +22.5%",
+          "target": "team", "kind": "stat", "stat": "atkPct", "value": 22.5, "default": true },
+        { "id": "mortefi.echo.impermanence-heron", "name": "Impermanence Heron — incoming Resonator DMG +12%",
+          "target": "team", "kind": "stat", "stat": "attrDmg", "value": 12, "default": true }
+      ]
+    },
+
+    "baizhi": {
+      "name": "Baizhi",
+      "level": 70,
+      "sequence": 0,
+      "accountAccurate": false,
+      "_unreconciled": "NOT CAPTURED. Her echoes, weapon and panel were never read off the client. Everything below is a placeholder; do not trust any Baizhi number until this is filled in.",
+      "talents": { "basic": 1, "skill": 1, "liberation": 1, "forte": 1, "intro": 1 },
+      "forteNodes": false,
+      "weapon": null,
+      "echoes": [],
+      "buffs": []
+    }
+  }
+}
