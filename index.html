@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build 2026-08-13-4 -->
+<!-- build 2026-08-13-6 -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -112,6 +112,19 @@ button.gh:hover{color:var(--txt);border-color:#3a465c}
 .fld.chg input{border-color:var(--blu);color:var(--blu)}
 .modal footer{display:flex;gap:10px;align-items:center;padding:13px 20px;border-top:1px solid var(--line)}
 .modal footer .delta{margin-left:auto;font-variant-numeric:tabular-nums;font-size:13px}
+.tl{margin:22px 0 4px}
+.tl h3{margin:0 0 3px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold)}
+.tl .lede{color:var(--dim);font-size:12px;margin-bottom:10px}
+.tlrow{display:grid;grid-template-columns:230px 1fr;gap:10px;align-items:center;margin-bottom:4px}
+.tlname{font-size:11.5px;color:var(--dim);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tlname b{color:var(--txt);font-weight:600}
+.tltrack{position:relative;height:15px;background:var(--panel);border:1px solid var(--line);border-radius:4px}
+.tlbar{position:absolute;top:1px;bottom:1px;border-radius:3px;background:#3a4152}
+.tlbar.win{background:var(--gold)}
+.tlbar span{position:absolute;right:5px;top:-1px;font-size:9.5px;color:#1a1d24;font-weight:700}
+.tlaxis{display:grid;grid-template-columns:230px 1fr;gap:10px;margin-top:6px}
+.tlticks{position:relative;height:12px;color:var(--dim);font-size:9.5px}
+.tlticks i{position:absolute;font-style:normal;transform:translateX(-50%)}
 .notes{margin-top:8px}
 .note{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:13px 17px;margin-bottom:10px}
 .note h3{margin:0 0 5px;font-size:14.5px;color:var(--gold)}
@@ -131,7 +144,7 @@ button.gh:hover{color:var(--txt);border-color:#3a465c}
 <div class="wrap">
   <h1>WuWa Rotations</h1>
   <div class="sub">Hover any step for its notes and damage split, click to pin the box. Press <b>Simulate DPS</b> to put damage on every icon.
-    <span style="float:right">build 2026-08-13-4</span></div>
+    <span style="float:right">build 2026-08-13-6</span></div>
   <div id="boot"></div>
   <div id="app" hidden>
     <div class="tabs" id="tabs"></div>
@@ -146,6 +159,7 @@ button.gh:hover{color:var(--txt);border-color:#3a465c}
     <div class="mask" id="mask"><div class="modal" id="modal"></div></div>
     <div id="warn"></div>
     <div class="strip" id="strip"></div>
+    <div id="tl"></div>
     <div id="bd"></div>
     <div class="notes" id="notes"></div>
     <div class="foot" id="foot"></div>
@@ -337,6 +351,8 @@ function render() {
       img.replaceWith(d);
     }, { once: true });
   }
+
+  renderTimeline();
 
   $('#notes').innerHTML = (rot.notes || []).map(nt =>
     `<div class="note"><h3>${esc(nt.t)}</h3><div>${nt.b}</div></div>`).join('');
@@ -547,6 +563,41 @@ function refreshDelta() {
 function closeEditor() { $('#mask').classList.remove('on'); }
 $('#mask').addEventListener('click', e => { if (e.target.id === 'mask') closeEditor(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeEditor(); });
+
+/* Buff timeline. Draws every buff this rotation lists as a bar across the step numbers on the
+   tiles above, so a window is checkable against the rotation rather than taken on trust.
+   Buffs with an explicit fromStep/untilStep are gold; unwindowed ones (assumed live for the
+   whole run) are grey, which makes the modelling assumption visible instead of invisible. */
+function renderTimeline() {
+  const det = results?.res || (() => { try { return eng.runRotation(current); } catch { return null; } })();
+  const el = $('#tl');
+  if (!det?.buffWindows?.length) { el.innerHTML = ''; return; }
+  const N = det.stepCount || det.steps.length;
+  const pct = (a, b) => `left:${((a - 1) / N) * 100}%;width:${((b - a + 1) / N) * 100}%`;
+  const rows = det.buffWindows.slice().sort((x, y) => (x.whole - y.whole) || (x.from - y.from));
+  const windowed = rows.filter(r => !r.whole).length;
+
+  const ticks = [];
+  for (let n = 1; n <= N; n += (N > 24 ? 5 : 2))
+    ticks.push(`<i style="left:${((n - 0.5) / N) * 100}%">${n}</i>`);
+
+  el.innerHTML = `<div class="tl">
+    <h3>Buff timeline</h3>
+    <div class="lede">Each bar is when the engine treats that buff as live, measured in the step
+      numbers on the tiles above. <b style="color:var(--gold)">Gold</b> = an explicit
+      <code>fromStep</code>/<code>untilStep</code> window. Grey = no window set, so it is applied
+      across the whole rotation — an assumption, not a measurement.
+      ${windowed ? `<b>${windowed} of ${rows.length}</b> buffs here are windowed.`
+                 : `<b>None</b> of these ${rows.length} buffs are windowed yet.`}</div>
+    ${rows.map(r => `<div class="tlrow">
+        <div class="tlname" title="${esc(r.id)}">${r.whole ? '' : '<b>▸</b> '}${esc(
+          r.name.length > 46 ? r.name.slice(0, 45) + '…' : r.name)}</div>
+        <div class="tltrack"><div class="tlbar ${r.whole ? '' : 'win'}" style="${pct(r.from, r.until)}">
+          ${r.whole ? '' : `<span>${r.from}–${r.until}</span>`}</div></div>
+      </div>`).join('')}
+    <div class="tlaxis"><div></div><div class="tlticks">${ticks.join('')}</div></div>
+  </div>`;
+}
 
 function renderBreakdown() {
   if (!results) { document.getElementById('bd').innerHTML = ''; return; }

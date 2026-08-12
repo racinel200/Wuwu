@@ -495,7 +495,7 @@ export class Engine {
     for (const step of det.steps) {
       if (!step.counts) continue;
       if (step.raw != null) { fixed += step.average; continue; }
-      const state = det.states[step.char];
+      const state = step._state || det.states[step.char];   // per-step, so buff windows apply
       if (!state) continue;
       const map = this.abilities(step.char);
       for (const label of (step.hits || [])) {
@@ -567,15 +567,6 @@ export class Engine {
       chosen.push(b);
     }
 
-    // one state per character, with only the buffs that reach them
-    const states = {};
-    const abilityMaps = {};
-    for (const cid of (rot.team || [])) {
-      const forThem = chosen.filter(b => b.target === 'team' || b.owner === cid);
-      states[cid] = this.buildState(cid, forThem);
-      abilityMaps[cid] = this.abilities(cid);
-    }
-
     // a rotation carries either a flat `steps` array or `groups[].steps[]`
     const flat = [];
     if (rot.groups) {
@@ -584,6 +575,58 @@ export class Engine {
     } else {
       (rot.steps || []).forEach((st, si) => flat.push({ ...st, _group: 0, _idx: si, _counts: true }));
     }
+    // Step numbers are 1-based and global — the same number printed on each icon tile — so a
+    // buff window is written exactly the way you read it off the page.
+    flat.forEach((s, i) => { s._n = i + 1; });
+    const N = flat.length;
+
+    // BUFF WINDOWS live on the ROTATION, not on the buff — step numbers are per-rotation, and the
+    // same buff appears in rotations of different lengths. `rot.windows` maps a buff id to
+    // [fromStep, untilStep], both inclusive, null on either end meaning "open".
+    //   "windows": { "verina.outro.blossom": [13, null] }
+    // A buff-level fromStep/untilStep is still honoured as a fallback for buffs that only ever
+    // appear in one rotation, but the rotation entry wins and is the form to prefer.
+    const rawSpan = (b) => {
+      const w = (rot.windows || {})[b.id];
+      if (Array.isArray(w)) return [w[0] ?? 1, w[1] ?? N];
+      if (w && typeof w === 'object') return [w.from ?? 1, w.until ?? N];
+      return [b.fromStep ?? 1, b.untilStep ?? N];
+    };
+    const spanOf = (b) => { const [f, u] = rawSpan(b); return [Math.max(1, f), Math.min(N, u)]; };
+    for (const bid of Object.keys(rot.windows || {}))
+      if (!chosen.some(b => b.id === bid))
+        this.warnings.push(`rotation "${id}" has a window for "${bid}", which it does not list as a buff`);
+    for (const b of chosen) {
+      const [f, u] = rawSpan(b);
+      if (f > u) this.warnings.push(`buff "${b.id}": fromStep ${f} is after untilStep ${u}`);
+      if (f < 1 || u > N) this.warnings.push(
+        `buff "${b.id}": window ${f}–${u} falls outside this rotation's steps 1–${N}`);
+    }
+    const windowed = chosen.some(b => { const [f, u] = rawSpan(b); return f !== 1 || u !== N; });
+    const activeAt = (n) => chosen.filter(b => { const [f, u] = spanOf(b); return n >= f && n <= u; });
+
+    const abilityMaps = {};
+    for (const cid of (rot.team || [])) abilityMaps[cid] = this.abilities(cid);
+
+    // One state per (character, set of buffs actually live at that step). Without windows this
+    // collapses to one state per character, so the no-windows path costs nothing.
+    const stateCache = new Map();
+    const stateFor = (cid, n) => {
+      const forThem = activeAt(n).filter(b => b.target === 'team' || b.owner === cid);
+      const key = `${cid}|${forThem.map(b => b.id).join(',')}`;
+      if (!stateCache.has(key)) stateCache.set(key, this.buildState(cid, forThem));
+      return stateCache.get(key);
+    };
+    // states[] keeps its old meaning: every buff this rotation lists, ignoring windows.
+    const states = {};
+    for (const cid of (rot.team || [])) {
+      states[cid] = this.buildState(cid, chosen.filter(b => b.target === 'team' || b.owner === cid));
+    }
+    const buffWindows = chosen.map(b => {
+      const [f, u] = spanOf(b);
+      return { id: b.id, name: b.name || b.id, from: f, until: u, target: b.target || 'self',
+               owner: b.owner, whole: f === 1 && u === N };
+    });
 
     const steps = [];
     let total = 0;
@@ -599,7 +642,7 @@ export class Engine {
         for (let i = 0; i < times; i++) hits.push(label);
       }
 
-      let noncrit = 0, average = 0, crit = 0, ok = true;
+      let noncrit = 0, average = 0, crit = 0, ok = true, stepState = null;
       const breakdown = [];   // one row per ability instance, so the UI can show the split
       if (step.raw != null) {
         noncrit = average = crit = Number(step.raw);
@@ -610,13 +653,14 @@ export class Engine {
           this.warnings.push(`step "${step.action || ''}" references "${cid}", who is not on this rotation's team`);
           ok = false;
         } else {
+          stepState = stateFor(cid, step._n);
           for (const label of hits) {
             const entry = abilityMaps[cid].get(label);
             if (!entry) {
               this.warnings.push(`"${cid}" has no ability named "${label}" — check it against the ability list`);
               ok = false; continue;
             }
-            const d = this.abilityDamage(states[cid], entry, enemy);
+            const d = this.abilityDamage(stepState, entry, enemy);
             if (!d) { this.warnings.push(`could not evaluate "${label}"`); ok = false; continue; }
             noncrit += d.noncrit; average += d.average; crit += d.crit;
             const prev = breakdown.find(b => b.label === label);
@@ -628,13 +672,17 @@ export class Engine {
       }
       if (step._counts && ok) total += average;
       steps.push({ ...step, hits, breakdown, noncrit, average, crit, counts: step._counts,
-                   each: average, total: average, note: step.note || '' });
+                   each: average, total: average, note: step.note || '',
+                   n: step._n, _state: stepState,
+                   liveBuffs: activeAt(step._n).filter(b => b.target === 'team' || b.owner === step.char)
+                                              .map(b => b.id) });
     }
 
     const panels = {};
     for (const cid of Object.keys(states)) panels[cid] = this.panelCheck(cid);
 
-    return { rotation: rot, steps, total, states, panels, enemy, warnings: [...this.warnings] };
+    return { rotation: rot, steps, total, states, panels, enemy, stepCount: N,
+             buffWindows, windowed, warnings: [...this.warnings] };
   }
 }
 

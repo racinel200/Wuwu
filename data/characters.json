@@ -47,7 +47,7 @@
         "atkOverride": 449.4,
         "subOverride": {
           "stat": "critRate",
-          "value": 20.0
+          "value": 20
         },
         "_note": "arabwuwa hard-codes this weapon to Lv90 (587 ATK / 24.3% crit). These are the solved Lv70 values."
       },
@@ -57,8 +57,8 @@
         "def": 950,
         "critRate": 55.6,
         "critDmg": 222.8,
-        "energyRegen": 120.0,
-        "elemDmg": 82.0,
+        "energyRegen": 120,
+        "elemDmg": 82,
         "basicDmg": 8.6,
         "heavyDmg": 17.2,
         "skillDmg": 7.9,
@@ -73,8 +73,8 @@
         "defBase": 872,
         "critRate": 55.6,
         "critDmg": 222.8,
-        "energyRegen": 120.0,
-        "elemDmg": 82.0,
+        "energyRegen": 120,
+        "elemDmg": 82,
         "basicDmg": 8.6,
         "heavyDmg": 17.2,
         "skillDmg": 7.9,
@@ -94,7 +94,7 @@
             ],
             [
               "defPct",
-              9.0
+              9
             ],
             [
               "critRate",
@@ -461,7 +461,7 @@
         "id": "firstlights-herald",
         "rank": 1,
         "level": 70,
-        "atkOverride": 315.0,
+        "atkOverride": 315,
         "subOverride": {
           "stat": "energyRegen",
           "value": 63.7
@@ -472,7 +472,7 @@
         "hp": 18351,
         "def": 955,
         "critRate": 19.4,
-        "critDmg": 150.0,
+        "critDmg": 150,
         "energyRegen": 249.3
       },
       "stats": {
@@ -483,13 +483,13 @@
         "def": 955,
         "defBase": 835,
         "critRate": 19.4,
-        "critDmg": 150.0,
+        "critDmg": 150,
         "energyRegen": 249.3,
-        "elemDmg": 0.0,
-        "basicDmg": 18.0,
+        "elemDmg": 0,
+        "basicDmg": 18,
         "heavyDmg": 7.9,
         "skillDmg": 29.6,
-        "libDmg": 0.0,
+        "libDmg": 0,
         "healingBonus": 36.4,
         "_note": "Read straight off the in-game stats page. THIS is what the damage model uses — level-derived bases, weapon curves, ascension scale, echo arithmetic and forte nodes are all bypassed when this block is present. atkBase/hpBase/defBase are the WHITE numbers (character base + weapon base); an ATK% buff multiplies those, not the green total, which is why both are needed. elemDmg is the element line as displayed, which already includes any All-Attribute DMG bonus."
       },
@@ -681,7 +681,7 @@
       "name": "Verina",
       "level": 70,
       "sequence": 3,
-      "baseScale": 1.0,
+      "baseScale": 1,
       "accountAccurate": true,
       "_reconciled": "Solved 2026-08-12. Lv70 post-ascension. Crit Rate and Crit DMG residuals are exactly zero, so no forte nodes and no crit substat; the entire +42.8 ER residual is Variation's substat at Lv70 (42.8/51.8 = 0.826, on the same curve as every other weapon).",
       "talents": {
@@ -706,9 +706,9 @@
         "atk": 1398,
         "hp": 17963,
         "def": 1142,
-        "critRate": 20.0,
+        "critRate": 20,
         "critDmg": 191.4,
-        "energyRegen": 216.0
+        "energyRegen": 216
       },
       "stats": {
         "atk": 1398,
@@ -717,15 +717,15 @@
         "hpBase": 10799,
         "def": 1142,
         "defBase": 835,
-        "critRate": 20.0,
+        "critRate": 20,
         "critDmg": 191.4,
-        "energyRegen": 216.0,
-        "elemDmg": 0.0,
+        "energyRegen": 216,
+        "elemDmg": 0,
         "basicDmg": 15.7,
-        "heavyDmg": 0.0,
+        "heavyDmg": 0,
         "skillDmg": 26.6,
         "libDmg": 18.7,
-        "healingBonus": 10.0,
+        "healingBonus": 10,
         "_note": "Read straight off the in-game stats page. THIS is what the damage model uses — level-derived bases, weapon curves, ascension scale, echo arithmetic and forte nodes are all bypassed when this block is present. atkBase/hpBase/defBase are the WHITE numbers (character base + weapon base); an ATK% buff multiplies those, not the green total, which is why both are needed. elemDmg is the element line as displayed, which already includes any All-Attribute DMG bonus."
       },
       "echoes": [
@@ -849,7 +849,7 @@
           "subs": [
             [
               "critDmg",
-              15.0
+              15
             ],
             [
               "skillDmg",
@@ -905,7 +905,7 @@
       "name": "Augusta",
       "level": 70,
       "sequence": 0,
-      "baseScale": 1.0,
+      "baseScale": 1,
       "accountAccurate": true,
       "_reconciled": "Solved 2026-08-12. She is Lv70 POST-ascension (scale 1.0, agreeing from DEF and HP independently). Her Crit Rate residual of exactly +10.0 is Thunderflare Dominion's substat at Lv70, not forte nodes: 10.0/12.1 = 0.826, matching the weapon substat curve measured independently on Everbright Polestar, Variation and Firstlight's Herald. Her four ATK nodes ARE unlocked; her four Crit Rate nodes are not. That is what makes her weapon's base-ATK ratio (0.756) land in the same band as Aemeath (0.766), Verina (0.752) and Suisui (0.738) instead of being a lone outlier at 0.846.",
       "talents": {
@@ -926,33 +926,37 @@
         "atkOverride": 510.3,
         "subOverride": {
           "stat": "critRate",
-          "value": 10.0
+          "value": 10
         }
       },
       "panel": {
-        "atk": 1913,
-        "hp": 16150,
-        "def": 1320,
+        "atk": 1768,
+        "hp": 14166,
+        "def": 1152,
         "critRate": 61.3,
-        "critDmg": 177.6,
-        "energyRegen": 109.2,
-        "elemDmg": 40.0
+        "critDmg": 190.2,
+        "energyRegen": 120,
+        "elemDmg": 70,
+        "basicDmg": 38.9,
+        "heavyDmg": 7.9,
+        "skillDmg": 18,
+        "libDmg": 7.9
       },
       "stats": {
-        "atk": 1913,
-        "atkBase": 873,
-        "hp": 16150,
-        "hpBase": 7813,
-        "def": 1320,
+        "atk": 1768,
+        "atkBase": 874,
+        "hp": 14166,
+        "hpBase": 7812,
+        "def": 1152,
         "defBase": 844,
         "critRate": 61.3,
-        "critDmg": 177.6,
-        "energyRegen": 109.2,
-        "elemDmg": 40.0,
-        "basicDmg": 30.3,
+        "critDmg": 190.2,
+        "energyRegen": 120,
+        "elemDmg": 70,
+        "basicDmg": 38.9,
         "heavyDmg": 7.9,
-        "skillDmg": 27.4,
-        "libDmg": 0.0,
+        "skillDmg": 18,
+        "libDmg": 7.9,
         "_note": "Read straight off the in-game stats page. THIS is what the damage model uses — level-derived bases, weapon curves, ascension scale, echo arithmetic and forte nodes are all bypassed when this block is present. atkBase/hpBase/defBase are the WHITE numbers (character base + weapon base); an ATK% buff multiplies those, not the green total, which is why both are needed. elemDmg is the element line as displayed, which already includes any All-Attribute DMG bonus."
       },
       "echoes": [
@@ -1069,32 +1073,33 @@
           ]
         },
         {
-          "cost": 1,
-          "name": "Aero Predator",
+          "cost": 3,
+          "name": "New Cost-3 (Electro DMG main)",
           "set": "void-thunder",
-          "main": "atkPct",
+          "main": "elemDmg:electro",
           "subs": [
             [
-              "atkPct",
-              10.1
+              "critDmg",
+              12.6
             ],
             [
-              "skillDmg",
-              9.4
+              "energyRegen",
+              10.8
             ],
             [
-              "hp",
-              320
+              "basicDmg",
+              8.6
             ],
             [
-              "def",
-              60
+              "libDmg",
+              7.9
             ],
             [
-              "defPct",
-              12.8
+              "hpPct",
+              7.9
             ]
-          ]
+          ],
+          "_note": "Added 2026-08-12. Substats solved from the stats page, not read off the echo — confirm the names if it matters. Set assumed Void Thunder because the panel still shows the 2pc +10% Electro."
         }
       ],
       "buffs": [
@@ -1109,7 +1114,7 @@
           "default": true
         }
       ],
-      "_echoCostNote": "Echo cost is 10/12 — two points unused. Three Cost-1 echoes where a second Cost-3 would fit."
+      "_echoCostNote": "12/12 as of 2026-08-12 (4/3/3/1/1)."
     },
     "mortefi": {
       "name": "Mortefi",
@@ -1135,8 +1140,13 @@
         "hp": 6094,
         "def": 589,
         "critRate": 29.4,
-        "critDmg": 150.0,
-        "energyRegen": 135.6
+        "critDmg": 150,
+        "energyRegen": 135.6,
+        "elemDmg": 0,
+        "basicDmg": 0,
+        "heavyDmg": 0,
+        "skillDmg": 0,
+        "libDmg": 0
       },
       "echoes": [
         {
@@ -1227,9 +1237,36 @@
           "stat": "attrDmg",
           "value": 12,
           "default": true
+        },
+        {
+          "id": "mortefi.outro.violent-finish",
+          "name": "Outro: Violent Finish — incoming Resonator +38% Heavy Attack DMG Amplification",
+          "target": "team",
+          "kind": "amplify",
+          "value": 38,
+          "attackType": "heavy",
+          "default": true,
+          "_note": "Verbatim from Kuro's guide API (guide-server.aki-game.net, roleGbId 1204, guide 14038): 'The incoming Resonator gains 38% Heavy Attack DMG Amplification for 14s or until they are switched out.' Amplification, not a DMG Bonus, so it is its own multiplicative bucket. Was missing entirely until 2026-08-12 and was understating augusta-team by 30%. Duration is 14s and Augusta's window is longer, so this is an upper bound — see the buff-timing caveat."
         }
       ],
-      "_statsTodo": "Panel stats not yet entered. Add a 'stats' block: atk/atkBase, hp/hpBase, def/defBase, critRate, critDmg, energyRegen, elemDmg and the per-type DMG bonuses, all read off the in-game stats page."
+      "_statsTodo": "Panel stats not yet entered. Add a 'stats' block: atk/atkBase, hp/hpBase, def/defBase, critRate, critDmg, energyRegen, elemDmg and the per-type DMG bonuses, all read off the in-game stats page.",
+      "stats": {
+        "atk": 688,
+        "atkBase": 577,
+        "hp": 6094,
+        "hpBase": 5182,
+        "def": 589,
+        "defBase": 589,
+        "critRate": 29.4,
+        "critDmg": 150,
+        "energyRegen": 135.6,
+        "elemDmg": 0,
+        "basicDmg": 0,
+        "heavyDmg": 0,
+        "skillDmg": 0,
+        "libDmg": 0,
+        "_note": "Read straight off the in-game stats page 2026-08-12. Lv50, every skill 1/10, no Forte stat nodes, all five Moonlit Clouds echoes at LV.0 — hence every DMG-type bonus is 0.0%. Moonlit Clouds 2pc (+10% ER) is already inside the 135.6%."
+      }
     },
     "baizhi": {
       "name": "Baizhi",

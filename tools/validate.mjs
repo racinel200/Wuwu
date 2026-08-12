@@ -185,8 +185,16 @@ for (const cid of Object.keys(chars.characters)) {
 
 console.log('\nPANEL MODE vs RECONSTRUCTION — same rotation, two independent stat sources');
 {
+  // Rebuild from gear ONLY for characters whose gear reconstruction is actually solved.
+  // Someone like Mortefi — unsolved weapon level, every echo at LV.0 — has a reconstruction
+  // that is known-wrong, so including him would test the broken source against the good one.
   const recon = JSON.parse(JSON.stringify(chars));
-  for (const c of Object.values(recon.characters)) delete c.stats;
+  const skipped = [];
+  for (const [cid, c] of Object.entries(recon.characters)) {
+    if (c.accountAccurate === false || !live.panelCheck(cid)?.accountAccurate) { skipped.push(cid); continue; }
+    delete c.stats;
+  }
+  if (skipped.length) console.log(`  (reconstruction not solved, held at panel values: ${skipped.join(', ')})`);
   const eA = loadEngine(chars), eB = loadEngine(recon);
   for (const r of eA.rotations.rotations) {
     const a2 = eA.runRotation(r.id).total, b2 = eB.runRotation(r.id).total;

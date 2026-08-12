@@ -14,7 +14,8 @@
     "  A group with count:false is shown but excluded from the total (loop repeats, traversal).",
     "",
     "To add a character: put them in characters.json, run tools/refresh-ref.sh, then use their",
-    "labels here. To try a variant, copy a rotation, change its id, and edit the steps."
+    "labels here. To try a variant, copy a rotation, change its id, and edit the steps.",
+    "BUFF WINDOWS live on the ROTATION, not on the buff: rotations[].windows maps a buff id to [fromStep, untilStep]. Both inclusive, 1-based, and they use the SAME step number printed on the icon tile — read it off the page and type it in. null on either end means open. Step numbers are per-rotation and the same buff appears in rotations of different lengths, which is why this cannot live on the buff: a fromStep of 14 that is correct for the 31-step team loop cuts the 14-step solo loop in half. A buff with no window behaves exactly as before windows existed. A window naming a buff the rotation does not list, or an inverted/out-of-range window, is a loud validate.mjs failure. The page draws every buff as a bar under the rotation: gold = windowed, grey = no window, i.e. an assumption rather than a measurement."
   ],
   "rotations": [
     {
@@ -492,7 +493,49 @@
           "t": "If the loop feels like it's failing",
           "b": "Her <b>+18 Concerto</b> and the team heal share a <b>25-second internal cooldown</b>. A full team loop runs about 25.3 seconds, so the margin is a fraction of a second. Play faster than that and Suisui loses both on alternating cycles and <b>will fail to Outro</b>. Slow down rather than adding presses."
         }
-      ]
+      ],
+      "windows": {
+        "suisui.outro.rippling-waters": [
+          8,
+          null
+        ],
+        "suisui.outro.floral-400": [
+          8,
+          null
+        ],
+        "suisui.weapon.firstlights-herald": [
+          8,
+          null
+        ],
+        "verina.outro.blossom": [
+          13,
+          null
+        ],
+        "aemeath.sonata.trailblazing-5pc-crit": [
+          14,
+          null
+        ],
+        "aemeath.sonata.trailblazing-5pc-fusion": [
+          14,
+          null
+        ],
+        "aemeath.weapon.lib-def-ignore": [
+          14,
+          null
+        ],
+        "aemeath.weapon.lib-fusion-res": [
+          14,
+          null
+        ],
+        "aemeath.s3.between-the-stars-critdmg": [
+          14,
+          null
+        ],
+        "aemeath.s3.finale-amplify": [
+          14,
+          null
+        ]
+      }
     },
     {
       "id": "aemeath-solo",
@@ -756,7 +799,33 @@
           "t": "The real solo constraint is energy, not stars",
           "b": "Overdrive costs Resonance Energy and there is no Outro or off-field generation feeding you. Energy does carry between fights in the open world."
         }
-      ]
+      ],
+      "windows": {
+        "aemeath.sonata.trailblazing-5pc-crit": [
+          2,
+          null
+        ],
+        "aemeath.sonata.trailblazing-5pc-fusion": [
+          2,
+          null
+        ],
+        "aemeath.weapon.lib-def-ignore": [
+          2,
+          null
+        ],
+        "aemeath.weapon.lib-fusion-res": [
+          2,
+          null
+        ],
+        "aemeath.s3.between-the-stars-critdmg": [
+          2,
+          null
+        ],
+        "aemeath.s3.finale-amplify": [
+          2,
+          null
+        ]
+      }
     },
     {
       "id": "augusta-team",
@@ -777,7 +846,8 @@
         "augusta.sonata.void-thunder-2pc",
         "mortefi.weapon.static-mist",
         "mortefi.sonata.moonlit-clouds-5pc",
-        "mortefi.echo.impermanence-heron"
+        "mortefi.echo.impermanence-heron",
+        "mortefi.outro.violent-finish"
       ],
       "timeline": [
         {
@@ -1149,7 +1219,13 @@
           "t": "⚠️ These numbers are not trustworthy yet",
           "b": "Baizhi has never been captured — no weapon, no echoes, no stats. Mortefi is Lv50 with every echo at +0 and all skills at Lv1. Augusta reconciles against her panel, but her supports do not, so treat the total as a floor rather than a reading."
         }
-      ]
+      ],
+      "windows": {
+        "mortefi.outro.violent-finish": [
+          14,
+          null
+        ]
+      }
     }
   ]
 }
