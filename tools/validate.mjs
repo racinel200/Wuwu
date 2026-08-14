@@ -246,6 +246,41 @@ console.log('\nBUFF WIRING — the class of bug the damage loop cannot see');
     const cost = (ch.echoes || []).reduce((a, e) => a + (e.cost || 0), 0);
     if (cost > 12) fail(`${cid} echo cost is ${cost}/12`);
   }
+  // 5b. ECHO SUBSTAT LEGALITY. An echo holds exactly five substats and cannot hold the
+  //     same one twice, so across five echoes any single substat tops out at FIVE copies.
+  //     A hypothetical build written as "Crit DMG x12" is not merely optimistic, it is
+  //     unreachable — and the engine cannot see it, because it just sums the numbers.
+  //     This is what inflated the Hiyuki ceiling by 15% on 2026-08-12.
+  {
+    // top of each substat's roll range. Racine's own 90 real substats top out at
+    // critRate 10.5 / critDmg 16.2, so these are the published ceilings, not observed ones.
+    const SUB_MAX = { critRate: 10.5, critDmg: 21.0, atkPct: 15.0, hpPct: 15.0, defPct: 19.2,
+      libDmg: 12.0, basicDmg: 12.0, heavyDmg: 12.0, skillDmg: 12.0, energyRegen: 15.0,
+      flatAtk: 70, hp: 580, def: 70 };
+    for (const [cid, ch] of Object.entries(chars.characters)) {
+      const echoes = ch.echoes || [];
+      if (!echoes.length) continue;
+      const tally = {};
+      for (const e of echoes) {
+        const subs = e.subs || [];
+        if (subs.length > 5)
+          fail(`${cid}: an echo carries ${subs.length} substats — the game allows exactly 5`);
+        const names = subs.map(s => s[0]);
+        for (const n of new Set(names))
+          if (names.filter(x => x === n).length > 1)
+            fail(`${cid}: one echo carries "${n}" twice — a substat cannot repeat on the same echo`);
+        for (const [n, v] of subs) {
+          tally[n] = (tally[n] || 0) + 1;
+          if (SUB_MAX[n] != null && v > SUB_MAX[n])
+            fail(`${cid}: substat ${n}=${v} exceeds the game's maximum roll of ${SUB_MAX[n]}`);
+        }
+      }
+      for (const [n, c] of Object.entries(tally))
+        if (c > echoes.length)
+          fail(`${cid}: ${c}x "${n}" across ${echoes.length} echoes — one substat can appear at most once per echo, so the cap is ${echoes.length}`);
+    }
+  }
+
   // 6b. weapon passives are hand-written, and the engine never reads passiveBuffs from
   //     weapons.json — so a signature can quietly contribute a fraction of what it should.
   //     Six were missing across three characters on 2026-08-12, one of them a TEAM buff.
