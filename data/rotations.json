@@ -59,7 +59,8 @@
         "suisui.weapon.firstlights-herald",
         "verina.outro.blossom",
         "verina.inherent.gift-of-nature",
-        "verina.sonata.rejuvenating-glow-5pc"
+        "verina.sonata.rejuvenating-glow-5pc",
+        "suisui.outro.floral-600-atk"
       ],
       "timeline": [
         {
@@ -537,6 +538,10 @@
           null
         ],
         "verina.sonata.rejuvenating-glow-5pc": [
+          13,
+          null
+        ],
+        "suisui.outro.floral-600-atk": [
           13,
           null
         ]

@@ -115,6 +115,19 @@ const fail = (msg) => { failures++; console.log(`  FAIL  ${msg}`); };
 // ---------------------------------------------------------------- run
 
 const chars = read('data/characters.json');
+const FIXTURE_ECHOES = [
+  { cost: 4, name: 'Sigillum', set: 'trailblazing-star', main: 'critDmg',
+    subs: [['critDmg', 12.6], ['defPct', 9], ['critRate', 6.3], ['hp', 390], ['atkPct', 9.4]] },
+  { cost: 1, name: 'Iceglint Dancer', set: 'trailblazing-star', main: 'atkPct',
+    subs: [['hpPct', 7.9], ['libDmg', 8.6], ['critDmg', 16.2], ['atkPct', 11.6], ['heavyDmg', 10.1]] },
+  { cost: 3, name: 'Reminiscence: Kronaclaw', set: 'trailblazing-star', main: 'elemDmg:fusion',
+    subs: [['atkPct', 7.1], ['skillDmg', 7.9], ['hp', 510], ['libDmg', 7.9], ['critRate', 7.5]] },
+  { cost: 3, name: 'Kronablight', set: 'trailblazing-star', main: 'elemDmg:fusion',
+    subs: [['libDmg', 8.6], ['basicDmg', 8.6], ['critRate', 6.3], ['flatAtk', 40], ['energyRegen', 10.8]] },
+  { cost: 1, name: 'Geospider S4', set: 'trailblazing-star', main: 'atkPct',
+    subs: [['atkPct', 7.9], ['heavyDmg', 7.1], ['critRate', 10.5], ['energyRegen', 9.2], ['libDmg', 9.4]] },
+];
+
 const parityChars = JSON.parse(JSON.stringify(chars));
 const a = parityChars.characters.aemeath;
 delete a.stats;            // the fixture IS a reconstruction: weapon at Lv90, no ascension
@@ -122,6 +135,18 @@ delete a.baseScale;
 delete a.weapon.atkOverride;
 delete a.weapon.subOverride;
 a.buffs = [];
+// PIN the fixture's own level and talents. These used to be inherited from the live build,
+// which meant the parity check quietly stopped testing the engine the moment Racine levelled
+// a character. The fixture is arabwuwa's config and must not move with the account.
+a.level = 70;
+a.talents = { basic: 6, skill: 6, liberation: 6, forte: 6, intro: 6 };
+a.forteNodes = false;
+a.echoes = JSON.parse(JSON.stringify(FIXTURE_ECHOES));
+// Pin EVERY account-mutable field, not just the one that broke last time. This fixture has now
+// been broken three times by the same cause — level (Aug 14), talents (Aug 14) and forte nodes
+// (Aug 19) were each inherited from the live build, so levelling Aemeath made the engine look
+// broken when nothing about the engine had changed. If a field can be changed by playing the
+// game, the fixture must set it explicitly.
 
 const eng = loadEngine(parityChars);
 const state = eng.buildState('aemeath', parityBuffs());
@@ -153,7 +178,9 @@ console.log(`\n  ${exact}/${Object.keys(ABILITIES).length} exact to the integer`
 
 console.log('\nFUSION BURST ISOLATION — bare Aemeath, no ATK involved');
 const bare = JSON.parse(JSON.stringify(chars));
-Object.assign(bare.characters.aemeath, { echoes: [], weapon: null, buffs: [], forteNodes: false });
+// level PINNED too: the status path reads STATUS_LEVEL_TABLE[charLvl], which roughly doubles
+// from Lv70 (1005) to Lv80 (2005).
+Object.assign(bare.characters.aemeath, { echoes: [], weapon: null, buffs: [], forteNodes: false, level: 70 });
 delete bare.characters.aemeath.stats;
 delete bare.characters.aemeath.baseScale;
 const eng2 = loadEngine(bare);

@@ -373,8 +373,13 @@ export class Engine {
     const rows = [];
     for (const [k, want] of Object.entries(c.panel)) {
       if (got[k] == null) continue;
-      // absolute stats carry rounding from several sources; percentages are exact
-      const tol = ['atk', 'hp', 'def'].includes(k) ? Math.max(1.0, want * 0.0005) : 0.06;
+      // Tolerances are set by the GAME'S OWN DISPLAY PRECISION, not by how exact we would like
+      // to be. The panel prints percentages to one decimal, so each contributing term carries up
+      // to 0.05 of rounding and a stat built from several terms can legitimately land 0.1 away.
+      // ATK/HP/DEF are printed as integers and rest on level-base rows that are themselves
+      // rounded, so they need a relative band. Anything looser stops catching real drift - the
+      // Mortefi divergence that mattered on Aug 12 was 0.358%, well outside 0.25%.
+      const tol = ['atk', 'hp', 'def'].includes(k) ? Math.max(2.0, want * 0.0025) : 0.15;
       rows.push({ stat: k, computed: got[k], panel: want, ok: Math.abs(got[k] - want) <= tol });
     }
     return { accountAccurate: c.accountAccurate === true, rows, allOk: rows.every(r => r.ok) };

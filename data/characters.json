@@ -27,59 +27,29 @@
   "characters": {
     "aemeath": {
       "name": "Aemeath",
-      "level": 70,
+      "level": 80,
       "sequence": 3,
-      "baseScale": 0.9342,
+      "baseScale": 0.94475,
       "accountAccurate": true,
       "talents": {
-        "basic": 6,
-        "skill": 6,
-        "liberation": 6,
-        "forte": 6,
-        "intro": 6
+        "basic": 8,
+        "skill": 8,
+        "liberation": 8,
+        "forte": 8,
+        "intro": 8
       },
-      "forteNodes": false,
-      "_forteNodesNote": "The four stat nodes are NOT unlocked. Proved by reconciling the panel: 5 base + 20.0 weapon + 30.6 echo substats = 55.6% Crit Rate exactly, with no room for the nodes' +8%. Unlocking them is worth +8% Crit Rate and +12% ATK and costs only ascension materials.",
+      "forteNodes": true,
+      "_forteNodesNote": "UNLOCKED — confirmed from the Forte screen 2026-08-19 and reconciled against the panel: 5 base + 22.2 weapon + 8.0 nodes + 30.5 echo substats = 65.7% Crit Rate, and the 30.5 matches the 30.6 measured on Aug 12. The four ATK nodes (+12%) are on the same branches and are lit too. NOTE: this does not change any damage total, because she is in panel mode and the measured stats already contain the nodes. It matters for the reconstruction cross-check and for any future modelling that rebuilds her from gear.",
       "weapon": {
         "id": "everbright-polestar",
         "rank": 1,
-        "level": 70,
-        "atkOverride": 449.4,
+        "level": 80,
+        "atkOverride": 519.0,
         "subOverride": {
           "stat": "critRate",
-          "value": 20
+          "value": 22.2
         },
-        "_note": "arabwuwa hard-codes this weapon to Lv90 (587 ATK / 24.3% crit). These are the solved Lv70 values."
-      },
-      "panel": {
-        "atk": 1727,
-        "hp": 14481,
-        "def": 950,
-        "critRate": 55.6,
-        "critDmg": 222.8,
-        "energyRegen": 120,
-        "elemDmg": 82,
-        "basicDmg": 8.6,
-        "heavyDmg": 17.2,
-        "skillDmg": 7.9,
-        "libDmg": 59.5
-      },
-      "stats": {
-        "atk": 1727,
-        "atkBase": 777,
-        "hp": 14481,
-        "hpBase": 8361,
-        "def": 950,
-        "defBase": 872,
-        "critRate": 55.6,
-        "critDmg": 222.8,
-        "energyRegen": 120,
-        "elemDmg": 82,
-        "basicDmg": 8.6,
-        "heavyDmg": 17.2,
-        "skillDmg": 7.9,
-        "libDmg": 59.5,
-        "_note": "Read straight off the in-game stats page. THIS is what the damage model uses — level-derived bases, weapon curves, ascension scale, echo arithmetic and forte nodes are all bypassed when this block is present. atkBase/hpBase/defBase are the WHITE numbers (character base + weapon base); an ATK% buff multiplies those, not the green total, which is why both are needed. elemDmg is the element line as displayed, which already includes any All-Attribute DMG bonus."
+        "_note": "Everbright Polestar. Lv90 is 587 ATK / 24.3% crit; Lv80 solved on the account curves. Levelled to Lv80 on 2026-08-19."
       },
       "echoes": [
         {
@@ -87,6 +57,7 @@
           "name": "Sigillum",
           "set": "trailblazing-star",
           "main": "critDmg",
+          "mainSlot": true,
           "subs": [
             [
               "critDmg",
@@ -94,7 +65,7 @@
             ],
             [
               "defPct",
-              9
+              9.0
             ],
             [
               "critRate",
@@ -111,58 +82,30 @@
           ]
         },
         {
-          "cost": 1,
-          "name": "Iceglint Dancer",
-          "set": "trailblazing-star",
-          "main": "atkPct",
-          "subs": [
-            [
-              "hpPct",
-              7.9
-            ],
-            [
-              "libDmg",
-              8.6
-            ],
-            [
-              "critDmg",
-              16.2
-            ],
-            [
-              "atkPct",
-              11.6
-            ],
-            [
-              "heavyDmg",
-              10.1
-            ]
-          ]
-        },
-        {
           "cost": 3,
           "name": "Reminiscence: Kronaclaw",
           "set": "trailblazing-star",
           "main": "elemDmg:fusion",
           "subs": [
             [
-              "atkPct",
-              7.1
-            ],
-            [
-              "skillDmg",
-              7.9
-            ],
-            [
-              "hp",
-              510
-            ],
-            [
-              "libDmg",
-              7.9
-            ],
-            [
               "critRate",
               7.5
+            ],
+            [
+              "critDmg",
+              16.2
+            ],
+            [
+              "flatAtk",
+              30
+            ],
+            [
+              "atkPct",
+              7.9
+            ],
+            [
+              "def",
+              60
             ]
           ]
         },
@@ -191,6 +134,34 @@
             [
               "energyRegen",
               10.8
+            ]
+          ]
+        },
+        {
+          "cost": 1,
+          "name": "Iceglint Dancer",
+          "set": "trailblazing-star",
+          "main": "atkPct",
+          "subs": [
+            [
+              "hpPct",
+              7.9
+            ],
+            [
+              "libDmg",
+              8.6
+            ],
+            [
+              "critDmg",
+              16.2
+            ],
+            [
+              "atkPct",
+              11.6
+            ],
+            [
+              "heavyDmg",
+              10.1
             ]
           ]
         },
@@ -437,13 +408,46 @@
           "default": false,
           "notes": "Solo variant of the 13-stack buff: 10 stacks at +10% MV each = 100, plus S2's +5% per stack = 50. Use INSTEAD of aemeath.fb.fusion-trail-13 when Suisui is not in the team."
         }
-      ]
+      ],
+      "panel": {
+        "atk": 2073,
+        "hp": 15407,
+        "def": 1160,
+        "critRate": 65.7,
+        "critDmg": 239.0,
+        "energyRegen": 120.0,
+        "elemDmg": 82.0,
+        "basicDmg": 8.6,
+        "heavyDmg": 17.2,
+        "skillDmg": 0.0,
+        "libDmg": 51.6
+      },
+      "stats": {
+        "atk": 2073,
+        "hp": 15407,
+        "def": 1160,
+        "critRate": 65.7,
+        "critDmg": 239.0,
+        "energyRegen": 120.0,
+        "elemDmg": 82.0,
+        "basicDmg": 8.6,
+        "heavyDmg": 17.2,
+        "skillDmg": 0.0,
+        "libDmg": 51.6,
+        "atkBase": 895,
+        "hpBase": 9693,
+        "defBase": 1010,
+        "_note": "Read off the in-game stats page 2026-08-19 at Lv80, skills 8, Everbright Polestar Lv80. atkBase/hpBase/defBase are the WHITE numbers (character base + weapon base); an ATK% buff multiplies those, not the green total. elemDmg 82.0 is the Fusion line as displayed and already includes the 12% All-Attribute bonus that shows on every element row."
+      },
+      "tuneBreakPoints": 10,
+      "_echoesNote": "All five captured from the echo screen 2026-08-19, cost 12/12, Trailblazing Star 5/5, every piece +25.",
+      "_baseScaleNote": "Solved 2026-08-19 against the real Lv80 panel (ATK 2073 / HP 15407 / DEF 1160), weighted on ATK because ATK is what the damage model consumes. She is Lv80 PRE-ascension, same as Suisui. NOTE: a single scalar CANNOT reconcile all three exactly — the game keeps its own pre-ascension base rows rather than a uniform fraction of the post-ascension ones, so a residual of a few points is structural, not a fitting failure. Her panel is the authoritative source; the reconstruction exists only as a cross-check. Ascending her moves this to 1.0."
     },
     "suisui": {
       "name": "Suisui",
-      "level": 70,
-      "sequence": 0,
-      "baseScale": 0.9351,
+      "level": 80,
+      "sequence": 1,
+      "baseScale": 0.9433,
       "accountAccurate": true,
       "_reconciled": "Solved 2026-08-12. The HP/DEF contradiction was not a data error — her forte stat nodes are HP%, not ATK%. Suisui's eight nodes are 4x hpPct (12.0 total) and 4x healingBonus (12.0 total). The four HP nodes ARE unlocked, which is exactly the 11.96 points the HP side was short; the healing nodes are not (panel healing 36.4 = 26.4 echo main + 10.0 from Forbidden Bastion's main-slot echo skill, with no room for them). DEF is the clean estimator for her scale because she has zero DEF% — 0.9351, matching Aemeath's 0.9342, i.e. both are at Lv70 PRE-ascension. Weapon then solves to 315.0 base ATK, a 0.765 ratio to its Lv90 value, right on the band the other three weapons set.",
       "talents": {
@@ -460,38 +464,13 @@
       "weapon": {
         "id": "firstlights-herald",
         "rank": 1,
-        "level": 70,
-        "atkOverride": 315,
+        "level": 80,
+        "atkOverride": 364.0,
         "subOverride": {
           "stat": "energyRegen",
-          "value": 63.7
-        }
-      },
-      "panel": {
-        "atk": 979,
-        "hp": 18351,
-        "def": 955,
-        "critRate": 19.4,
-        "critDmg": 150,
-        "energyRegen": 249.3
-      },
-      "stats": {
-        "atk": 979,
-        "atkBase": 537,
-        "hp": 18351,
-        "hpBase": 12687,
-        "def": 955,
-        "defBase": 835,
-        "critRate": 19.4,
-        "critDmg": 150,
-        "energyRegen": 249.3,
-        "elemDmg": 0,
-        "basicDmg": 18,
-        "heavyDmg": 7.9,
-        "skillDmg": 29.6,
-        "libDmg": 0,
-        "healingBonus": 36.4,
-        "_note": "Read straight off the in-game stats page. THIS is what the damage model uses — level-derived bases, weapon curves, ascension scale, echo arithmetic and forte nodes are all bypassed when this block is present. atkBase/hpBase/defBase are the WHITE numbers (character base + weapon base); an ATK% buff multiplies those, not the green total, which is why both are needed. elemDmg is the element line as displayed, which already includes any All-Attribute DMG bonus."
+          "value": 70.3
+        },
+        "_note": "Lv90 is 412.5 ATK / 77.04% ER. Lv80 solved on the account curves. Was left at the Lv70 solve (315 / 63.7) after she was levelled on 2026-08-14 — corrected 2026-08-19. This feeds THREE ER-scaled buffs, so a stale weapon level understates her whole contribution."
       },
       "echoes": [
         {
@@ -632,9 +611,9 @@
           "target": "team",
           "kind": "stat",
           "stat": "attrDmg",
-          "value": 9.8,
+          "value": 11.2,
           "default": true,
-          "notes": "0.2% per 1% of Suisui's ER above 200, cap 12%. At her 249.3 ER that is 9.8%. Recompute if her ER changes."
+          "notes": "0.2% per 1% of Suisui's ER above 200, cap 12%. At her measured 255.9% ER that is 11.2%. Recompute if her ER changes."
         },
         {
           "id": "suisui.sonata.feathered-trace-5pc",
@@ -642,9 +621,9 @@
           "target": "team",
           "kind": "stat",
           "stat": "atkPct",
-          "value": 24.9,
+          "value": 25.0,
           "default": true,
-          "notes": "0.1% per 1% of Suisui's ER, cap 25%. At 249.3 ER that is 24.9%."
+          "notes": "0.1% per 1% of Suisui's ER, cap 25%. At 255.9% ER this is CAPPED at 25.0%."
         },
         {
           "id": "suisui.weapon.firstlights-herald",
@@ -661,9 +640,9 @@
           "target": "team",
           "kind": "stat",
           "stat": "atkPct",
-          "value": 50,
-          "default": false,
-          "notes": "OFF: requires the ally to CONSUME Negative Status stacks. Aemeath inflicts without consuming, so at Suisui S0 this never reaches her. Suisui S1 is the fix — flip this on if you pull it."
+          "value": 46.6,
+          "default": true,
+          "notes": "Undulating Mist, LIVE since Suisui S1 (2026-08-19). Kuro: '+0.1% ATK per 0.12% of her ER over 200%, up to 50%' -> caps at 260% ER. At her measured 255.9% ER that is 46.6%. Applies to the ACTIVE RESONATOR after her first Plume Step — no party-slot requirement. Recompute if her ER changes."
         },
         {
           "id": "suisui.s2.team-critdmg",
@@ -673,13 +652,42 @@
           "stat": "critDmg",
           "value": 50,
           "default": false,
-          "notes": "OFF: Suisui is S0."
+          "notes": "OFF: Suisui is S1. This one needs S2."
         }
-      ]
+      ],
+      "panel": {
+        "atk": 1066,
+        "hp": 21128,
+        "def": 1087,
+        "critRate": 19.4,
+        "critDmg": 150.0,
+        "energyRegen": 255.9,
+        "healingBonus": 36.4,
+        "basicDmg": 18.0,
+        "heavyDmg": 7.9,
+        "skillDmg": 29.6
+      },
+      "stats": {
+        "atk": 1066,
+        "hp": 21128,
+        "def": 1087,
+        "critRate": 19.4,
+        "critDmg": 150.0,
+        "energyRegen": 255.9,
+        "atkBase": 618,
+        "hpBase": 14694,
+        "defBase": 967,
+        "_note": "Read off the in-game stats page 2026-08-19 at Lv80 (HP/ATK/DEF/Crit/ER). healingBonus, basicDmg, heavyDmg and skillDmg carried forward from the Lv70 reading — they come from echo main stats and substats, which did not change, and are level-independent. ER 255.9% feeds three team buffs.",
+        "healingBonus": 36.4,
+        "basicDmg": 18.0,
+        "heavyDmg": 7.9,
+        "skillDmg": 29.6
+      },
+      "_baseScaleNote": "Solved 2026-08-19 by fitting ATK/HP/DEF simultaneously against the real Lv80 panel (1066 / 21128 / 1087). Worst residual 0.83 on a tolerance of 1, so all three reconcile. She is Lv80 PRE-ascension, exactly as she was Lv70 pre-ascension at 0.9351. Ascending her to unlock Lv90 moves this to 1.0."
     },
     "verina": {
       "name": "Verina",
-      "level": 70,
+      "level": 80,
       "sequence": 3,
       "baseScale": 1,
       "accountAccurate": true,
@@ -701,32 +709,6 @@
           "stat": "energyRegen",
           "value": 42.8
         }
-      },
-      "panel": {
-        "atk": 1398,
-        "hp": 17963,
-        "def": 1142,
-        "critRate": 20,
-        "critDmg": 191.4,
-        "energyRegen": 216
-      },
-      "stats": {
-        "atk": 1398,
-        "atkBase": 519,
-        "hp": 17963,
-        "hpBase": 10799,
-        "def": 1142,
-        "defBase": 835,
-        "critRate": 20,
-        "critDmg": 191.4,
-        "energyRegen": 216,
-        "elemDmg": 0,
-        "basicDmg": 15.7,
-        "heavyDmg": 0,
-        "skillDmg": 26.6,
-        "libDmg": 18.7,
-        "healingBonus": 10,
-        "_note": "Read straight off the in-game stats page. THIS is what the damage model uses — level-derived bases, weapon curves, ascension scale, echo arithmetic and forte nodes are all bypassed when this block is present. atkBase/hpBase/defBase are the WHITE numbers (character base + weapon base); an ATK% buff multiplies those, not the green total, which is why both are needed. elemDmg is the element line as displayed, which already includes any All-Attribute DMG bonus."
       },
       "echoes": [
         {
@@ -909,7 +891,33 @@
           "default": true,
           "_note": "Verbatim: \"Upon healing allies, increase ATK of the entire team by 15% for 30s.\" She heals on her Outro every loop. MISSING until 2026-08-12. Distinct from her Inherent Gift of Nature (+20% team ATK, 20s) which was already modelled."
         }
-      ]
+      ],
+      "_panelLv70": {
+        "atk": 1398,
+        "hp": 17963,
+        "def": 1142,
+        "critRate": 20,
+        "critDmg": 191.4,
+        "energyRegen": 216
+      },
+      "_statsLv70": {
+        "atk": 1398,
+        "atkBase": 519,
+        "hp": 17963,
+        "hpBase": 10799,
+        "def": 1142,
+        "defBase": 835,
+        "critRate": 20,
+        "critDmg": 191.4,
+        "energyRegen": 216,
+        "elemDmg": 0,
+        "basicDmg": 15.7,
+        "heavyDmg": 0,
+        "skillDmg": 26.6,
+        "libDmg": 18.7,
+        "healingBonus": 10,
+        "_note": "Read straight off the in-game stats page. THIS is what the damage model uses — level-derived bases, weapon curves, ascension scale, echo arithmetic and forte nodes are all bypassed when this block is present. atkBase/hpBase/defBase are the WHITE numbers (character base + weapon base); an ATK% buff multiplies those, not the green total, which is why both are needed. elemDmg is the element line as displayed, which already includes any All-Attribute DMG bonus."
+      }
     },
     "augusta": {
       "name": "Augusta",
