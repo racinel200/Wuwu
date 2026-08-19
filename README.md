@@ -125,7 +125,12 @@ displayed integer on all 29**, across all three damage paths. Plus five isolatio
 vary one Fusion Burst toggle at a time on a bare character, proving the status path never
 touches ATK. Then it runs the panel check and every rotation, failing on any warning.
 
-The regression builds its own parity config, so editing your build never breaks it.
+The regression pins its own parity config — level, talents, forte nodes and echoes are all
+frozen inside `validate.mjs` — so editing your build never breaks it. This was NOT true until
+2026-08-19: the fixture had been inheriting each of those four fields from the live build in
+turn, and levelling a character made 29 abilities "fail" by an identical percentage when
+nothing about the engine had changed. If a field can be changed by playing the game, the
+fixture must set it explicitly.
 
 ## Two things arabwuwa cannot do
 
@@ -133,9 +138,15 @@ The regression builds its own parity config, so editing your build never breaks 
 `weapon.subOverride` take the real values — Everbright Polestar at Lv70 solves to
 Base ATK 449.4 / Crit Rate 20.0% against 587 / 24.3% at Lv90.
 
-**Ascension.** The site's Lv70 stat row is the post-ascension value. `baseScale` handles a
-character sitting at Lv70 pre-ascension; Aemeath's factor is 0.9342, solved off both HP and
-DEF independently.
+**Ascension.** The site's stat rows are post-ascension values. `baseScale` handles a character
+sitting at a level cap *pre*-ascension. Current factors: **Aemeath 0.94475 and Suisui 0.9433 at
+Lv80**, both fitted against their real panels (Aemeath's weighted on ATK, since ATK is what the
+damage model consumes). At Lv70 they were 0.9342 and 0.9351.
+
+A single scalar **cannot** reconcile ATK, HP and DEF exactly — the game keeps its own
+pre-ascension base rows rather than a uniform fraction of the post-ascension ones, so a residual
+of a few points is structural. Where a character has a real panel reading, that panel is
+authoritative and the reconstruction is only a cross-check.
 
 Together these are why the site overstates Aemeath's ATK by about 16%.
 
