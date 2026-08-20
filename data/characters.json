@@ -25,111 +25,293 @@
     "  basicDmg heavyDmg skillDmg libDmg introDmg outroDmg echoDmg attrDmg elemDmg:<element>"
   ],
   "characters": {
-    "aemeath": {
-      "name": "Aemeath",
-      "level": 80,
-      "sequence": 3,
-      "baseScale": 0.94475,
-      "accountAccurate": true,
-      "talents": {
-        "basic": 8,
-        "skill": 8,
-        "liberation": 8,
-        "forte": 8,
-        "intro": 8
-      },
-      "forteNodes": true,
-      "_forteNodesNote": "UNLOCKED — confirmed from the Forte screen 2026-08-19 and reconciled against the panel: 5 base + 22.2 weapon + 8.0 nodes + 30.5 echo substats = 65.7% Crit Rate, and the 30.5 matches the 30.6 measured on Aug 12. The four ATK nodes (+12%) are on the same branches and are lit too. NOTE: this does not change any damage total, because she is in panel mode and the measured stats already contain the nodes. It matters for the reconstruction cross-check and for any future modelling that rebuilds her from gear.",
-      "weapon": {
-        "id": "everbright-polestar",
-        "rank": 1,
-        "level": 80,
-        "atkOverride": 519.0,
-        "subOverride": {
-          "stat": "critRate",
-          "value": 22.2
+    "denia": {
+      "name": "Denia",
+      "buffs": [
+        {
+          "id": "denia.inherent.etched-colors",
+          "kind": "stat",
+          "name": "Inherent: Etched Colors — team Fusion DMG +30% (Fusion Burst mode)",
+          "stat": "elemDmg:fusion",
+          "_note": "Verbatim (Kuro guide API, roleGbId 1211): \"While in the Entropy Shift states... Resonance Mode - Fusion Burst: All Resonators in the team gain 30% Fusion DMG Bonus.\" Requires Denia herself to be in Fusion Burst mode, which is also the mode Aemeath runs.",
+          "value": 30,
+          "target": "team",
+          "default": true
         },
-        "_note": "Everbright Polestar. Lv90 is 587 ATK / 24.3% crit; Lv80 solved on the account curves. Levelled to Lv80 on 2026-08-19."
+        {
+          "id": "denia.outro.unfinished-lies",
+          "kind": "status",
+          "name": "Outro: Unfinished Lies — Fusion Burst DMG Amplified 60% (30s)",
+          "_note": "Verbatim: \"When in Resonance Mode - Fusion Burst, Fusion Burst DMG against targets near the active Resonator in the team is Amplified by 60% for 30s.\" Scoped to the Fusion Burst status only — it does NOT touch her ordinary Fusion damage. MODEL NOTE: this has to be kind:status / status:fusionBurst / bucket:amplify. A plain kind:amplify with attackType:fusionBurst lands in the ordinary-ability amplify map, which the negative-status path never reads — it would silently do nothing.",
+          "value": 60,
+          "bucket": "amplify",
+          "status": "fusionBurst",
+          "target": "team",
+          "default": true
+        },
+        {
+          "id": "denia.weapon.forged-dwarf-star-atk",
+          "kind": "stat",
+          "name": "Forged Dwarf Star R1 — ATK +12%",
+          "stat": "atkPct",
+          "owner": "denia",
+          "panel": true,
+          "value": 12,
+          "target": "self",
+          "default": true
+        },
+        {
+          "id": "denia.s1.crit-dmg",
+          "kind": "stat",
+          "name": "S1 — Crit DMG +30% (self)",
+          "stat": "critDmg",
+          "_note": "Self only. Does nothing for a carry standing next to her.",
+          "owner": "denia",
+          "value": 30,
+          "target": "self",
+          "default": false
+        },
+        {
+          "id": "denia.s2.fusion-burst-inflicter",
+          "kind": "stat",
+          "name": "S2 — inflicter of Fusion Burst gains +50% Fusion DMG (15s)",
+          "stat": "elemDmg:fusion",
+          "_note": "Verbatim: \"When Denia is in Resonance Mode - Fusion Burst, after a Resonator in the team inflicts Fusion Burst on the target, they gain 50% Fusion DMG Bonus for 15s.\" Aemeath inflicts Fusion Burst through six different skills, so she holds this for the whole window. This is the single largest sequence node on any of the three.",
+          "value": 50,
+          "target": "team",
+          "default": false
+        },
+        {
+          "id": "denia.s3.final-act-mv",
+          "kind": "mvPct",
+          "name": "S3 — Final Act (Breakdown) DMG Multiplier +80% (self)",
+          "owner": "denia",
+          "value": 80,
+          "target": "self",
+          "default": false,
+          "abilities": [
+            "Final Act - Breakdown Form DMG"
+          ]
+        },
+        {
+          "id": "denia.weapon.dwarf-star-lib",
+          "kind": "stat",
+          "name": "Forged Dwarf Star R1 — Liberation DMG Bonus +36% on inflicting Fusion Burst (5s)",
+          "stat": "libDmg",
+          "owner": "denia",
+          "value": 36,
+          "target": "self",
+          "default": true
+        },
+        {
+          "id": "denia.weapon.dwarf-star-team-atk",
+          "kind": "stat",
+          "name": "Forged Dwarf Star R1 — TEAM ATK +24% for 15s when they inflict Fusion Burst",
+          "stat": "atkPct",
+          "_note": "A team buff on a support weapon — this one DOES reach Aemeath, who inflicts Fusion Burst through six skills. It changes the earlier finding that Denia's weapon was worthless.",
+          "value": 24,
+          "target": "team",
+          "default": true
+        },
+        {
+          "id": "denia.ascension.energy-regen",
+          "kind": "stat",
+          "name": "Energy Regen +30% — ascension bonus stat (source unconfirmed)",
+          "stat": "energyRegen",
+          "notes": "OBSERVED, NOT ATTRIBUTED. Her panel reads 167.6% ER against 100 base + 37.6 echo substats = 137.6. The missing 30.0 is not in either Inherent (Vestiges of Falsehood, Etched Colors), not in her Forte Circuit (Unfinished Lies, Shattered Hours), and not on Forged Dwarf Star, whose substat is Crit Rate. Most likely her ascension bonus stat. Recorded so the reconstruction matches the measured panel rather than inventing a mechanism. ZERO DAMAGE IMPACT — none of Denia's buffs are ER-scaled, unlike Suisui's three. Confirm the source when convenient.",
+          "owner": "denia",
+          "panel": true,
+          "value": 30,
+          "target": "self",
+          "default": true
+        },
+        {
+          "id": "denia.sonata.chromatic-foam-2pc",
+          "kind": "stat",
+          "name": "Chromatic Foam 2pc — Fusion DMG +10% (self)",
+          "stat": "elemDmg:fusion",
+          "notes": "Always-on set bonus and visible in her panel: 30+30 from two Cost-3 mains plus this 10 = 70.0.",
+          "owner": "denia",
+          "panel": true,
+          "value": 10,
+          "target": "self",
+          "default": true
+        },
+        {
+          "id": "denia.sonata.chromatic-foam-5pc",
+          "kind": "stat",
+          "name": "Chromatic Foam 5pc — incoming Resonator +25% Fusion DMG on Outro (15s)",
+          "stat": "elemDmg:fusion",
+          "notes": "Verbatim from Kuro's guide API (id 14116): 'While this effect is active, casting an Outro Skill grants the incoming Resonator 25% Fusion DMG Bonus for 15s.' She self-inflicts Fusion Burst so the condition is free. REPLACES the Flaming Clawprint 5pc previously modelled (+15% team).",
+          "value": 25,
+          "target": "team",
+          "default": true
+        },
+        {
+          "id": "denia.echo.reminiscence-outro",
+          "kind": "stat",
+          "name": "Reminiscence: Denia (main slot) — incoming Resonator +12% Fusion DMG on Outro (15s)",
+          "stat": "elemDmg:fusion",
+          "notes": "Main-slot echo skill: 'Within the next 15s, casting Outro Skill grants the incoming Resonator 12.00% Fusion DMG Bonus for 15s.' Requires the Echo Skill cast BEFORE her Outro — it is a step in Kuro's own combo string.",
+          "value": 12,
+          "target": "team",
+          "default": true
+        },
+        {
+          "id": "denia.forte.entropy-shift-breakdown",
+          "kind": "stat",
+          "name": "Entropy Shift: Breakdown Form — ATK +30% (self, 12s)",
+          "stat": "atkPct",
+          "notes": "Verbatim (Kuro guide API, roleGbId 1211, skill 'Final Act'): 'Entropy Shift: Breakdown Form Increases ATK by 30%.' Granted by Final Act - Stagecraft Form and lasts 12s, i.e. exactly her Breakdown phase. It is REPLACED by Entropy Shift: Stagecraft Form when she casts Final Act - Breakdown Form, so it is gone before the Erosion Field ticks. Window it to the Breakdown steps only — never leave it on for the whole rotation.",
+          "owner": "denia",
+          "value": 30,
+          "target": "self",
+          "default": false
+        },
+        {
+          "id": "denia.forte.void-particle-mv",
+          "kind": "mvPct",
+          "name": "Void Particle — Breakdown Basic Attacks +50% DMG Multiplier",
+          "notes": "Verbatim ('Flawless'): 'When in the Breakdown Form while holding Void Particle, Normal Attack consumes Void Particle on hit and grants the following effects: - The skill DMG is considered Resonance Liberation DMG and the DMG Multiplier is increased by 50%.' She enters Breakdown with well over enough Void Particle: Vestiges of Falsehood tops her to 20 on engaging, Intro grants 25, Phantom Bubble grants 25, Stagecraft basics grant on hit, and Entropy Shift: Stagecraft adds 1/s.",
+          "owner": "denia",
+          "value": 50,
+          "target": "self",
+          "default": false,
+          "abilities": [
+            "Basic Attack - Breakdown Form Stage 1 DMG",
+            "Basic Attack - Breakdown Form Stage 2 DMG",
+            "Basic Attack - Breakdown Form Stage 3 DMG",
+            "Basic Attack - Breakdown Form Stage 4 DMG"
+          ]
+        },
+        {
+          "id": "denia.forte.void-particle-retype",
+          "kind": "retype",
+          "name": "Void Particle — Breakdown Basic Attacks count as Resonance Liberation DMG",
+          "notes": "Same sentence as the +50% MV. This is not cosmetic: retyping swaps her Basic DMG bonus (25.9%) for her Liberation DMG bonus (18.7%) AND lets Forged Dwarf Star's +36% Liberation DMG apply, a net +29 points of additive bonus on four attacks. Banish Stage 1/2 and Erosion Field are already typed liberation in the reference data and need no retype.",
+          "owner": "denia",
+          "target": "self",
+          "default": false,
+          "abilities": [
+            "Basic Attack - Breakdown Form Stage 1 DMG",
+            "Basic Attack - Breakdown Form Stage 2 DMG",
+            "Basic Attack - Breakdown Form Stage 3 DMG",
+            "Basic Attack - Breakdown Form Stage 4 DMG"
+          ],
+          "attackType": "liberation"
+        }
+      ],
+      "level": 80,
+      "panel": {
+        "hp": 14253,
+        "atk": 1870,
+        "def": 1189,
+        "libDmg": 18.7,
+        "critDmg": 281.4,
+        "elemDmg": 70,
+        "basicDmg": 25.9,
+        "critRate": 68.4,
+        "heavyDmg": 9.4,
+        "skillDmg": 8.6,
+        "energyRegen": 167.6
       },
+      "stats": {
+        "hp": 14253,
+        "atk": 1870,
+        "def": 1189,
+        "_note": "Read off the in-game stats page 2026-08-20 at Lv80 POST-ascension (base HP 9693 matches the projection's Lv80 row of 9694 at scale 1.0 — unlike Aemeath and Suisui she is fully ascended). elemDmg 70.0 is the Fusion line: 30+30 from two Cost-3 mains plus Chromatic Foam 2pc.",
+        "hpBase": 9693,
+        "libDmg": 18.7,
+        "atkBase": 818,
+        "critDmg": 281.4,
+        "defBase": 1010,
+        "elemDmg": 70,
+        "basicDmg": 25.9,
+        "critRate": 68.4,
+        "heavyDmg": 9.4,
+        "skillDmg": 8.6,
+        "energyRegen": 167.6
+      },
+      "_owned": "OWNED 2026-08-20 (3.6 Phase 1) together with Forged Dwarf Star. Built to Lv80 post-ascension the same day. All stats below are MEASURED off her in-game screens, not modelled.",
       "echoes": [
         {
+          "set": "chromatic-foam",
           "cost": 4,
-          "name": "Sigillum",
-          "set": "trailblazing-star",
           "main": "critDmg",
-          "mainSlot": true,
+          "name": "Reminiscence: Denia",
           "subs": [
+            [
+              "def",
+              50
+            ],
             [
               "critDmg",
               12.6
             ],
             [
-              "defPct",
-              9.0
+              "energyRegen",
+              9.2
             ],
             [
-              "critRate",
-              6.3
-            ],
-            [
-              "hp",
-              390
-            ],
-            [
-              "atkPct",
+              "heavyDmg",
               9.4
-            ]
-          ]
-        },
-        {
-          "cost": 3,
-          "name": "Reminiscence: Kronaclaw",
-          "set": "trailblazing-star",
-          "main": "elemDmg:fusion",
-          "subs": [
-            [
-              "critRate",
-              7.5
-            ],
-            [
-              "critDmg",
-              16.2
-            ],
-            [
-              "flatAtk",
-              30
             ],
             [
               "atkPct",
-              7.9
-            ],
-            [
-              "def",
-              60
+              10.9
             ]
-          ]
+          ],
+          "mainSlot": true
         },
         {
+          "set": "chromatic-foam",
           "cost": 3,
-          "name": "Kronablight",
-          "set": "trailblazing-star",
           "main": "elemDmg:fusion",
+          "name": "Kronablight",
           "subs": [
             [
-              "libDmg",
-              8.6
+              "atkPct",
+              10.1
+            ],
+            [
+              "defPct",
+              12.8
+            ],
+            [
+              "critRate",
+              8.1
             ],
             [
               "basicDmg",
-              8.6
+              7.9
             ],
             [
-              "critRate",
-              6.3
-            ],
+              "critDmg",
+              15
+            ]
+          ]
+        },
+        {
+          "set": "chromatic-foam",
+          "cost": 3,
+          "main": "elemDmg:fusion",
+          "name": "Twin Nova: Nebulous Cannon",
+          "subs": [
             [
               "flatAtk",
               40
+            ],
+            [
+              "critRate",
+              9.3
+            ],
+            [
+              "critDmg",
+              15
+            ],
+            [
+              "basicDmg",
+              9.4
             ],
             [
               "energyRegen",
@@ -138,50 +320,50 @@
           ]
         },
         {
+          "set": "chromatic-foam",
           "cost": 1,
-          "name": "Iceglint Dancer",
-          "set": "trailblazing-star",
           "main": "atkPct",
+          "name": "Zip Zap",
           "subs": [
             [
-              "hpPct",
-              7.9
+              "critRate",
+              6.3
+            ],
+            [
+              "critDmg",
+              15
+            ],
+            [
+              "energyRegen",
+              8.4
+            ],
+            [
+              "skillDmg",
+              8.6
             ],
             [
               "libDmg",
               8.6
-            ],
-            [
-              "critDmg",
-              16.2
-            ],
-            [
-              "atkPct",
-              11.6
-            ],
-            [
-              "heavyDmg",
-              10.1
             ]
           ]
         },
         {
+          "set": "chromatic-foam",
           "cost": 1,
-          "name": "Geospider S4",
-          "set": "trailblazing-star",
           "main": "atkPct",
+          "name": "Shadow Stepper",
           "subs": [
             [
-              "atkPct",
-              7.9
-            ],
-            [
-              "heavyDmg",
-              7.1
+              "basicDmg",
+              8.6
             ],
             [
               "critRate",
-              10.5
+              6.9
+            ],
+            [
+              "critDmg",
+              13.8
             ],
             [
               "energyRegen",
@@ -189,295 +371,794 @@
             ],
             [
               "libDmg",
-              9.4
+              10.1
             ]
           ]
         }
       ],
+      "weapon": {
+        "id": "forged-dwarf-star",
+        "rank": 1,
+        "_note": "Forged Dwarf Star Lv80/80 R1, read off the weapon screen 2026-08-20.",
+        "level": 80,
+        "atkOverride": 439,
+        "subOverride": {
+          "stat": "critRate",
+          "value": 32.8
+        }
+      },
+      "talents": {
+        "basic": 8,
+        "forte": 8,
+        "intro": 8,
+        "skill": 8,
+        "liberation": 8
+      },
+      "sequence": 0,
+      "baseScale": 1,
+      "forteNodes": true,
+      "_reconciled": "Solved 2026-08-20 against the real panel. Crit Rate: 5 base + 32.8 weapon + 30.6 echo substats = 68.4 EXACT, so no crit-rate forte nodes (hers are Crit DMG). Crit DMG: 150 + 44 main + 71.4 substats + 16.0 forte nodes = 281.4 EXACT — all four Crit DMG nodes unlocked. Fusion 70.0, Basic 25.9, Heavy 9.4, Skill 8.6, Liberation 18.7 all EXACT. ATK: 818 base x (36 mains + 21 subs + 12 forte + 12 weapon passive) + 390 flat = 1870 EXACT. ONE RESIDUAL: Energy Regen reads 167.6 against 100 base + 37.6 substats = 137.6, a clean +30.0 with no identified source — it is not in her two Inherents, not in her Forte Circuit, and not on her weapon. Most likely her ascension bonus stat. ZERO DAMAGE IMPACT: unlike Suisui, none of Denia's buffs are ER-scaled, so the residual changes nothing. Flagged for confirmation, not fabricated.",
+      "_kuroTargets": {
+        "atk": 2200,
+        "set": "Chromatic Foam 5pc",
+        "combo": "Intro > Basic x1 > Res Skill > Liberation > Basic x4 > Res Skill x2 > Liberation > Echo Skill > Outro",
+        "critDmg": 270,
+        "weapons": "Forged Dwarf Star > Stringmaster > Augment",
+        "critRate": 70,
+        "mainEcho": "Reminiscence: Denia (Cost 4, main slot)",
+        "echoMains": "Cost-4 Crit Rate | Cost-3 Fusion DMG x2 | Cost-1 ATK% x2",
+        "energyRegen": 130,
+        "substatPriority": "Crit Rate / Crit DMG > ATK% > Resonance Liberation DMG > Energy Regen",
+        "officialTeammates": "Aemeath, Chisa"
+      },
+      "_talentsNote": "All five nodes read Lv.8/10 off the Forte screen 2026-08-20 (second reading). 8 is the ascension cap at Lv80 — she is fully levelled for her current ascension. Basic was 4, Skill 5, Intro 4 at the first reading.",
+      "accountAccurate": true,
+      "tuneBreakPoints": 10
+    },
+    "baizhi": {
+      "name": "Baizhi",
+      "buffs": [],
+      "level": 70,
+      "echoes": [],
+      "weapon": null,
+      "talents": {
+        "basic": 1,
+        "forte": 1,
+        "intro": 1,
+        "skill": 1,
+        "liberation": 1
+      },
+      "sequence": 0,
+      "forteNodes": false,
+      "_unreconciled": "NOT CAPTURED. Her echoes, weapon and panel were never read off the client. Everything below is a placeholder; do not trust any Baizhi number until this is filled in.",
+      "accountAccurate": false
+    },
+    "hiyuki": {
+      "name": "Hiyuki",
       "buffs": [
         {
-          "id": "aemeath.sonata.trailblazing-2pc",
-          "name": "Trailblazing Star 2pc — Fusion DMG +10%",
-          "target": "self",
+          "id": "hiyuki.inherent.snow-rust-critdmg",
           "kind": "stat",
-          "stat": "elemDmg:fusion",
-          "value": 10,
-          "panel": true,
-          "default": true
-        },
-        {
-          "id": "aemeath.echo.sigillum-lib",
-          "name": "Sigillum main-slot echo skill — Liberation DMG +25%",
-          "target": "self",
-          "kind": "stat",
-          "stat": "libDmg",
-          "value": 25,
-          "panel": true,
-          "default": true
-        },
-        {
-          "id": "aemeath.weapon.all-attribute",
-          "name": "Everbright Polestar — All-Attribute DMG +12%",
-          "target": "self",
-          "kind": "stat",
-          "stat": "attrDmg",
-          "value": 12,
-          "panel": true,
-          "default": true
-        },
-        {
-          "id": "aemeath.sonata.trailblazing-5pc-crit",
-          "name": "Trailblazing Star 5pc — Crit Rate +20% (8s after inflicting Fusion Burst)",
-          "target": "self",
-          "kind": "stat",
-          "stat": "critRate",
-          "value": 20,
-          "default": true,
-          "notes": "Conditional. arabwuwa's own UI never surfaces a toggle for this, so their numbers omit it. It is live during her burst window."
-        },
-        {
-          "id": "aemeath.sonata.trailblazing-5pc-fusion",
-          "name": "Trailblazing Star 5pc — Fusion DMG +20% (8s)",
-          "target": "self",
-          "kind": "stat",
-          "stat": "elemDmg:fusion",
-          "value": 20,
-          "default": true
-        },
-        {
-          "id": "aemeath.weapon.lib-def-ignore",
-          "name": "Everbright Polestar — Liberation DEF Ignore 32%",
-          "target": "self",
-          "kind": "defIgnore",
-          "value": 32,
-          "attackType": "liberation",
-          "default": true
-        },
-        {
-          "id": "aemeath.weapon.lib-fusion-res",
-          "name": "Everbright Polestar — Liberation Fusion RES −10%",
-          "target": "self",
-          "kind": "resRed",
-          "value": 10,
-          "element": "fusion",
-          "attackType": "liberation",
-          "default": true
-        },
-        {
-          "id": "aemeath.s3.between-the-stars-critdmg",
-          "name": "S3 Between the Stars (Fusion Burst) — Crit DMG +60%",
-          "target": "self",
-          "kind": "stat",
+          "name": "Inherent: Fine Snow — Crit DMG +40% (1 Snow Rust stack)",
           "stat": "critDmg",
-          "value": 60,
-          "default": true,
-          "notes": "At S3 the inherent is replaced: one teammate Fusion Burst trigger grants the full 60%, no stacking."
-        },
-        {
-          "id": "aemeath.s3.finale-amplify",
-          "name": "S3 Between the Stars — Finale DMG Amplify +25%",
-          "target": "self",
-          "kind": "amplify",
-          "value": 25,
-          "abilities": [
-            "Heavenfall Edict: Finale DMG"
-          ],
-          "default": true
-        },
-        {
-          "id": "aemeath.s3.finale-mv",
-          "name": "S3 — Finale DMG Multiplier +100% (doubles it)",
-          "target": "self",
-          "kind": "mvPct",
-          "value": 100,
-          "abilities": [
-            "Heavenfall Edict: Finale DMG"
-          ],
-          "default": true
-        },
-        {
-          "id": "aemeath.s3.overdrive-mv",
-          "name": "S3 — Overdrive DMG Multiplier +40%",
-          "target": "self",
-          "kind": "mvPct",
+          "_note": "Verbatim: \"When a Resonator in the team applies Glacio Chafe or Havoc Bane, Hiyuki gains 1 stack of Snow Rust... 1 stack: Glacio Bite DMG is Amplified by 30%... Hiyuki's Crit. DMG is increased by 40%.\" She self-applies Glacio Chafe, so 1 stack is free. Stacks 2 and 3 need OTHER Glacio Chafe / Havoc Bane appliers in the team — each Resonator triggers it only once.",
+          "owner": "hiyuki",
           "value": 40,
-          "abilities": [
-            "Heavenfall Edict: Overdrive DMG"
-          ],
+          "target": "self",
           "default": true
         },
         {
-          "id": "aemeath.s2.overture-mv",
-          "name": "S2 — Seraphic Duet: Overture Multiplier +100%",
+          "id": "hiyuki.inherent.snow-rust-bite-amp",
+          "kind": "status",
+          "name": "Inherent: Fine Snow — Glacio Bite DMG Amplified 30%",
+          "owner": "hiyuki",
+          "value": 30,
+          "bucket": "amplify",
+          "status": "glacioBite",
           "target": "self",
-          "kind": "mvPct",
-          "value": 100,
-          "abilities": [
-            "Seraphic Duet: Overture DMG"
-          ],
           "default": true
         },
         {
-          "id": "aemeath.s2.encore-mv",
-          "name": "S2 — Seraphic Duet: Encore Multiplier +100%",
+          "id": "hiyuki.weapon.frostburn-atk",
+          "kind": "stat",
+          "name": "Frostburn R1 — ATK +12%",
+          "stat": "atkPct",
+          "owner": "hiyuki",
+          "panel": true,
+          "value": 12,
           "target": "self",
-          "kind": "mvPct",
-          "value": 100,
-          "abilities": [
-            "Seraphic Duet: Encore DMG"
-          ],
           "default": true
         },
         {
-          "id": "aemeath.s1.instant-response-heavy-critdmg",
-          "name": "S1 — Instant Response heavies Crit DMG +300%",
-          "target": "self",
-          "kind": "abilityCritDmg",
-          "value": 300,
-          "default": true,
-          "abilities": [
-            "Heavy Attack - Aemeath Charged I DMG",
-            "Heavy Attack - Aemeath Charged II DMG",
-            "Heavy Attack - Mech Charged I DMG",
-            "Heavy Attack - Mech Charged II DMG"
-          ]
-        },
-        {
-          "id": "aemeath.inherent.instant-response-heavy-amp",
-          "name": "Inherent: Before All Sounds — heavies +200% Amplify",
-          "target": "self",
+          "id": "hiyuki.outro.snowlight-blessing",
           "kind": "amplify",
-          "value": 200,
-          "default": true,
+          "name": "Outro: Snowlight Blessing — allies' Glacio DMG Amplified 20% vs Glacio Chafe (20s)",
+          "_note": "OFF by default. Only helps OTHER Glacio characters (\"Resonators other than Hiyuki\"), and only against targets already carrying Glacio Chafe. Useless next to a Fusion carry. Switch on only for a Glacio-on-Glacio team.",
+          "value": 20,
+          "target": "team",
+          "default": false,
+          "attackType": "all"
+        },
+        {
+          "id": "hiyuki.s1.foreclaimed-mv",
+          "kind": "mvPct",
+          "name": "S1 — Foreclaimed Self basic/heavy/mid-air/dodge Multipliers +120%",
+          "owner": "hiyuki",
+          "value": 120,
+          "target": "self",
+          "default": false,
           "abilities": [
-            "Heavy Attack - Aemeath Charged I DMG",
-            "Heavy Attack - Aemeath Charged II DMG",
-            "Heavy Attack - Mech Charged I DMG",
-            "Heavy Attack - Mech Charged II DMG"
+            "Basic Attack - Foreclaimed Self Stage 1 DMG",
+            "Basic Attack - Foreclaimed Self Stage 2 DMG",
+            "Basic Attack - Foreclaimed Self Stage 3 DMG",
+            "Basic Attack - Foreclaimed Self Stage 4 DMG",
+            "Basic Attack - Foreclaimed Self Stage 5 DMG",
+            "Heavy Attack - Foreclaimed Self DMG",
+            "Mid-Air Attack - Foreclaimed Self Stage 1 DMG",
+            "Mid-Air Attack - Foreclaimed Self Stage 2 DMG",
+            "Mid-Air Heavy Attack - Foreclaimed Self DMG",
+            "Dodge Counter - Foreclaimed Self DMG"
           ]
         },
         {
-          "id": "aemeath.fb.fusion-trail-13",
-          "name": "Fusion Trail stacks removed = 13 (+10% MV per stack)",
+          "id": "hiyuki.s2.iai-mv",
+          "kind": "mvPct",
+          "name": "S2 — Iai DMG Multiplier +125%",
+          "owner": "hiyuki",
+          "value": 125,
           "target": "self",
-          "kind": "status",
-          "status": "fusionBurst",
-          "bucket": "mvPct",
-          "value": 130,
-          "default": true,
-          "notes": "13 stacks because Suisui raises the Fusion Burst cap from 10 to 13. At 10 stacks this would be 100."
-        },
-        {
-          "id": "aemeath.fb.stardust-passive",
-          "name": "Stardust Resonance (passive) — Fusion Burst +200% MV",
-          "target": "self",
-          "kind": "status",
-          "status": "fusionBurst",
-          "bucket": "mvPct",
-          "value": 200,
-          "default": true
-        },
-        {
-          "id": "aemeath.s2.fb-stardust-extra",
-          "name": "S2 — Stardust Extra Multiplier +200%",
-          "target": "self",
-          "kind": "status",
-          "status": "fusionBurst",
-          "bucket": "mvPct",
-          "value": 200,
-          "default": true
-        },
-        {
-          "id": "aemeath.s2.fb-per-trail-stack",
-          "name": "S2 — +5% MV per Fusion Trail stack (13 stacks = 65%)",
-          "target": "self",
-          "kind": "status",
-          "status": "fusionBurst",
-          "bucket": "mvPct",
-          "value": 65,
-          "default": true
-        },
-        {
-          "id": "aemeath.fb.fusion-trail-10-solo",
-          "name": "Fusion Trail stacks = 10 (solo, no Suisui)",
-          "target": "self",
-          "kind": "status",
-          "status": "fusionBurst",
-          "bucket": "mvPct",
-          "value": 150,
           "default": false,
-          "notes": "Solo variant of the 13-stack buff: 10 stacks at +10% MV each = 100, plus S2's +5% per stack = 50. Use INSTEAD of aemeath.fb.fusion-trail-13 when Suisui is not in the team."
+          "abilities": [
+            "Iai DMG"
+          ]
+        },
+        {
+          "id": "hiyuki.s3.heavy-mv",
+          "kind": "mvPct",
+          "name": "S3 — Frost Splinter and Bitterfrost Multipliers +160%",
+          "owner": "hiyuki",
+          "value": 160,
+          "target": "self",
+          "default": false,
+          "abilities": [
+            "Frost Splinter: Present Self DMG",
+            "Bitterfrost: Foreclaimed Self DMG"
+          ]
+        },
+        {
+          "id": "hiyuki.s3.free-snow-rust",
+          "kind": "status",
+          "name": "S3 — one free Snow Rust stack (reaches 2 with no other applier)",
+          "_note": "Bookkeeping only. The real effect is that S3 grants a free stack, so Hiyuki reaches Snow Rust 2 without a second Glacio Chafe applier. The 2-stack payload (an extra 102% Glacio Bite per Chafe application) is modelled as extra hits in the rotation, not here.",
+          "owner": "hiyuki",
+          "value": 0,
+          "bucket": "amplify",
+          "status": "glacioBite",
+          "target": "self",
+          "default": false
+        },
+        {
+          "id": "hiyuki.snowrust3.bite-amp",
+          "kind": "status",
+          "name": "Snow Rust 3 — Glacio Bite additionally Amplified 30%",
+          "_note": "Needs THREE separate Resonators to have applied Glacio Chafe or Havoc Bane; each counts once. Roster appliers: Hiyuki herself, and Suisui. Nobody else. So 3 stacks is unreachable at S0 and needs S3 plus Suisui.",
+          "owner": "hiyuki",
+          "value": 30,
+          "bucket": "amplify",
+          "status": "glacioBite",
+          "target": "self",
+          "default": false
+        },
+        {
+          "id": "hiyuki.sonata.quiet-snowfall-2pc",
+          "kind": "stat",
+          "name": "Wishes of Quiet Snowfall 2pc — Glacio DMG +10%",
+          "stat": "elemDmg:glacio",
+          "owner": "hiyuki",
+          "panel": true,
+          "value": 10,
+          "target": "self",
+          "default": true
+        },
+        {
+          "id": "hiyuki.sonata.quiet-snowfall-5pc-glacio",
+          "kind": "stat",
+          "name": "Wishes of Quiet Snowfall 5pc — Glacio DMG +10% on inflicting Glacio Chafe (15s)",
+          "stat": "elemDmg:glacio",
+          "owner": "hiyuki",
+          "value": 10,
+          "target": "self",
+          "default": true
+        },
+        {
+          "id": "hiyuki.sonata.quiet-snowfall-5pc-crit",
+          "kind": "stat",
+          "name": "Wishes of Quiet Snowfall 5pc — Snowfall: Crit Rate +25% on Liberation DMG (6s, extends to 30s)",
+          "stat": "critRate",
+          "_note": "The set Kuro built for her — it appears in her own guide payload. Liberation branch chosen over the Outro branch: she is the carry, so +25% Crit Rate on herself beats handing 25% Glacio DMG to whoever comes in next. Extends 4s per Liberation instance up to 30s, and Blade Liberation alone is 8 instances.",
+          "owner": "hiyuki",
+          "value": 25,
+          "target": "self",
+          "default": true
+        },
+        {
+          "id": "hiyuki.forte.snowforged-blade-3",
+          "kind": "mvPct",
+          "name": "Blade Liberation consuming 3 Snowforged Blade — +240% Multiplier on both hits",
+          "_note": "The projection carries \"MV per Snowforged Blade\" as modifier rows with no damageType, so the engine correctly refuses them as standalone abilities — they ADD to the parent. Hit 1 gains 159.05% per blade on a 198.81% base and Hit 2 gains 636.19% on 795.24%; both are exactly 0.8x per blade, so 3 blades is +240% on each. Blade Liberation at 3 blades is 676% + 2704% = 3380%, against 994% without. This was the single largest thing missing from her model.",
+          "owner": "hiyuki",
+          "value": 240,
+          "target": "self",
+          "default": true,
+          "abilities": [
+            "Foreclaiming: Blade Liberation Hit 1 DMG",
+            "Foreclaiming: Blade Liberation Hit 2 DMG"
+          ]
+        },
+        {
+          "id": "hiyuki.weapon.frostburn-glacio-amp",
+          "kind": "amplify",
+          "name": "Frostburn R1 — Glacio DMG Amplified 28% (on applying Glacio Chafe)",
+          "_note": "Her Inward Vision applies 4 stacks of Glacio Chafe, so this is live for the whole window. Every ability she has is Glacio. R5 would be 56% — refinement is NOT modelled by the engine.",
+          "owner": "hiyuki",
+          "value": 28,
+          "target": "self",
+          "default": true,
+          "attackType": "all"
+        },
+        {
+          "id": "hiyuki.weapon.frostburn-lib-defign",
+          "kind": "defIgnore",
+          "name": "Frostburn R1 — Resonance Liberation DEF Ignore 10%",
+          "_note": "Matters more than it looks: Blade Liberation, Bitterfrost, Iai, Inward Vision, Frost Splinter and her Intro are ALL typed liberation.",
+          "owner": "hiyuki",
+          "value": 10,
+          "target": "self",
+          "default": true,
+          "attackType": "liberation"
+        },
+        {
+          "id": "hiyuki.weapon.frostburn-chafe-amp",
+          "kind": "status",
+          "name": "Frostburn R1 — Glacio Chafe DMG Amplified 20%",
+          "owner": "hiyuki",
+          "value": 20,
+          "bucket": "amplify",
+          "status": "glacioChafe",
+          "target": "self",
+          "default": true
         }
       ],
-      "panel": {
-        "atk": 2073,
-        "hp": 15407,
-        "def": 1160,
-        "critRate": 65.7,
-        "critDmg": 239.0,
-        "energyRegen": 120.0,
-        "elemDmg": 82.0,
-        "basicDmg": 8.6,
-        "heavyDmg": 17.2,
-        "skillDmg": 0.0,
-        "libDmg": 51.6
+      "level": 70,
+      "echoes": [
+        {
+          "set": "wishes-of-quiet-snowfall",
+          "cost": 4,
+          "main": "critDmg",
+          "name": "(Cost-4 main)",
+          "subs": [
+            [
+              "critRate",
+              7.7
+            ],
+            [
+              "critDmg",
+              13.8
+            ],
+            [
+              "atkPct",
+              8.5
+            ],
+            [
+              "basicDmg",
+              8.8
+            ],
+            [
+              "flatAtk",
+              46
+            ]
+          ]
+        },
+        {
+          "set": "wishes-of-quiet-snowfall",
+          "cost": 3,
+          "main": "elemDmg:glacio",
+          "name": "(Cost-3)",
+          "subs": [
+            [
+              "critRate",
+              7.7
+            ],
+            [
+              "critDmg",
+              13.8
+            ],
+            [
+              "atkPct",
+              8.5
+            ],
+            [
+              "energyRegen",
+              10.1
+            ],
+            [
+              "heavyDmg",
+              8.8
+            ]
+          ]
+        },
+        {
+          "set": "wishes-of-quiet-snowfall",
+          "cost": 3,
+          "main": "elemDmg:glacio",
+          "name": "(Cost-3)",
+          "subs": [
+            [
+              "critRate",
+              7.7
+            ],
+            [
+              "critDmg",
+              13.8
+            ],
+            [
+              "atkPct",
+              8.5
+            ],
+            [
+              "energyRegen",
+              10.1
+            ],
+            [
+              "skillDmg",
+              8.8
+            ]
+          ]
+        },
+        {
+          "set": "wishes-of-quiet-snowfall",
+          "cost": 1,
+          "main": "atkPct",
+          "name": "(Cost-1)",
+          "subs": [
+            [
+              "critRate",
+              7.7
+            ],
+            [
+              "critDmg",
+              13.8
+            ],
+            [
+              "atkPct",
+              8.5
+            ],
+            [
+              "basicDmg",
+              8.8
+            ],
+            [
+              "flatAtk",
+              46
+            ]
+          ]
+        },
+        {
+          "set": "wishes-of-quiet-snowfall",
+          "cost": 1,
+          "main": "atkPct",
+          "name": "(Cost-1)",
+          "subs": [
+            [
+              "critRate",
+              7.7
+            ],
+            [
+              "critDmg",
+              13.8
+            ],
+            [
+              "atkPct",
+              8.5
+            ],
+            [
+              "heavyDmg",
+              8.8
+            ],
+            [
+              "flatAtk",
+              46
+            ]
+          ]
+        }
+      ],
+      "weapon": {
+        "id": "frostburn",
+        "rank": 1,
+        "_note": "Lv90 588 ATK / 24.3% Crit Rate — identical statline to Everbright Polestar, so the Lv70 solve is the same 449/20.",
+        "level": 70,
+        "atkOverride": 450.2,
+        "subOverride": {
+          "stat": "critRate",
+          "value": 20
+        }
       },
-      "stats": {
-        "atk": 2073,
-        "hp": 15407,
-        "def": 1160,
-        "critRate": 65.7,
-        "critDmg": 239.0,
-        "energyRegen": 120.0,
-        "elemDmg": 82.0,
-        "basicDmg": 8.6,
-        "heavyDmg": 17.2,
-        "skillDmg": 0.0,
-        "libDmg": 51.6,
-        "atkBase": 895,
-        "hpBase": 9693,
-        "defBase": 1010,
-        "_note": "Read off the in-game stats page 2026-08-19 at Lv80, skills 8, Everbright Polestar Lv80. atkBase/hpBase/defBase are the WHITE numbers (character base + weapon base); an ATK% buff multiplies those, not the green total. elemDmg 82.0 is the Fusion line as displayed and already includes the 12% All-Attribute bonus that shows on every element row."
+      "talents": {
+        "basic": 6,
+        "forte": 6,
+        "intro": 6,
+        "skill": 6,
+        "liberation": 6
       },
-      "tuneBreakPoints": 10,
-      "_echoesNote": "All five captured from the echo screen 2026-08-19, cost 12/12, Trailblazing Star 5/5, every piece +25.",
-      "_baseScaleNote": "Solved 2026-08-19 against the real Lv80 panel (ATK 2073 / HP 15407 / DEF 1160), weighted on ATK because ATK is what the damage model consumes. She is Lv80 PRE-ascension, same as Suisui. NOTE: a single scalar CANNOT reconcile all three exactly — the game keeps its own pre-ascension base rows rather than a uniform fraction of the post-ascension ones, so a residual of a few points is structural, not a fitting failure. Her panel is the authoritative source; the reconstruction exists only as a cross-check. Ascending her moves this to 1.0."
+      "sequence": 0,
+      "baseScale": 1,
+      "forteNodes": false,
+      "_hypothetical": "NOT OWNED. Modelled 2026-08-12. Glacio sword carry. Lv70 post-ascension, S0, Frostburn R1, Freezing Frost 5pc, echoes +25 at account-average substats.",
+      "accountAccurate": false
+    },
+    "mornye": {
+      "name": "Mornye",
+      "buffs": [
+        {
+          "id": "mornye.outro.recursion",
+          "kind": "amplify",
+          "name": "Outro: Recursion — team +25% All DMG Amplification (30s)",
+          "_note": "Verbatim (roleGbId 1209): \"Resonators in the team gain 25% All DMG Amplification for 30s.\" Unconditional — no status, no mode, no stack requirement. This is the whole reason to run her.",
+          "value": 25,
+          "target": "team",
+          "default": true,
+          "attackType": "all"
+        },
+        {
+          "id": "mornye.sonata.moonlit-clouds-5pc",
+          "kind": "stat",
+          "name": "Moonlit Clouds 5pc — incoming Resonator ATK +22.5% (15s)",
+          "stat": "atkPct",
+          "value": 22.5,
+          "target": "team",
+          "default": true
+        },
+        {
+          "id": "mornye.inherent.blueprint",
+          "kind": "stat",
+          "name": "Inherent: Blueprint — Energy Regen +10%",
+          "stat": "energyRegen",
+          "owner": "mornye",
+          "panel": true,
+          "value": 10,
+          "target": "self",
+          "default": true
+        },
+        {
+          "id": "mornye.s1.interfered-marker",
+          "kind": "stat",
+          "name": "S1 — Interfered Marker uptime and application (self/utility)",
+          "stat": "atkPct",
+          "_note": "Modelled as zero. S1 is marker uptime and interrupt immunity — real in play, but it does not map to a stat the engine reads.",
+          "owner": "mornye",
+          "value": 0,
+          "target": "self",
+          "default": false
+        },
+        {
+          "id": "mornye.s2.team-crit-dmg",
+          "kind": "stat",
+          "name": "S2 — team Crit DMG +30% vs Interfered Marker (0.2% per 1% ER over 100, cap 32%)",
+          "stat": "critDmg",
+          "_note": "Verbatim: \"Every 1% of Mornye Energy Regen over 100% grants 0.2% Crit DMG increase, up to 32%.\" At her modelled 250% ER that is 0.2 x 150 = 30%. Conditional on the target carrying Interfered Marker, which she applies.",
+          "value": 30,
+          "target": "team",
+          "default": false
+        },
+        {
+          "id": "mornye.s3.concerto",
+          "kind": "stat",
+          "name": "S3 — Concerto and Relative Momentum restore (utility)",
+          "stat": "energyRegen",
+          "_note": "Modelled as zero — pure resource generation.",
+          "owner": "mornye",
+          "value": 0,
+          "target": "self",
+          "default": false
+        },
+        {
+          "id": "mornye.weapon.starfield-team-critdmg",
+          "kind": "stat",
+          "name": "Starfield Calibrator R1 — team Crit DMG +20% (4s)",
+          "stat": "critDmg",
+          "_note": "Also a team buff on a support weapon. Same correction as Denia's.",
+          "value": 20,
+          "target": "team",
+          "default": true
+        }
+      ],
+      "level": 70,
+      "echoes": [
+        {
+          "set": "moonlit-clouds",
+          "cost": 4,
+          "main": "critRate",
+          "name": "(Cost-4 main)",
+          "subs": [
+            [
+              "energyRegen",
+              10.1
+            ],
+            [
+              "critRate",
+              7.7
+            ],
+            [
+              "critDmg",
+              13.8
+            ],
+            [
+              "atkPct",
+              8.5
+            ],
+            [
+              "flatAtk",
+              46
+            ]
+          ]
+        },
+        {
+          "set": "moonlit-clouds",
+          "cost": 3,
+          "main": "energyRegen",
+          "name": "(Cost-3)",
+          "subs": [
+            [
+              "energyRegen",
+              10.1
+            ],
+            [
+              "critRate",
+              7.7
+            ],
+            [
+              "critDmg",
+              13.8
+            ],
+            [
+              "atkPct",
+              8.5
+            ],
+            [
+              "skillDmg",
+              8.8
+            ]
+          ]
+        },
+        {
+          "set": "moonlit-clouds",
+          "cost": 3,
+          "main": "energyRegen",
+          "name": "(Cost-3)",
+          "subs": [
+            [
+              "energyRegen",
+              10.1
+            ],
+            [
+              "critRate",
+              7.7
+            ],
+            [
+              "critDmg",
+              13.8
+            ],
+            [
+              "atkPct",
+              8.5
+            ],
+            [
+              "libDmg",
+              8.8
+            ]
+          ]
+        },
+        {
+          "set": "moonlit-clouds",
+          "cost": 1,
+          "main": "atkPct",
+          "name": "(Cost-1)",
+          "subs": [
+            [
+              "energyRegen",
+              10.1
+            ],
+            [
+              "critRate",
+              7.7
+            ],
+            [
+              "critDmg",
+              13.8
+            ],
+            [
+              "atkPct",
+              8.5
+            ],
+            [
+              "flatAtk",
+              46
+            ]
+          ]
+        },
+        {
+          "set": "moonlit-clouds",
+          "cost": 1,
+          "main": "atkPct",
+          "name": "(Cost-1)",
+          "subs": [
+            [
+              "energyRegen",
+              10.1
+            ],
+            [
+              "critRate",
+              7.7
+            ],
+            [
+              "critDmg",
+              13.8
+            ],
+            [
+              "atkPct",
+              8.5
+            ],
+            [
+              "flatAtk",
+              46
+            ]
+          ]
+        }
+      ],
+      "weapon": {
+        "id": "starfield-calibrator",
+        "rank": 1,
+        "_note": "Lv90 413 ATK / 77% ER. Near-identical statline to Suisui's Firstlight's Herald (412.5 / 77.04), whose solved Lv70 is 315 / 63.7 — so this solve is corroborated by an owned weapon.",
+        "level": 70,
+        "atkOverride": 316.2,
+        "subOverride": {
+          "stat": "energyRegen",
+          "value": 63.4
+        }
+      },
+      "talents": {
+        "basic": 6,
+        "forte": 6,
+        "intro": 6,
+        "skill": 6,
+        "liberation": 6
+      },
+      "sequence": 0,
+      "baseScale": 1,
+      "forteNodes": false,
+      "_hypothetical": "NOT OWNED. Modelled 2026-08-12. Fusion broadblade support/healer. Kuro tracks exactly one stat for her: Energy Regen, target 250%.",
+      "accountAccurate": false
     },
     "suisui": {
       "name": "Suisui",
-      "level": 80,
-      "sequence": 1,
-      "baseScale": 0.9433,
-      "accountAccurate": true,
-      "_reconciled": "Solved 2026-08-12. The HP/DEF contradiction was not a data error — her forte stat nodes are HP%, not ATK%. Suisui's eight nodes are 4x hpPct (12.0 total) and 4x healingBonus (12.0 total). The four HP nodes ARE unlocked, which is exactly the 11.96 points the HP side was short; the healing nodes are not (panel healing 36.4 = 26.4 echo main + 10.0 from Forbidden Bastion's main-slot echo skill, with no room for them). DEF is the clean estimator for her scale because she has zero DEF% — 0.9351, matching Aemeath's 0.9342, i.e. both are at Lv70 PRE-ascension. Weapon then solves to 315.0 base ATK, a 0.765 ratio to its Lv90 value, right on the band the other three weapons set.",
-      "talents": {
-        "basic": 2,
-        "skill": 1,
-        "liberation": 3,
-        "forte": 3,
-        "intro": 1
-      },
-      "forteNodes": {
-        "hpPct": true,
-        "healingBonus": false
-      },
-      "weapon": {
-        "id": "firstlights-herald",
-        "rank": 1,
-        "level": 80,
-        "atkOverride": 364.0,
-        "subOverride": {
+      "buffs": [
+        {
+          "id": "suisui.sonata.feathered-trace-2pc",
+          "kind": "stat",
+          "name": "Song of Feathered Trace 2pc — Energy Regen +10%",
           "stat": "energyRegen",
-          "value": 70.3
+          "notes": "Was missing until 2026-08-12. Found by cross-checking weapon substats: her ER residual only lands on the same curve as every other weapon once this 10% is credited to the sonata rather than the weapon.",
+          "panel": true,
+          "value": 10,
+          "target": "self",
+          "default": true
         },
-        "_note": "Lv90 is 412.5 ATK / 77.04% ER. Lv80 solved on the account curves. Was left at the Lv70 solve (315 / 63.7) after she was levelled on 2026-08-14 — corrected 2026-08-19. This feeds THREE ER-scaled buffs, so a stale weapon level understates her whole contribution."
+        {
+          "id": "suisui.outro.rippling-waters",
+          "kind": "amplify",
+          "name": "Outro: Rippling Waters — All DMG Amplify +25%",
+          "value": 25,
+          "target": "team",
+          "default": true,
+          "attackType": "all"
+        },
+        {
+          "id": "suisui.outro.floral-400",
+          "kind": "stat",
+          "name": "Outro 400 Floral Epistle — DMG Bonus, ER-scaled",
+          "stat": "attrDmg",
+          "notes": "0.2% per 1% of ER above 200, cap 12%. At 285.9% ER this is now CAPPED at 12.0 (was 11.2 at 255.9).",
+          "value": 12,
+          "target": "team",
+          "default": true
+        },
+        {
+          "id": "suisui.sonata.feathered-trace-5pc",
+          "kind": "stat",
+          "name": "Song of Feathered Trace 5pc — team ATK, ER-scaled",
+          "stat": "atkPct",
+          "notes": "0.1% per 1% of ER, cap 25%. CAPPED at 285.9% ER.",
+          "value": 25,
+          "target": "team",
+          "default": true
+        },
+        {
+          "id": "suisui.weapon.firstlights-herald",
+          "kind": "stat",
+          "name": "Firstlight's Herald — team ATK +20%",
+          "stat": "atkPct",
+          "value": 20,
+          "target": "team",
+          "default": true
+        },
+        {
+          "id": "suisui.outro.floral-600-atk",
+          "kind": "stat",
+          "name": "Outro 600 Floral Epistle — Undulating Mist ATK +50%",
+          "stat": "atkPct",
+          "notes": "Undulating Mist, live since Suisui S1. +0.1% ATK per 0.12% of ER over 200%, cap 50% -> caps at 260% ER. At 285.9% ER she is now over the cap, so this sits at the full 50.0 (was 46.6 at 255.9). Applies to the ACTIVE RESONATOR after her first Plume Step — no party-slot requirement.",
+          "value": 50,
+          "target": "team",
+          "default": true
+        },
+        {
+          "id": "suisui.s2.team-critdmg",
+          "kind": "stat",
+          "name": "S2 — team Crit DMG +50%",
+          "stat": "critDmg",
+          "notes": "OFF: Suisui is S1. This one needs S2.",
+          "value": 50,
+          "target": "team",
+          "default": false
+        },
+        {
+          "id": "suisui.unattributed.energy-regen-30",
+          "kind": "stat",
+          "name": "Energy Regen +30% — source unconfirmed",
+          "stat": "energyRegen",
+          "notes": "OBSERVED, NOT ATTRIBUTED. Her panel read 255.9% on 2026-08-19 and reconciled EXACTLY from gear; on 2026-08-20 it reads 285.9% while every other stat (ATK/HP/DEF/Crit/Basic/Heavy/Skill) still reconciles exactly. So nothing about her ATK/HP/DEF/crit gear changed — only ER moved, by a clean +30.0. DENIA SHOWS THE IDENTICAL UNEXPLAINED +30.0 ER on the same day. Two characters, same number, same day, is a pattern rather than a coincidence — most likely something introduced or changed in 3.6, or an ascension/bonus-stat line the model does not read. Worth one in-game check: tap the arrow next to Energy Regen on the stats page, which breaks the value down by source. THIS ONE MATTERS: three of Suisui's team buffs are ER-scaled, and at 285.9% she now CAPS both Undulating Mist (50%) and the Floral-400 bonus (12%).",
+          "owner": "suisui",
+          "panel": true,
+          "value": 30,
+          "target": "self",
+          "default": true
+        }
+      ],
+      "level": 80,
+      "panel": {
+        "hp": 21128,
+        "atk": 1066,
+        "def": 1087,
+        "critDmg": 150,
+        "basicDmg": 18,
+        "critRate": 19.4,
+        "heavyDmg": 7.9,
+        "skillDmg": 29.6,
+        "energyRegen": 285.9,
+        "healingBonus": 36.4
+      },
+      "stats": {
+        "hp": 21128,
+        "atk": 1066,
+        "def": 1087,
+        "_note": "Read off the stats page 2026-08-20 at Lv80. ER 285.9% (was 255.9 on 08-19). healingBonus/basicDmg/heavyDmg/skillDmg carried from the Lv70 reading — echo-derived, level-independent.",
+        "hpBase": 14694,
+        "atkBase": 618,
+        "critDmg": 150,
+        "defBase": 967,
+        "basicDmg": 18,
+        "critRate": 19.4,
+        "heavyDmg": 7.9,
+        "skillDmg": 29.6,
+        "energyRegen": 285.9,
+        "healingBonus": 36.4
       },
       "echoes": [
         {
-          "cost": 3,
-          "name": "Forbidden Bastion",
           "set": "song-of-feathered-trace",
+          "cost": 3,
           "main": "energyRegen",
+          "name": "Forbidden Bastion",
           "subs": [
             [
               "basicDmg",
@@ -502,10 +1183,10 @@
           ]
         },
         {
-          "cost": 4,
-          "name": "Thousand-Puppet Pavilion",
           "set": "song-of-feathered-trace",
+          "cost": 4,
           "main": "healingBonus",
+          "name": "Thousand-Puppet Pavilion",
           "subs": [
             [
               "heavyDmg",
@@ -530,10 +1211,10 @@
           ]
         },
         {
-          "cost": 3,
-          "name": "Fog Lionarch",
           "set": "song-of-feathered-trace",
+          "cost": 3,
           "main": "energyRegen",
+          "name": "Fog Lionarch",
           "subs": [
             [
               "basicDmg",
@@ -558,164 +1239,109 @@
           ]
         },
         {
+          "set": "song-of-feathered-trace",
           "cost": 1,
+          "main": "hpPct",
           "name": "Fog Lionarch: Head",
-          "set": "song-of-feathered-trace",
-          "main": "hpPct",
+          "subs": [],
+          "_note": "UNLEVELED (+0). Zero substats. Levelling this is one of the cheapest gains on the account.",
           "mainValue": 4.5,
           "secondary": {
             "stat": "hp",
             "value": 456
-          },
-          "subs": [],
-          "_note": "UNLEVELED (+0). Zero substats. Levelling this is one of the cheapest gains on the account."
+          }
         },
         {
+          "set": "song-of-feathered-trace",
           "cost": 1,
-          "name": "Kernel Puppet: Joy",
-          "set": "song-of-feathered-trace",
           "main": "hpPct",
+          "name": "Kernel Puppet: Joy",
+          "subs": [],
+          "_note": "UNLEVELED (+0). Zero substats.",
           "mainValue": 4.5,
           "secondary": {
             "stat": "hp",
             "value": 456
-          },
-          "subs": [],
-          "_note": "UNLEVELED (+0). Zero substats."
+          }
         }
       ],
-      "buffs": [
-        {
-          "id": "suisui.sonata.feathered-trace-2pc",
-          "name": "Song of Feathered Trace 2pc — Energy Regen +10%",
-          "target": "self",
-          "kind": "stat",
+      "weapon": {
+        "id": "firstlights-herald",
+        "rank": 1,
+        "_note": "Lv90 is 412.5 ATK / 77.04% ER. Lv80 solved on the account curves. Was left at the Lv70 solve (315 / 63.7) after she was levelled on 2026-08-14 — corrected 2026-08-19. This feeds THREE ER-scaled buffs, so a stale weapon level understates her whole contribution.",
+        "level": 80,
+        "atkOverride": 364,
+        "subOverride": {
           "stat": "energyRegen",
-          "value": 10,
-          "panel": true,
-          "default": true,
-          "notes": "Was missing until 2026-08-12. Found by cross-checking weapon substats: her ER residual only lands on the same curve as every other weapon once this 10% is credited to the sonata rather than the weapon."
-        },
-        {
-          "id": "suisui.outro.rippling-waters",
-          "name": "Outro: Rippling Waters — All DMG Amplify +25%",
-          "target": "team",
-          "kind": "amplify",
-          "value": 25,
-          "attackType": "all",
-          "default": true
-        },
-        {
-          "id": "suisui.outro.floral-400",
-          "name": "Outro 400 Floral Epistle — DMG Bonus, ER-scaled",
-          "target": "team",
-          "kind": "stat",
-          "stat": "attrDmg",
-          "value": 11.2,
-          "default": true,
-          "notes": "0.2% per 1% of Suisui's ER above 200, cap 12%. At her measured 255.9% ER that is 11.2%. Recompute if her ER changes."
-        },
-        {
-          "id": "suisui.sonata.feathered-trace-5pc",
-          "name": "Song of Feathered Trace 5pc — team ATK, ER-scaled",
-          "target": "team",
-          "kind": "stat",
-          "stat": "atkPct",
-          "value": 25.0,
-          "default": true,
-          "notes": "0.1% per 1% of Suisui's ER, cap 25%. At 255.9% ER this is CAPPED at 25.0%."
-        },
-        {
-          "id": "suisui.weapon.firstlights-herald",
-          "name": "Firstlight's Herald — team ATK +20%",
-          "target": "team",
-          "kind": "stat",
-          "stat": "atkPct",
-          "value": 20,
-          "default": true
-        },
-        {
-          "id": "suisui.outro.floral-600-atk",
-          "name": "Outro 600 Floral Epistle — Undulating Mist ATK +50%",
-          "target": "team",
-          "kind": "stat",
-          "stat": "atkPct",
-          "value": 46.6,
-          "default": true,
-          "notes": "Undulating Mist, LIVE since Suisui S1 (2026-08-19). Kuro: '+0.1% ATK per 0.12% of her ER over 200%, up to 50%' -> caps at 260% ER. At her measured 255.9% ER that is 46.6%. Applies to the ACTIVE RESONATOR after her first Plume Step — no party-slot requirement. Recompute if her ER changes."
-        },
-        {
-          "id": "suisui.s2.team-critdmg",
-          "name": "S2 — team Crit DMG +50%",
-          "target": "team",
-          "kind": "stat",
-          "stat": "critDmg",
-          "value": 50,
-          "default": false,
-          "notes": "OFF: Suisui is S1. This one needs S2."
+          "value": 70.3
         }
-      ],
-      "panel": {
-        "atk": 1066,
-        "hp": 21128,
-        "def": 1087,
-        "critRate": 19.4,
-        "critDmg": 150.0,
-        "energyRegen": 255.9,
-        "healingBonus": 36.4,
-        "basicDmg": 18.0,
-        "heavyDmg": 7.9,
-        "skillDmg": 29.6
       },
-      "stats": {
-        "atk": 1066,
-        "hp": 21128,
-        "def": 1087,
-        "critRate": 19.4,
-        "critDmg": 150.0,
-        "energyRegen": 255.9,
-        "atkBase": 618,
-        "hpBase": 14694,
-        "defBase": 967,
-        "_note": "Read off the in-game stats page 2026-08-19 at Lv80 (HP/ATK/DEF/Crit/ER). healingBonus, basicDmg, heavyDmg and skillDmg carried forward from the Lv70 reading — they come from echo main stats and substats, which did not change, and are level-independent. ER 255.9% feeds three team buffs.",
-        "healingBonus": 36.4,
-        "basicDmg": 18.0,
-        "heavyDmg": 7.9,
-        "skillDmg": 29.6
+      "talents": {
+        "basic": 2,
+        "forte": 3,
+        "intro": 1,
+        "skill": 1,
+        "liberation": 4
       },
-      "_baseScaleNote": "Solved 2026-08-19 by fitting ATK/HP/DEF simultaneously against the real Lv80 panel (1066 / 21128 / 1087). Worst residual 0.83 on a tolerance of 1, so all three reconcile. She is Lv80 PRE-ascension, exactly as she was Lv70 pre-ascension at 0.9351. Ascending her to unlock Lv90 moves this to 1.0."
+      "sequence": 1,
+      "baseScale": 0.9433,
+      "forteNodes": {
+        "hpPct": true,
+        "healingBonus": false
+      },
+      "_reconciled": "Solved 2026-08-12. The HP/DEF contradiction was not a data error — her forte stat nodes are HP%, not ATK%. Suisui's eight nodes are 4x hpPct (12.0 total) and 4x healingBonus (12.0 total). The four HP nodes ARE unlocked, which is exactly the 11.96 points the HP side was short; the healing nodes are not (panel healing 36.4 = 26.4 echo main + 10.0 from Forbidden Bastion's main-slot echo skill, with no room for them). DEF is the clean estimator for her scale because she has zero DEF% — 0.9351, matching Aemeath's 0.9342, i.e. both are at Lv70 PRE-ascension. Weapon then solves to 315.0 base ATK, a 0.765 ratio to its Lv90 value, right on the band the other three weapons set.",
+      "_baseScaleNote": "Solved 2026-08-19 by fitting ATK/HP/DEF simultaneously against the real Lv80 panel (1066 / 21128 / 1087). Worst residual 0.83 on a tolerance of 1, so all three reconcile. She is Lv80 PRE-ascension, exactly as she was Lv70 pre-ascension at 0.9351. Ascending her to unlock Lv90 moves this to 1.0.",
+      "accountAccurate": true
     },
     "verina": {
       "name": "Verina",
-      "level": 80,
-      "sequence": 3,
-      "baseScale": 1,
-      "accountAccurate": true,
-      "_reconciled": "Solved 2026-08-12. Lv70 post-ascension. Crit Rate and Crit DMG residuals are exactly zero, so no forte nodes and no crit substat; the entire +42.8 ER residual is Variation's substat at Lv70 (42.8/51.8 = 0.826, on the same curve as every other weapon).",
-      "talents": {
-        "basic": 1,
-        "skill": 1,
-        "liberation": 4,
-        "forte": 4,
-        "intro": 1
-      },
-      "forteNodes": false,
-      "weapon": {
-        "id": "variation",
-        "rank": 4,
-        "level": 70,
-        "atkOverride": 253.5,
-        "subOverride": {
-          "stat": "energyRegen",
-          "value": 42.8
+      "buffs": [
+        {
+          "id": "verina.outro.blossom",
+          "kind": "amplify",
+          "name": "Outro: Blossom — All-Type DMG Deepen +15%",
+          "value": 15,
+          "target": "team",
+          "default": true,
+          "attackType": "all"
+        },
+        {
+          "id": "verina.inherent.gift-of-nature",
+          "kind": "stat",
+          "name": "Inherent: Gift of Nature — team ATK +20%",
+          "stat": "atkPct",
+          "value": 20,
+          "target": "team",
+          "default": true
+        },
+        {
+          "id": "verina.s4.blossoming-embrace",
+          "kind": "stat",
+          "name": "S4 — team Spectro DMG +15%",
+          "stat": "elemDmg:spectro",
+          "notes": "S4 owned (Verina is S5, 2026-08-20). +15% team SPECTRO DMG — worth ~zero here, no Spectro carry. Measured at +412 on a 1,684,014 rotation, all from Verina's own damage steps. Left ON because she has it and it becomes real if a Spectro DPS joins.",
+          "value": 15,
+          "target": "team",
+          "default": true
+        },
+        {
+          "id": "verina.sonata.rejuvenating-glow-5pc",
+          "kind": "stat",
+          "name": "Rejuvenating Glow 5pc — team ATK +15% (30s)",
+          "stat": "atkPct",
+          "_note": "Verbatim: \"Upon healing allies, increase ATK of the entire team by 15% for 30s.\" She heals on her Outro every loop. MISSING until 2026-08-12. Distinct from her Inherent Gift of Nature (+20% team ATK, 20s) which was already modelled.",
+          "value": 15,
+          "target": "team",
+          "default": true
         }
-      },
+      ],
+      "level": 80,
       "echoes": [
         {
-          "cost": 4,
-          "name": "Fallacy of No Return",
           "set": "rejuvenating-glow",
+          "cost": 4,
           "main": "atkPct",
+          "name": "Fallacy of No Return",
           "subs": [
             [
               "atkPct",
@@ -740,10 +1366,10 @@
           ]
         },
         {
-          "cost": 3,
-          "name": "Chasm Guardian",
           "set": "rejuvenating-glow",
+          "cost": 3,
           "main": "energyRegen",
+          "name": "Chasm Guardian",
           "subs": [
             [
               "critRate",
@@ -768,10 +1394,10 @@
           ]
         },
         {
-          "cost": 3,
-          "name": "Rocksteady Guardian",
           "set": "rejuvenating-glow",
+          "cost": 3,
           "main": "energyRegen",
+          "name": "Rocksteady Guardian",
           "subs": [
             [
               "skillDmg",
@@ -796,10 +1422,10 @@
           ]
         },
         {
-          "cost": 1,
-          "name": "Tick Tack",
           "set": "rejuvenating-glow",
+          "cost": 1,
           "main": "atkPct",
+          "name": "Tick Tack",
           "subs": [
             [
               "hp",
@@ -824,10 +1450,10 @@
           ]
         },
         {
-          "cost": 1,
-          "name": "Fission Junrock",
           "set": "rejuvenating-glow",
+          "cost": 1,
           "main": "atkPct",
+          "name": "Fission Junrock",
           "subs": [
             [
               "critDmg",
@@ -852,137 +1478,570 @@
           ]
         }
       ],
-      "buffs": [
-        {
-          "id": "verina.outro.blossom",
-          "name": "Outro: Blossom — All-Type DMG Deepen +15%",
-          "target": "team",
-          "kind": "amplify",
-          "value": 15,
-          "attackType": "all",
-          "default": true
-        },
-        {
-          "id": "verina.inherent.gift-of-nature",
-          "name": "Inherent: Gift of Nature — team ATK +20%",
-          "target": "team",
-          "kind": "stat",
-          "stat": "atkPct",
-          "value": 20,
-          "default": true
-        },
-        {
-          "id": "verina.s4.blossoming-embrace",
-          "name": "S4 — team Spectro DMG +15%",
-          "target": "team",
-          "kind": "stat",
-          "stat": "elemDmg:spectro",
-          "value": 15,
-          "default": false,
-          "notes": "OFF: Verina is S3."
-        },
-        {
-          "id": "verina.sonata.rejuvenating-glow-5pc",
-          "name": "Rejuvenating Glow 5pc — team ATK +15% (30s)",
-          "target": "team",
-          "kind": "stat",
-          "stat": "atkPct",
-          "value": 15,
-          "default": true,
-          "_note": "Verbatim: \"Upon healing allies, increase ATK of the entire team by 15% for 30s.\" She heals on her Outro every loop. MISSING until 2026-08-12. Distinct from her Inherent Gift of Nature (+20% team ATK, 20s) which was already modelled."
+      "weapon": {
+        "id": "variation",
+        "rank": 4,
+        "level": 70,
+        "atkOverride": 253.5,
+        "subOverride": {
+          "stat": "energyRegen",
+          "value": 42.8
         }
-      ],
+      },
+      "talents": {
+        "basic": 1,
+        "forte": 4,
+        "intro": 1,
+        "skill": 1,
+        "liberation": 4
+      },
+      "sequence": 5,
+      "baseScale": 1,
       "_panelLv70": {
-        "atk": 1398,
         "hp": 17963,
+        "atk": 1398,
         "def": 1142,
-        "critRate": 20,
         "critDmg": 191.4,
+        "critRate": 20,
         "energyRegen": 216
       },
       "_statsLv70": {
-        "atk": 1398,
-        "atkBase": 519,
         "hp": 17963,
-        "hpBase": 10799,
+        "atk": 1398,
         "def": 1142,
-        "defBase": 835,
-        "critRate": 20,
+        "_note": "Read straight off the in-game stats page. THIS is what the damage model uses — level-derived bases, weapon curves, ascension scale, echo arithmetic and forte nodes are all bypassed when this block is present. atkBase/hpBase/defBase are the WHITE numbers (character base + weapon base); an ATK% buff multiplies those, not the green total, which is why both are needed. elemDmg is the element line as displayed, which already includes any All-Attribute DMG bonus.",
+        "hpBase": 10799,
+        "libDmg": 18.7,
+        "atkBase": 519,
         "critDmg": 191.4,
-        "energyRegen": 216,
+        "defBase": 835,
         "elemDmg": 0,
         "basicDmg": 15.7,
+        "critRate": 20,
         "heavyDmg": 0,
         "skillDmg": 26.6,
-        "libDmg": 18.7,
-        "healingBonus": 10,
-        "_note": "Read straight off the in-game stats page. THIS is what the damage model uses — level-derived bases, weapon curves, ascension scale, echo arithmetic and forte nodes are all bypassed when this block is present. atkBase/hpBase/defBase are the WHITE numbers (character base + weapon base); an ATK% buff multiplies those, not the green total, which is why both are needed. elemDmg is the element line as displayed, which already includes any All-Attribute DMG bonus."
-      }
+        "energyRegen": 216,
+        "healingBonus": 10
+      },
+      "forteNodes": false,
+      "_reconciled": "Solved 2026-08-12. Lv70 post-ascension. Crit Rate and Crit DMG residuals are exactly zero, so no forte nodes and no crit substat; the entire +42.8 ER residual is Variation's substat at Lv70 (42.8/51.8 = 0.826, on the same curve as every other weapon).",
+      "_sequenceNote": "S5 as of 2026-08-20. Neither new node is damage: S4 is team Spectro DMG (no Spectro carry) and S5 is +20% healing to allies below 50% HP. S3 -> S5 is worth 0 to any current rotation.",
+      "accountAccurate": true
     },
-    "augusta": {
-      "name": "Augusta",
-      "level": 70,
-      "sequence": 0,
-      "baseScale": 1,
-      "accountAccurate": true,
-      "_reconciled": "Solved 2026-08-12. She is Lv70 POST-ascension (scale 1.0, agreeing from DEF and HP independently). Her Crit Rate residual of exactly +10.0 is Thunderflare Dominion's substat at Lv70, not forte nodes: 10.0/12.1 = 0.826, matching the weapon substat curve measured independently on Everbright Polestar, Variation and Firstlight's Herald. Her four ATK nodes ARE unlocked; her four Crit Rate nodes are not. That is what makes her weapon's base-ATK ratio (0.756) land in the same band as Aemeath (0.766), Verina (0.752) and Suisui (0.738) instead of being a lone outlier at 0.846.",
-      "talents": {
-        "basic": 6,
-        "skill": 3,
-        "liberation": 6,
-        "forte": 6,
-        "intro": 4
-      },
-      "forteNodes": {
-        "atkPct": true,
-        "critRate": false
-      },
-      "weapon": {
-        "id": "thunderflare-dominion",
-        "rank": 1,
-        "level": 70,
-        "atkOverride": 510.3,
-        "subOverride": {
+    "aemeath": {
+      "name": "Aemeath",
+      "buffs": [
+        {
+          "id": "aemeath.sonata.trailblazing-2pc",
+          "kind": "stat",
+          "name": "Trailblazing Star 2pc — Fusion DMG +10%",
+          "stat": "elemDmg:fusion",
+          "panel": true,
+          "value": 10,
+          "target": "self",
+          "default": true
+        },
+        {
+          "id": "aemeath.echo.sigillum-lib",
+          "kind": "stat",
+          "name": "Sigillum main-slot echo skill — Liberation DMG +25%",
+          "stat": "libDmg",
+          "panel": true,
+          "value": 25,
+          "target": "self",
+          "default": true
+        },
+        {
+          "id": "aemeath.weapon.all-attribute",
+          "kind": "stat",
+          "name": "Everbright Polestar — All-Attribute DMG +12%",
+          "stat": "attrDmg",
+          "panel": true,
+          "value": 12,
+          "target": "self",
+          "default": true
+        },
+        {
+          "id": "aemeath.sonata.trailblazing-5pc-crit",
+          "kind": "stat",
+          "name": "Trailblazing Star 5pc — Crit Rate +20% (8s after inflicting Fusion Burst)",
           "stat": "critRate",
-          "value": 10
+          "notes": "Conditional. arabwuwa's own UI never surfaces a toggle for this, so their numbers omit it. It is live during her burst window.",
+          "value": 20,
+          "target": "self",
+          "default": true
+        },
+        {
+          "id": "aemeath.sonata.trailblazing-5pc-fusion",
+          "kind": "stat",
+          "name": "Trailblazing Star 5pc — Fusion DMG +20% (8s)",
+          "stat": "elemDmg:fusion",
+          "value": 20,
+          "target": "self",
+          "default": true
+        },
+        {
+          "id": "aemeath.weapon.lib-def-ignore",
+          "kind": "defIgnore",
+          "name": "Everbright Polestar — Liberation DEF Ignore 32%",
+          "value": 32,
+          "target": "self",
+          "default": true,
+          "attackType": "liberation"
+        },
+        {
+          "id": "aemeath.weapon.lib-fusion-res",
+          "kind": "resRed",
+          "name": "Everbright Polestar — Liberation Fusion RES −10%",
+          "value": 10,
+          "target": "self",
+          "default": true,
+          "element": "fusion",
+          "attackType": "liberation"
+        },
+        {
+          "id": "aemeath.s3.between-the-stars-critdmg",
+          "kind": "stat",
+          "name": "S3 Between the Stars (Fusion Burst) — Crit DMG +60%",
+          "stat": "critDmg",
+          "notes": "At S3 the inherent is replaced: one teammate Fusion Burst trigger grants the full 60%, no stacking.",
+          "value": 60,
+          "target": "self",
+          "default": true
+        },
+        {
+          "id": "aemeath.s3.finale-amplify",
+          "kind": "amplify",
+          "name": "S3 Between the Stars — Finale DMG Amplify +25%",
+          "value": 25,
+          "target": "self",
+          "default": true,
+          "abilities": [
+            "Heavenfall Edict: Finale DMG"
+          ]
+        },
+        {
+          "id": "aemeath.s3.finale-mv",
+          "kind": "mvPct",
+          "name": "S3 — Finale DMG Multiplier +100% (doubles it)",
+          "value": 100,
+          "target": "self",
+          "default": true,
+          "abilities": [
+            "Heavenfall Edict: Finale DMG"
+          ]
+        },
+        {
+          "id": "aemeath.s3.overdrive-mv",
+          "kind": "mvPct",
+          "name": "S3 — Overdrive DMG Multiplier +40%",
+          "value": 40,
+          "target": "self",
+          "default": true,
+          "abilities": [
+            "Heavenfall Edict: Overdrive DMG"
+          ]
+        },
+        {
+          "id": "aemeath.s2.overture-mv",
+          "kind": "mvPct",
+          "name": "S2 — Seraphic Duet: Overture Multiplier +100%",
+          "value": 100,
+          "target": "self",
+          "default": true,
+          "abilities": [
+            "Seraphic Duet: Overture DMG"
+          ]
+        },
+        {
+          "id": "aemeath.s2.encore-mv",
+          "kind": "mvPct",
+          "name": "S2 — Seraphic Duet: Encore Multiplier +100%",
+          "value": 100,
+          "target": "self",
+          "default": true,
+          "abilities": [
+            "Seraphic Duet: Encore DMG"
+          ]
+        },
+        {
+          "id": "aemeath.s1.instant-response-heavy-critdmg",
+          "kind": "abilityCritDmg",
+          "name": "S1 — Instant Response heavies Crit DMG +300%",
+          "value": 300,
+          "target": "self",
+          "default": true,
+          "abilities": [
+            "Heavy Attack - Aemeath Charged I DMG",
+            "Heavy Attack - Aemeath Charged II DMG",
+            "Heavy Attack - Mech Charged I DMG",
+            "Heavy Attack - Mech Charged II DMG"
+          ]
+        },
+        {
+          "id": "aemeath.inherent.instant-response-heavy-amp",
+          "kind": "amplify",
+          "name": "Inherent: Before All Sounds — heavies +200% Amplify",
+          "value": 200,
+          "target": "self",
+          "default": true,
+          "abilities": [
+            "Heavy Attack - Aemeath Charged I DMG",
+            "Heavy Attack - Aemeath Charged II DMG",
+            "Heavy Attack - Mech Charged I DMG",
+            "Heavy Attack - Mech Charged II DMG"
+          ]
+        },
+        {
+          "id": "aemeath.fb.fusion-trail-13",
+          "kind": "status",
+          "name": "Fusion Trail stacks removed = 13 (+10% MV per stack)",
+          "notes": "13 stacks because Suisui raises the Fusion Burst cap from 10 to 13. At 10 stacks this would be 100.",
+          "value": 130,
+          "bucket": "mvPct",
+          "status": "fusionBurst",
+          "target": "self",
+          "default": true
+        },
+        {
+          "id": "aemeath.fb.stardust-passive",
+          "kind": "status",
+          "name": "Stardust Resonance (passive) — Fusion Burst +200% MV",
+          "value": 200,
+          "bucket": "mvPct",
+          "status": "fusionBurst",
+          "target": "self",
+          "default": true
+        },
+        {
+          "id": "aemeath.s2.fb-stardust-extra",
+          "kind": "status",
+          "name": "S2 — Stardust Extra Multiplier +200%",
+          "value": 200,
+          "bucket": "mvPct",
+          "status": "fusionBurst",
+          "target": "self",
+          "default": true
+        },
+        {
+          "id": "aemeath.s2.fb-per-trail-stack",
+          "kind": "status",
+          "name": "S2 — +5% MV per Fusion Trail stack (13 stacks = 65%)",
+          "value": 65,
+          "bucket": "mvPct",
+          "status": "fusionBurst",
+          "target": "self",
+          "default": true
+        },
+        {
+          "id": "aemeath.fb.fusion-trail-10-solo",
+          "kind": "status",
+          "name": "Fusion Trail stacks = 10 (solo, no Suisui)",
+          "notes": "Solo variant of the 13-stack buff: 10 stacks at +10% MV each = 100, plus S2's +5% per stack = 50. Use INSTEAD of aemeath.fb.fusion-trail-13 when Suisui is not in the team.",
+          "value": 150,
+          "bucket": "mvPct",
+          "status": "fusionBurst",
+          "target": "self",
+          "default": false
+        },
+        {
+          "id": "aemeath.unattributed.energy-regen-30",
+          "kind": "stat",
+          "name": "Energy Regen +30% — source unconfirmed (3.6)",
+          "stat": "energyRegen",
+          "notes": "OBSERVED, NOT ATTRIBUTED. 120.0% on 2026-08-19 -> 150.0% on 3.6 launch day. Suisui and Denia gained the identical +30.0 on the same day. The official 3.6 patch notes (article 5357) contain no mention of Energy Regen, base stats, or any Resonator adjustment — read in full. Zero damage impact on Aemeath (no ER-scaled buffs); it DOES matter on Suisui, whose scaled buffs it pushed over their caps.",
+          "owner": "aemeath",
+          "panel": true,
+          "value": 30,
+          "target": "self",
+          "default": true
         }
-      },
+      ],
+      "level": 80,
       "panel": {
-        "atk": 1768,
-        "hp": 14166,
-        "def": 1152,
-        "critRate": 61.3,
-        "critDmg": 190.2,
-        "energyRegen": 120,
-        "elemDmg": 70,
-        "basicDmg": 38.9,
-        "heavyDmg": 7.9,
-        "skillDmg": 18,
-        "libDmg": 7.9
+        "hp": 15017,
+        "atk": 2079,
+        "def": 1120,
+        "libDmg": 62.5,
+        "critDmg": 226.4,
+        "elemDmg": 82,
+        "basicDmg": 16.5,
+        "critRate": 69.3,
+        "heavyDmg": 17.2,
+        "skillDmg": 0,
+        "energyRegen": 150
       },
       "stats": {
-        "atk": 1768,
-        "atkBase": 874,
-        "hp": 14166,
-        "hpBase": 7812,
-        "def": 1152,
-        "defBase": 844,
-        "critRate": 61.3,
-        "critDmg": 190.2,
-        "energyRegen": 120,
-        "elemDmg": 70,
-        "basicDmg": 38.9,
-        "heavyDmg": 7.9,
-        "skillDmg": 18,
-        "libDmg": 7.9,
-        "_note": "Read straight off the in-game stats page. THIS is what the damage model uses — level-derived bases, weapon curves, ascension scale, echo arithmetic and forte nodes are all bypassed when this block is present. atkBase/hpBase/defBase are the WHITE numbers (character base + weapon base); an ATK% buff multiplies those, not the green total, which is why both are needed. elemDmg is the element line as displayed, which already includes any All-Attribute DMG bonus."
+        "hp": 15017,
+        "atk": 2079,
+        "def": 1120,
+        "_note": "Overview page read 2026-08-20 after equipping the second Sigillum: HP 15017 / ATK 2079 / DEF 1120 / ER 150.0 / Crit Rate 69.3 / Crit DMG 226.4 — all six MEASURED. basicDmg 16.5, heavyDmg 17.2, libDmg 62.5 are DERIVED from the echo swap, not read: the Overview page does not show them. Confirm against the More Stats page when convenient.",
+        "hpBase": 9693,
+        "libDmg": 62.5,
+        "atkBase": 895,
+        "critDmg": 226.4,
+        "defBase": 1010,
+        "elemDmg": 82,
+        "basicDmg": 16.5,
+        "critRate": 69.3,
+        "heavyDmg": 17.2,
+        "skillDmg": 0,
+        "energyRegen": 150
       },
       "echoes": [
         {
+          "set": "trailblazing-star",
           "cost": 4,
-          "name": "The False Sovereign",
+          "main": "critDmg",
+          "name": "Sigillum",
+          "subs": [
+            [
+              "critRate",
+              9.9
+            ],
+            [
+              "def",
+              50
+            ],
+            [
+              "atkPct",
+              10.1
+            ],
+            [
+              "basicDmg",
+              7.9
+            ],
+            [
+              "libDmg",
+              10.9
+            ]
+          ],
+          "_note": "Swapped 2026-08-20 for the second Sigillum. Confirmed by every panel delta: Crit DMG -12.6, Crit Rate +3.6, HP -390, DEF -40, ATK +6, all matching the substat difference exactly.",
+          "mainSlot": true
+        },
+        {
+          "set": "trailblazing-star",
+          "cost": 3,
+          "main": "elemDmg:fusion",
+          "name": "Reminiscence: Kronaclaw",
+          "subs": [
+            [
+              "critRate",
+              7.5
+            ],
+            [
+              "critDmg",
+              16.2
+            ],
+            [
+              "flatAtk",
+              30
+            ],
+            [
+              "atkPct",
+              7.9
+            ],
+            [
+              "def",
+              60
+            ]
+          ]
+        },
+        {
+          "set": "trailblazing-star",
+          "cost": 3,
+          "main": "elemDmg:fusion",
+          "name": "Kronablight",
+          "subs": [
+            [
+              "libDmg",
+              8.6
+            ],
+            [
+              "basicDmg",
+              8.6
+            ],
+            [
+              "critRate",
+              6.3
+            ],
+            [
+              "flatAtk",
+              40
+            ],
+            [
+              "energyRegen",
+              10.8
+            ]
+          ]
+        },
+        {
+          "set": "trailblazing-star",
+          "cost": 1,
+          "main": "atkPct",
+          "name": "Iceglint Dancer",
+          "subs": [
+            [
+              "hpPct",
+              7.9
+            ],
+            [
+              "libDmg",
+              8.6
+            ],
+            [
+              "critDmg",
+              16.2
+            ],
+            [
+              "atkPct",
+              11.6
+            ],
+            [
+              "heavyDmg",
+              10.1
+            ]
+          ]
+        },
+        {
+          "set": "trailblazing-star",
+          "cost": 1,
+          "main": "atkPct",
+          "name": "Geospider S4",
+          "subs": [
+            [
+              "atkPct",
+              7.9
+            ],
+            [
+              "heavyDmg",
+              7.1
+            ],
+            [
+              "critRate",
+              10.5
+            ],
+            [
+              "energyRegen",
+              9.2
+            ],
+            [
+              "libDmg",
+              9.4
+            ]
+          ]
+        }
+      ],
+      "weapon": {
+        "id": "everbright-polestar",
+        "rank": 1,
+        "_note": "Everbright Polestar. Lv90 is 587 ATK / 24.3% crit; Lv80 solved on the account curves. Levelled to Lv80 on 2026-08-19.",
+        "level": 80,
+        "atkOverride": 519,
+        "subOverride": {
+          "stat": "critRate",
+          "value": 22.2
+        }
+      },
+      "talents": {
+        "basic": 8,
+        "forte": 8,
+        "intro": 8,
+        "skill": 8,
+        "liberation": 8
+      },
+      "sequence": 3,
+      "baseScale": 0.94475,
+      "forteNodes": true,
+      "_echoesNote": "All five captured from the echo screen 2026-08-19, cost 12/12, Trailblazing Star 5/5, every piece +25.",
+      "_baseScaleNote": "Solved 2026-08-19 against the real Lv80 panel (ATK 2073 / HP 15407 / DEF 1160), weighted on ATK because ATK is what the damage model consumes. She is Lv80 PRE-ascension, same as Suisui. NOTE: a single scalar CANNOT reconcile all three exactly — the game keeps its own pre-ascension base rows rather than a uniform fraction of the post-ascension ones, so a residual of a few points is structural, not a fitting failure. Her panel is the authoritative source; the reconstruction exists only as a cross-check. Ascending her moves this to 1.0.",
+      "_forteNodesNote": "UNLOCKED — confirmed from the Forte screen 2026-08-19 and reconciled against the panel: 5 base + 22.2 weapon + 8.0 nodes + 30.5 echo substats = 65.7% Crit Rate, and the 30.5 matches the 30.6 measured on Aug 12. The four ATK nodes (+12%) are on the same branches and are lit too. NOTE: this does not change any damage total, because she is in panel mode and the measured stats already contain the nodes. It matters for the reconstruction cross-check and for any future modelling that rebuilds her from gear.",
+      "accountAccurate": true,
+      "tuneBreakPoints": 10
+    },
+    "augusta": {
+      "name": "Augusta",
+      "buffs": [
+        {
+          "id": "augusta.sonata.void-thunder-2pc",
+          "kind": "stat",
+          "name": "Void Thunder 2pc — Electro DMG +10%",
+          "stat": "elemDmg:electro",
+          "panel": true,
+          "value": 10,
+          "target": "self",
+          "default": true
+        },
+        {
+          "id": "augusta.sonata.crown-of-valor-atk",
+          "kind": "stat",
+          "name": "Crown of Valor 3pc — ATK +30% (5 stacks)",
+          "stat": "atkPct",
+          "_note": "Verbatim: \"Upon gaining a Shield, increase the Resonator ATK by 6% and Crit. DMG by 4% for 4s, once every 0.5s, stacking up to 5 times.\" She shields herself constantly through Majesty, so 5 stacks is the working assumption; the 4s refresh window is the risk. MISSING from the engine until 2026-08-12 — worth 21.4% of augusta-team on its own.",
+          "owner": "augusta",
+          "value": 30,
+          "target": "self",
+          "default": true
+        },
+        {
+          "id": "augusta.sonata.crown-of-valor-cd",
+          "kind": "stat",
+          "name": "Crown of Valor 3pc — Crit DMG +20% (5 stacks)",
+          "stat": "critDmg",
+          "owner": "augusta",
+          "value": 20,
+          "target": "self",
+          "default": true
+        },
+        {
+          "id": "augusta.weapon.thunderflare-heavy-dmg",
+          "kind": "stat",
+          "name": "Thunderflare Dominion R1 — Heavy Attack DMG Bonus +20% (15s on Intro or Resonance Skill)",
+          "stat": "heavyDmg",
+          "_note": "79.1% of her damage is Heavy-typed, including her Liberation. She casts Intro at step 14 and Resonance Skill at 16, so it is live for the run. Found 2026-08-12 by a new validator check: her weapon has THREE passives and none were modelled.",
+          "owner": "augusta",
+          "value": 20,
+          "target": "self",
+          "default": true
+        }
+      ],
+      "level": 70,
+      "panel": {
+        "hp": 14166,
+        "atk": 1768,
+        "def": 1152,
+        "libDmg": 7.9,
+        "critDmg": 190.2,
+        "elemDmg": 70,
+        "basicDmg": 38.9,
+        "critRate": 61.3,
+        "heavyDmg": 7.9,
+        "skillDmg": 18,
+        "energyRegen": 120
+      },
+      "stats": {
+        "hp": 14166,
+        "atk": 1768,
+        "def": 1152,
+        "_note": "Read straight off the in-game stats page. THIS is what the damage model uses — level-derived bases, weapon curves, ascension scale, echo arithmetic and forte nodes are all bypassed when this block is present. atkBase/hpBase/defBase are the WHITE numbers (character base + weapon base); an ATK% buff multiplies those, not the green total, which is why both are needed. elemDmg is the element line as displayed, which already includes any All-Attribute DMG bonus.",
+        "hpBase": 7812,
+        "libDmg": 7.9,
+        "atkBase": 874,
+        "critDmg": 190.2,
+        "defBase": 844,
+        "elemDmg": 70,
+        "basicDmg": 38.9,
+        "critRate": 61.3,
+        "heavyDmg": 7.9,
+        "skillDmg": 18,
+        "energyRegen": 120
+      },
+      "echoes": [
+        {
           "set": "crown-of-valor",
+          "cost": 4,
           "main": "critRate",
+          "name": "The False Sovereign",
           "subs": [
             [
               "critDmg",
@@ -1007,10 +2066,10 @@
           ]
         },
         {
-          "cost": 3,
-          "name": "Nightmare: Violet-Feathered Heron",
           "set": "crown-of-valor",
+          "cost": 3,
           "main": "elemDmg:electro",
+          "name": "Nightmare: Violet-Feathered Heron",
           "subs": [
             [
               "defPct",
@@ -1035,10 +2094,10 @@
           ]
         },
         {
-          "cost": 1,
-          "name": "Nightmare: Electro Predator",
           "set": "crown-of-valor",
+          "cost": 1,
           "main": "atkPct",
+          "name": "Nightmare: Electro Predator",
           "subs": [
             [
               "flatAtk",
@@ -1063,10 +2122,10 @@
           ]
         },
         {
-          "cost": 1,
-          "name": "Fission Junrock",
           "set": "void-thunder",
+          "cost": 1,
           "main": "atkPct",
+          "name": "Fission Junrock",
           "subs": [
             [
               "critDmg",
@@ -1091,10 +2150,10 @@
           ]
         },
         {
-          "cost": 3,
-          "name": "New Cost-3 (Electro DMG main)",
           "set": "void-thunder",
+          "cost": 3,
           "main": "elemDmg:electro",
+          "name": "New Cost-3 (Electro DMG main)",
           "subs": [
             [
               "critDmg",
@@ -1120,1103 +2179,184 @@
           "_note": "Added 2026-08-12. Substats solved from the stats page, not read off the echo — confirm the names if it matters. Set assumed Void Thunder because the panel still shows the 2pc +10% Electro."
         }
       ],
-      "buffs": [
-        {
-          "id": "augusta.sonata.void-thunder-2pc",
-          "name": "Void Thunder 2pc — Electro DMG +10%",
-          "target": "self",
-          "kind": "stat",
-          "stat": "elemDmg:electro",
-          "value": 10,
-          "panel": true,
-          "default": true
-        },
-        {
-          "id": "augusta.sonata.crown-of-valor-atk",
-          "name": "Crown of Valor 3pc — ATK +30% (5 stacks)",
-          "target": "self",
-          "owner": "augusta",
-          "kind": "stat",
-          "stat": "atkPct",
-          "value": 30,
-          "default": true,
-          "_note": "Verbatim: \"Upon gaining a Shield, increase the Resonator ATK by 6% and Crit. DMG by 4% for 4s, once every 0.5s, stacking up to 5 times.\" She shields herself constantly through Majesty, so 5 stacks is the working assumption; the 4s refresh window is the risk. MISSING from the engine until 2026-08-12 — worth 21.4% of augusta-team on its own."
-        },
-        {
-          "id": "augusta.sonata.crown-of-valor-cd",
-          "name": "Crown of Valor 3pc — Crit DMG +20% (5 stacks)",
-          "target": "self",
-          "owner": "augusta",
-          "kind": "stat",
-          "stat": "critDmg",
-          "value": 20,
-          "default": true
-        },
-        {
-          "id": "augusta.weapon.thunderflare-heavy-dmg",
-          "name": "Thunderflare Dominion R1 — Heavy Attack DMG Bonus +20% (15s on Intro or Resonance Skill)",
-          "target": "self",
-          "owner": "augusta",
-          "kind": "stat",
-          "stat": "heavyDmg",
-          "value": 20,
-          "default": true,
-          "_note": "79.1% of her damage is Heavy-typed, including her Liberation. She casts Intro at step 14 and Resonance Skill at 16, so it is live for the run. Found 2026-08-12 by a new validator check: her weapon has THREE passives and none were modelled."
+      "weapon": {
+        "id": "thunderflare-dominion",
+        "rank": 1,
+        "level": 70,
+        "atkOverride": 510.3,
+        "subOverride": {
+          "stat": "critRate",
+          "value": 10
         }
-      ],
-      "_echoCostNote": "12/12 as of 2026-08-12 (4/3/3/1/1)."
+      },
+      "talents": {
+        "basic": 6,
+        "forte": 6,
+        "intro": 4,
+        "skill": 3,
+        "liberation": 6
+      },
+      "sequence": 0,
+      "baseScale": 1,
+      "forteNodes": {
+        "atkPct": true,
+        "critRate": false
+      },
+      "_reconciled": "Solved 2026-08-12. She is Lv70 POST-ascension (scale 1.0, agreeing from DEF and HP independently). Her Crit Rate residual of exactly +10.0 is Thunderflare Dominion's substat at Lv70, not forte nodes: 10.0/12.1 = 0.826, matching the weapon substat curve measured independently on Everbright Polestar, Variation and Firstlight's Herald. Her four ATK nodes ARE unlocked; her four Crit Rate nodes are not. That is what makes her weapon's base-ATK ratio (0.756) land in the same band as Aemeath (0.766), Verina (0.752) and Suisui (0.738) instead of being a lone outlier at 0.846.",
+      "_echoCostNote": "12/12 as of 2026-08-12 (4/3/3/1/1).",
+      "accountAccurate": true
     },
     "mortefi": {
       "name": "Mortefi",
+      "buffs": [
+        {
+          "id": "mortefi.weapon.static-mist",
+          "kind": "stat",
+          "name": "Static Mist — incoming Resonator ATK +10%",
+          "stat": "atkPct",
+          "value": 10,
+          "target": "team",
+          "default": true
+        },
+        {
+          "id": "mortefi.sonata.moonlit-clouds-5pc",
+          "kind": "stat",
+          "name": "Moonlit Clouds 5pc — incoming Resonator ATK +22.5%",
+          "stat": "atkPct",
+          "value": 22.5,
+          "target": "team",
+          "default": true
+        },
+        {
+          "id": "mortefi.echo.impermanence-heron",
+          "kind": "stat",
+          "name": "Impermanence Heron — incoming Resonator DMG +12%",
+          "stat": "attrDmg",
+          "value": 12,
+          "target": "team",
+          "default": true
+        },
+        {
+          "id": "mortefi.outro.violent-finish",
+          "kind": "amplify",
+          "name": "Outro: Violent Finish — incoming Resonator +38% Heavy Attack DMG Amplification",
+          "_note": "Verbatim from Kuro's guide API (guide-server.aki-game.net, roleGbId 1204, guide 14038): 'The incoming Resonator gains 38% Heavy Attack DMG Amplification for 14s or until they are switched out.' Amplification, not a DMG Bonus, so it is its own multiplicative bucket. Was missing entirely until 2026-08-12 and was understating augusta-team by 30%. Duration is 14s and Augusta's window is longer, so this is an upper bound — see the buff-timing caveat.",
+          "value": 38,
+          "target": "team",
+          "default": true,
+          "attackType": "heavy"
+        }
+      ],
       "level": 50,
-      "sequence": 6,
-      "accountAccurate": false,
-      "_unreconciled": "Every echo is +0 with zero substats and all skills are Lv1. Numbers here are near-worthless until he is built.",
-      "talents": {
-        "basic": 1,
-        "skill": 1,
-        "liberation": 1,
-        "forte": 1,
-        "intro": 1
+      "panel": {
+        "hp": 6094,
+        "atk": 688,
+        "def": 589,
+        "libDmg": 0,
+        "critDmg": 150,
+        "elemDmg": 0,
+        "basicDmg": 0,
+        "critRate": 29.4,
+        "heavyDmg": 0,
+        "skillDmg": 0,
+        "energyRegen": 135.6
       },
-      "forteNodes": false,
+      "stats": {
+        "hp": 6094,
+        "atk": 688,
+        "def": 589,
+        "_note": "Read straight off the in-game stats page 2026-08-12. Lv50, every skill 1/10, no Forte stat nodes, all five Moonlit Clouds echoes at LV.0 — hence every DMG-type bonus is 0.0%. Moonlit Clouds 2pc (+10% ER) is already inside the 135.6%.",
+        "hpBase": 5182,
+        "libDmg": 0,
+        "atkBase": 577,
+        "critDmg": 150,
+        "defBase": 589,
+        "elemDmg": 0,
+        "basicDmg": 0,
+        "critRate": 29.4,
+        "heavyDmg": 0,
+        "skillDmg": 0,
+        "energyRegen": 135.6
+      },
+      "echoes": [
+        {
+          "set": "moonlit-clouds",
+          "cost": 4,
+          "main": "critRate",
+          "name": "Impermanence Heron",
+          "subs": [],
+          "mainValue": 4.4,
+          "secondary": {
+            "stat": "flatAtk",
+            "value": 30
+          }
+        },
+        {
+          "set": "moonlit-clouds",
+          "cost": 3,
+          "main": "energyRegen",
+          "name": "Stonewall Bracer",
+          "subs": [],
+          "mainValue": 6.4,
+          "secondary": {
+            "stat": "flatAtk",
+            "value": 20
+          }
+        },
+        {
+          "set": "moonlit-clouds",
+          "cost": 3,
+          "main": "energyRegen",
+          "name": "Viridblaze Saurian",
+          "subs": [],
+          "mainValue": 6.4,
+          "secondary": {
+            "stat": "flatAtk",
+            "value": 20
+          }
+        },
+        {
+          "set": "moonlit-clouds",
+          "cost": 1,
+          "main": "atkPct",
+          "name": "Fission Junrock",
+          "subs": [],
+          "mainValue": 3.6,
+          "secondary": {
+            "stat": "hp",
+            "value": 456
+          }
+        },
+        {
+          "set": "moonlit-clouds",
+          "cost": 1,
+          "main": "atkPct",
+          "name": "Sabyr Boar",
+          "subs": [],
+          "mainValue": 3.6,
+          "secondary": {
+            "stat": "hp",
+            "value": 456
+          }
+        }
+      ],
       "weapon": {
         "id": "static-mist",
         "rank": 1,
         "level": 70
       },
-      "panel": {
-        "atk": 688,
-        "hp": 6094,
-        "def": 589,
-        "critRate": 29.4,
-        "critDmg": 150,
-        "energyRegen": 135.6,
-        "elemDmg": 0,
-        "basicDmg": 0,
-        "heavyDmg": 0,
-        "skillDmg": 0,
-        "libDmg": 0
-      },
-      "echoes": [
-        {
-          "cost": 4,
-          "name": "Impermanence Heron",
-          "set": "moonlit-clouds",
-          "main": "critRate",
-          "mainValue": 4.4,
-          "secondary": {
-            "stat": "flatAtk",
-            "value": 30
-          },
-          "subs": []
-        },
-        {
-          "cost": 3,
-          "name": "Stonewall Bracer",
-          "set": "moonlit-clouds",
-          "main": "energyRegen",
-          "mainValue": 6.4,
-          "secondary": {
-            "stat": "flatAtk",
-            "value": 20
-          },
-          "subs": []
-        },
-        {
-          "cost": 3,
-          "name": "Viridblaze Saurian",
-          "set": "moonlit-clouds",
-          "main": "energyRegen",
-          "mainValue": 6.4,
-          "secondary": {
-            "stat": "flatAtk",
-            "value": 20
-          },
-          "subs": []
-        },
-        {
-          "cost": 1,
-          "name": "Fission Junrock",
-          "set": "moonlit-clouds",
-          "main": "atkPct",
-          "mainValue": 3.6,
-          "secondary": {
-            "stat": "hp",
-            "value": 456
-          },
-          "subs": []
-        },
-        {
-          "cost": 1,
-          "name": "Sabyr Boar",
-          "set": "moonlit-clouds",
-          "main": "atkPct",
-          "mainValue": 3.6,
-          "secondary": {
-            "stat": "hp",
-            "value": 456
-          },
-          "subs": []
-        }
-      ],
-      "buffs": [
-        {
-          "id": "mortefi.weapon.static-mist",
-          "name": "Static Mist — incoming Resonator ATK +10%",
-          "target": "team",
-          "kind": "stat",
-          "stat": "atkPct",
-          "value": 10,
-          "default": true
-        },
-        {
-          "id": "mortefi.sonata.moonlit-clouds-5pc",
-          "name": "Moonlit Clouds 5pc — incoming Resonator ATK +22.5%",
-          "target": "team",
-          "kind": "stat",
-          "stat": "atkPct",
-          "value": 22.5,
-          "default": true
-        },
-        {
-          "id": "mortefi.echo.impermanence-heron",
-          "name": "Impermanence Heron — incoming Resonator DMG +12%",
-          "target": "team",
-          "kind": "stat",
-          "stat": "attrDmg",
-          "value": 12,
-          "default": true
-        },
-        {
-          "id": "mortefi.outro.violent-finish",
-          "name": "Outro: Violent Finish — incoming Resonator +38% Heavy Attack DMG Amplification",
-          "target": "team",
-          "kind": "amplify",
-          "value": 38,
-          "attackType": "heavy",
-          "default": true,
-          "_note": "Verbatim from Kuro's guide API (guide-server.aki-game.net, roleGbId 1204, guide 14038): 'The incoming Resonator gains 38% Heavy Attack DMG Amplification for 14s or until they are switched out.' Amplification, not a DMG Bonus, so it is its own multiplicative bucket. Was missing entirely until 2026-08-12 and was understating augusta-team by 30%. Duration is 14s and Augusta's window is longer, so this is an upper bound — see the buff-timing caveat."
-        }
-      ],
-      "_statsTodo": "Panel stats not yet entered. Add a 'stats' block: atk/atkBase, hp/hpBase, def/defBase, critRate, critDmg, energyRegen, elemDmg and the per-type DMG bonuses, all read off the in-game stats page.",
-      "stats": {
-        "atk": 688,
-        "atkBase": 577,
-        "hp": 6094,
-        "hpBase": 5182,
-        "def": 589,
-        "defBase": 589,
-        "critRate": 29.4,
-        "critDmg": 150,
-        "energyRegen": 135.6,
-        "elemDmg": 0,
-        "basicDmg": 0,
-        "heavyDmg": 0,
-        "skillDmg": 0,
-        "libDmg": 0,
-        "_note": "Read straight off the in-game stats page 2026-08-12. Lv50, every skill 1/10, no Forte stat nodes, all five Moonlit Clouds echoes at LV.0 — hence every DMG-type bonus is 0.0%. Moonlit Clouds 2pc (+10% ER) is already inside the 135.6%."
-      }
-    },
-    "baizhi": {
-      "name": "Baizhi",
-      "level": 70,
-      "sequence": 0,
-      "accountAccurate": false,
-      "_unreconciled": "NOT CAPTURED. Her echoes, weapon and panel were never read off the client. Everything below is a placeholder; do not trust any Baizhi number until this is filled in.",
       "talents": {
         "basic": 1,
-        "skill": 1,
-        "liberation": 1,
         "forte": 1,
-        "intro": 1
+        "intro": 1,
+        "skill": 1,
+        "liberation": 1
       },
+      "sequence": 6,
+      "_statsTodo": "Panel stats not yet entered. Add a 'stats' block: atk/atkBase, hp/hpBase, def/defBase, critRate, critDmg, energyRegen, elemDmg and the per-type DMG bonuses, all read off the in-game stats page.",
       "forteNodes": false,
-      "weapon": null,
-      "echoes": [],
-      "buffs": []
-    },
-    "denia": {
-      "name": "Denia",
-      "level": 70,
-      "sequence": 0,
-      "baseScale": 1,
-      "accountAccurate": false,
-      "_hypothetical": "NOT OWNED. Modelled 2026-08-12 for the post-3.6 team study. Lv70 post-ascension, S0, signature R1, 5pc sonata, all echoes +25 with account-average substats.",
-      "talents": {
-        "basic": 6,
-        "skill": 6,
-        "liberation": 6,
-        "forte": 6,
-        "intro": 6
-      },
-      "forteNodes": false,
-      "weapon": {
-        "id": "forged-dwarf-star",
-        "rank": 1,
-        "level": 70,
-        "atkOverride": 382.8,
-        "subOverride": {
-          "stat": "critRate",
-          "value": 29.6
-        },
-        "_note": "Lv90 is 500 ATK / 36% Crit Rate. Lv70 solved with the account curves (ATK x0.766, substat x0.823), which reproduce all three owned signatures to within 1%."
-      },
-      "echoes": [
-        {
-          "cost": 4,
-          "name": "(Cost-4 main)",
-          "set": "flaming-clawprint",
-          "main": "critDmg",
-          "subs": [
-            [
-              "critRate",
-              7.7
-            ],
-            [
-              "critDmg",
-              13.8
-            ],
-            [
-              "atkPct",
-              8.5
-            ],
-            [
-              "libDmg",
-              8.8
-            ],
-            [
-              "flatAtk",
-              46
-            ]
-          ]
-        },
-        {
-          "cost": 3,
-          "name": "(Cost-3)",
-          "set": "flaming-clawprint",
-          "main": "elemDmg:fusion",
-          "subs": [
-            [
-              "critRate",
-              7.7
-            ],
-            [
-              "critDmg",
-              13.8
-            ],
-            [
-              "atkPct",
-              8.5
-            ],
-            [
-              "energyRegen",
-              10.1
-            ],
-            [
-              "libDmg",
-              8.8
-            ]
-          ]
-        },
-        {
-          "cost": 3,
-          "name": "(Cost-3)",
-          "set": "flaming-clawprint",
-          "main": "elemDmg:fusion",
-          "subs": [
-            [
-              "critRate",
-              7.7
-            ],
-            [
-              "critDmg",
-              13.8
-            ],
-            [
-              "atkPct",
-              8.5
-            ],
-            [
-              "energyRegen",
-              10.1
-            ],
-            [
-              "skillDmg",
-              8.8
-            ]
-          ]
-        },
-        {
-          "cost": 1,
-          "name": "(Cost-1)",
-          "set": "flaming-clawprint",
-          "main": "atkPct",
-          "subs": [
-            [
-              "critRate",
-              7.7
-            ],
-            [
-              "critDmg",
-              13.8
-            ],
-            [
-              "atkPct",
-              8.5
-            ],
-            [
-              "libDmg",
-              8.8
-            ],
-            [
-              "flatAtk",
-              46
-            ]
-          ]
-        },
-        {
-          "cost": 1,
-          "name": "(Cost-1)",
-          "set": "flaming-clawprint",
-          "main": "atkPct",
-          "subs": [
-            [
-              "critRate",
-              7.7
-            ],
-            [
-              "critDmg",
-              13.8
-            ],
-            [
-              "atkPct",
-              8.5
-            ],
-            [
-              "skillDmg",
-              8.8
-            ],
-            [
-              "flatAtk",
-              46
-            ]
-          ]
-        }
-      ],
-      "buffs": [
-        {
-          "id": "denia.inherent.etched-colors",
-          "name": "Inherent: Etched Colors — team Fusion DMG +30% (Fusion Burst mode)",
-          "target": "team",
-          "kind": "stat",
-          "stat": "elemDmg:fusion",
-          "value": 30,
-          "default": true,
-          "_note": "Verbatim (Kuro guide API, roleGbId 1211): \"While in the Entropy Shift states... Resonance Mode - Fusion Burst: All Resonators in the team gain 30% Fusion DMG Bonus.\" Requires Denia herself to be in Fusion Burst mode, which is also the mode Aemeath runs."
-        },
-        {
-          "id": "denia.outro.unfinished-lies",
-          "name": "Outro: Unfinished Lies — Fusion Burst DMG Amplified 60% (30s)",
-          "target": "team",
-          "kind": "status",
-          "value": 60,
-          "default": true,
-          "_note": "Verbatim: \"When in Resonance Mode - Fusion Burst, Fusion Burst DMG against targets near the active Resonator in the team is Amplified by 60% for 30s.\" Scoped to the Fusion Burst status only — it does NOT touch her ordinary Fusion damage. MODEL NOTE: this has to be kind:status / status:fusionBurst / bucket:amplify. A plain kind:amplify with attackType:fusionBurst lands in the ordinary-ability amplify map, which the negative-status path never reads — it would silently do nothing.",
-          "status": "fusionBurst",
-          "bucket": "amplify"
-        },
-        {
-          "id": "denia.sonata.flaming-clawprint-5pc",
-          "name": "Flaming Clawprint 5pc — team Fusion DMG +15% (35s)",
-          "target": "team",
-          "kind": "stat",
-          "stat": "elemDmg:fusion",
-          "value": 15,
-          "default": true,
-          "_note": "Verbatim from sonata data: \"Casting Resonance Liberation grants all Resonators in the team 15% Fusion DMG Bonus and the caster 20% Resonance Liberation DMG Bonus, lasting for 35s.\" 35s comfortably covers a 25s loop, which is why this set is chosen over Trailblazing Star for her."
-        },
-        {
-          "id": "denia.sonata.flaming-clawprint-self",
-          "name": "Flaming Clawprint 5pc — caster Liberation DMG +20% (35s)",
-          "target": "self",
-          "owner": "denia",
-          "kind": "stat",
-          "stat": "libDmg",
-          "value": 20,
-          "default": true
-        },
-        {
-          "id": "denia.weapon.forged-dwarf-star-atk",
-          "name": "Forged Dwarf Star R1 — ATK +12%",
-          "target": "self",
-          "owner": "denia",
-          "kind": "stat",
-          "stat": "atkPct",
-          "value": 12,
-          "panel": true,
-          "default": true
-        },
-        {
-          "id": "denia.s1.crit-dmg",
-          "name": "S1 — Crit DMG +30% (self)",
-          "target": "self",
-          "owner": "denia",
-          "kind": "stat",
-          "stat": "critDmg",
-          "value": 30,
-          "default": false,
-          "_note": "Self only. Does nothing for a carry standing next to her."
-        },
-        {
-          "id": "denia.s2.fusion-burst-inflicter",
-          "name": "S2 — inflicter of Fusion Burst gains +50% Fusion DMG (15s)",
-          "target": "team",
-          "kind": "stat",
-          "stat": "elemDmg:fusion",
-          "value": 50,
-          "default": false,
-          "_note": "Verbatim: \"When Denia is in Resonance Mode - Fusion Burst, after a Resonator in the team inflicts Fusion Burst on the target, they gain 50% Fusion DMG Bonus for 15s.\" Aemeath inflicts Fusion Burst through six different skills, so she holds this for the whole window. This is the single largest sequence node on any of the three."
-        },
-        {
-          "id": "denia.s3.final-act-mv",
-          "name": "S3 — Final Act (Breakdown) DMG Multiplier +80% (self)",
-          "target": "self",
-          "owner": "denia",
-          "kind": "mvPct",
-          "value": 80,
-          "abilities": [
-            "Final Act - Breakdown Form DMG"
-          ],
-          "default": false
-        },
-        {
-          "id": "denia.weapon.dwarf-star-lib",
-          "name": "Forged Dwarf Star R1 — Liberation DMG Bonus +36% on inflicting Fusion Burst (5s)",
-          "target": "self",
-          "owner": "denia",
-          "kind": "stat",
-          "stat": "libDmg",
-          "value": 36,
-          "default": true
-        },
-        {
-          "id": "denia.weapon.dwarf-star-team-atk",
-          "name": "Forged Dwarf Star R1 — TEAM ATK +24% for 15s when they inflict Fusion Burst",
-          "target": "team",
-          "kind": "stat",
-          "stat": "atkPct",
-          "value": 24,
-          "default": true,
-          "_note": "A team buff on a support weapon — this one DOES reach Aemeath, who inflicts Fusion Burst through six skills. It changes the earlier finding that Denia's weapon was worthless."
-        }
-      ]
-    },
-    "hiyuki": {
-      "name": "Hiyuki",
-      "level": 70,
-      "sequence": 0,
-      "baseScale": 1,
-      "accountAccurate": false,
-      "_hypothetical": "NOT OWNED. Modelled 2026-08-12. Glacio sword carry. Lv70 post-ascension, S0, Frostburn R1, Freezing Frost 5pc, echoes +25 at account-average substats.",
-      "talents": {
-        "basic": 6,
-        "skill": 6,
-        "liberation": 6,
-        "forte": 6,
-        "intro": 6
-      },
-      "forteNodes": false,
-      "weapon": {
-        "id": "frostburn",
-        "rank": 1,
-        "level": 70,
-        "atkOverride": 450.2,
-        "subOverride": {
-          "stat": "critRate",
-          "value": 20
-        },
-        "_note": "Lv90 588 ATK / 24.3% Crit Rate — identical statline to Everbright Polestar, so the Lv70 solve is the same 449/20."
-      },
-      "echoes": [
-        {
-          "cost": 4,
-          "name": "(Cost-4 main)",
-          "set": "wishes-of-quiet-snowfall",
-          "main": "critDmg",
-          "subs": [
-            [
-              "critRate",
-              7.7
-            ],
-            [
-              "critDmg",
-              13.8
-            ],
-            [
-              "atkPct",
-              8.5
-            ],
-            [
-              "basicDmg",
-              8.8
-            ],
-            [
-              "flatAtk",
-              46
-            ]
-          ]
-        },
-        {
-          "cost": 3,
-          "name": "(Cost-3)",
-          "set": "wishes-of-quiet-snowfall",
-          "main": "elemDmg:glacio",
-          "subs": [
-            [
-              "critRate",
-              7.7
-            ],
-            [
-              "critDmg",
-              13.8
-            ],
-            [
-              "atkPct",
-              8.5
-            ],
-            [
-              "energyRegen",
-              10.1
-            ],
-            [
-              "heavyDmg",
-              8.8
-            ]
-          ]
-        },
-        {
-          "cost": 3,
-          "name": "(Cost-3)",
-          "set": "wishes-of-quiet-snowfall",
-          "main": "elemDmg:glacio",
-          "subs": [
-            [
-              "critRate",
-              7.7
-            ],
-            [
-              "critDmg",
-              13.8
-            ],
-            [
-              "atkPct",
-              8.5
-            ],
-            [
-              "energyRegen",
-              10.1
-            ],
-            [
-              "skillDmg",
-              8.8
-            ]
-          ]
-        },
-        {
-          "cost": 1,
-          "name": "(Cost-1)",
-          "set": "wishes-of-quiet-snowfall",
-          "main": "atkPct",
-          "subs": [
-            [
-              "critRate",
-              7.7
-            ],
-            [
-              "critDmg",
-              13.8
-            ],
-            [
-              "atkPct",
-              8.5
-            ],
-            [
-              "basicDmg",
-              8.8
-            ],
-            [
-              "flatAtk",
-              46
-            ]
-          ]
-        },
-        {
-          "cost": 1,
-          "name": "(Cost-1)",
-          "set": "wishes-of-quiet-snowfall",
-          "main": "atkPct",
-          "subs": [
-            [
-              "critRate",
-              7.7
-            ],
-            [
-              "critDmg",
-              13.8
-            ],
-            [
-              "atkPct",
-              8.5
-            ],
-            [
-              "heavyDmg",
-              8.8
-            ],
-            [
-              "flatAtk",
-              46
-            ]
-          ]
-        }
-      ],
-      "buffs": [
-        {
-          "id": "hiyuki.inherent.snow-rust-critdmg",
-          "name": "Inherent: Fine Snow — Crit DMG +40% (1 Snow Rust stack)",
-          "target": "self",
-          "owner": "hiyuki",
-          "kind": "stat",
-          "stat": "critDmg",
-          "value": 40,
-          "default": true,
-          "_note": "Verbatim: \"When a Resonator in the team applies Glacio Chafe or Havoc Bane, Hiyuki gains 1 stack of Snow Rust... 1 stack: Glacio Bite DMG is Amplified by 30%... Hiyuki's Crit. DMG is increased by 40%.\" She self-applies Glacio Chafe, so 1 stack is free. Stacks 2 and 3 need OTHER Glacio Chafe / Havoc Bane appliers in the team — each Resonator triggers it only once."
-        },
-        {
-          "id": "hiyuki.inherent.snow-rust-bite-amp",
-          "name": "Inherent: Fine Snow — Glacio Bite DMG Amplified 30%",
-          "target": "self",
-          "owner": "hiyuki",
-          "kind": "status",
-          "value": 30,
-          "default": true,
-          "status": "glacioBite",
-          "bucket": "amplify"
-        },
-        {
-          "id": "hiyuki.weapon.frostburn-atk",
-          "name": "Frostburn R1 — ATK +12%",
-          "target": "self",
-          "owner": "hiyuki",
-          "kind": "stat",
-          "stat": "atkPct",
-          "value": 12,
-          "panel": true,
-          "default": true
-        },
-        {
-          "id": "hiyuki.outro.snowlight-blessing",
-          "name": "Outro: Snowlight Blessing — allies' Glacio DMG Amplified 20% vs Glacio Chafe (20s)",
-          "target": "team",
-          "kind": "amplify",
-          "attackType": "all",
-          "value": 20,
-          "default": false,
-          "_note": "OFF by default. Only helps OTHER Glacio characters (\"Resonators other than Hiyuki\"), and only against targets already carrying Glacio Chafe. Useless next to a Fusion carry. Switch on only for a Glacio-on-Glacio team."
-        },
-        {
-          "id": "hiyuki.s1.foreclaimed-mv",
-          "name": "S1 — Foreclaimed Self basic/heavy/mid-air/dodge Multipliers +120%",
-          "target": "self",
-          "owner": "hiyuki",
-          "kind": "mvPct",
-          "value": 120,
-          "abilities": [
-            "Basic Attack - Foreclaimed Self Stage 1 DMG",
-            "Basic Attack - Foreclaimed Self Stage 2 DMG",
-            "Basic Attack - Foreclaimed Self Stage 3 DMG",
-            "Basic Attack - Foreclaimed Self Stage 4 DMG",
-            "Basic Attack - Foreclaimed Self Stage 5 DMG",
-            "Heavy Attack - Foreclaimed Self DMG",
-            "Mid-Air Attack - Foreclaimed Self Stage 1 DMG",
-            "Mid-Air Attack - Foreclaimed Self Stage 2 DMG",
-            "Mid-Air Heavy Attack - Foreclaimed Self DMG",
-            "Dodge Counter - Foreclaimed Self DMG"
-          ],
-          "default": false
-        },
-        {
-          "id": "hiyuki.s2.iai-mv",
-          "name": "S2 — Iai DMG Multiplier +125%",
-          "target": "self",
-          "owner": "hiyuki",
-          "kind": "mvPct",
-          "value": 125,
-          "abilities": [
-            "Iai DMG"
-          ],
-          "default": false
-        },
-        {
-          "id": "hiyuki.s3.heavy-mv",
-          "name": "S3 — Frost Splinter and Bitterfrost Multipliers +160%",
-          "target": "self",
-          "owner": "hiyuki",
-          "kind": "mvPct",
-          "value": 160,
-          "abilities": [
-            "Frost Splinter: Present Self DMG",
-            "Bitterfrost: Foreclaimed Self DMG"
-          ],
-          "default": false
-        },
-        {
-          "id": "hiyuki.s3.free-snow-rust",
-          "name": "S3 — one free Snow Rust stack (reaches 2 with no other applier)",
-          "target": "self",
-          "owner": "hiyuki",
-          "kind": "status",
-          "status": "glacioBite",
-          "bucket": "amplify",
-          "value": 0,
-          "default": false,
-          "_note": "Bookkeeping only. The real effect is that S3 grants a free stack, so Hiyuki reaches Snow Rust 2 without a second Glacio Chafe applier. The 2-stack payload (an extra 102% Glacio Bite per Chafe application) is modelled as extra hits in the rotation, not here."
-        },
-        {
-          "id": "hiyuki.snowrust3.bite-amp",
-          "name": "Snow Rust 3 — Glacio Bite additionally Amplified 30%",
-          "target": "self",
-          "owner": "hiyuki",
-          "kind": "status",
-          "status": "glacioBite",
-          "bucket": "amplify",
-          "value": 30,
-          "default": false,
-          "_note": "Needs THREE separate Resonators to have applied Glacio Chafe or Havoc Bane; each counts once. Roster appliers: Hiyuki herself, and Suisui. Nobody else. So 3 stacks is unreachable at S0 and needs S3 plus Suisui."
-        },
-        {
-          "id": "hiyuki.sonata.quiet-snowfall-2pc",
-          "name": "Wishes of Quiet Snowfall 2pc — Glacio DMG +10%",
-          "target": "self",
-          "owner": "hiyuki",
-          "kind": "stat",
-          "stat": "elemDmg:glacio",
-          "value": 10,
-          "panel": true,
-          "default": true
-        },
-        {
-          "id": "hiyuki.sonata.quiet-snowfall-5pc-glacio",
-          "name": "Wishes of Quiet Snowfall 5pc — Glacio DMG +10% on inflicting Glacio Chafe (15s)",
-          "target": "self",
-          "owner": "hiyuki",
-          "kind": "stat",
-          "stat": "elemDmg:glacio",
-          "value": 10,
-          "default": true
-        },
-        {
-          "id": "hiyuki.sonata.quiet-snowfall-5pc-crit",
-          "name": "Wishes of Quiet Snowfall 5pc — Snowfall: Crit Rate +25% on Liberation DMG (6s, extends to 30s)",
-          "target": "self",
-          "owner": "hiyuki",
-          "kind": "stat",
-          "stat": "critRate",
-          "value": 25,
-          "default": true,
-          "_note": "The set Kuro built for her — it appears in her own guide payload. Liberation branch chosen over the Outro branch: she is the carry, so +25% Crit Rate on herself beats handing 25% Glacio DMG to whoever comes in next. Extends 4s per Liberation instance up to 30s, and Blade Liberation alone is 8 instances."
-        },
-        {
-          "id": "hiyuki.forte.snowforged-blade-3",
-          "name": "Blade Liberation consuming 3 Snowforged Blade — +240% Multiplier on both hits",
-          "target": "self",
-          "owner": "hiyuki",
-          "kind": "mvPct",
-          "value": 240,
-          "abilities": [
-            "Foreclaiming: Blade Liberation Hit 1 DMG",
-            "Foreclaiming: Blade Liberation Hit 2 DMG"
-          ],
-          "default": true,
-          "_note": "The projection carries \"MV per Snowforged Blade\" as modifier rows with no damageType, so the engine correctly refuses them as standalone abilities — they ADD to the parent. Hit 1 gains 159.05% per blade on a 198.81% base and Hit 2 gains 636.19% on 795.24%; both are exactly 0.8x per blade, so 3 blades is +240% on each. Blade Liberation at 3 blades is 676% + 2704% = 3380%, against 994% without. This was the single largest thing missing from her model."
-        },
-        {
-          "id": "hiyuki.weapon.frostburn-glacio-amp",
-          "name": "Frostburn R1 — Glacio DMG Amplified 28% (on applying Glacio Chafe)",
-          "target": "self",
-          "owner": "hiyuki",
-          "kind": "amplify",
-          "attackType": "all",
-          "value": 28,
-          "default": true,
-          "_note": "Her Inward Vision applies 4 stacks of Glacio Chafe, so this is live for the whole window. Every ability she has is Glacio. R5 would be 56% — refinement is NOT modelled by the engine."
-        },
-        {
-          "id": "hiyuki.weapon.frostburn-lib-defign",
-          "name": "Frostburn R1 — Resonance Liberation DEF Ignore 10%",
-          "target": "self",
-          "owner": "hiyuki",
-          "kind": "defIgnore",
-          "attackType": "liberation",
-          "value": 10,
-          "default": true,
-          "_note": "Matters more than it looks: Blade Liberation, Bitterfrost, Iai, Inward Vision, Frost Splinter and her Intro are ALL typed liberation."
-        },
-        {
-          "id": "hiyuki.weapon.frostburn-chafe-amp",
-          "name": "Frostburn R1 — Glacio Chafe DMG Amplified 20%",
-          "target": "self",
-          "owner": "hiyuki",
-          "kind": "status",
-          "status": "glacioChafe",
-          "bucket": "amplify",
-          "value": 20,
-          "default": true
-        }
-      ]
-    },
-    "mornye": {
-      "name": "Mornye",
-      "level": 70,
-      "sequence": 0,
-      "baseScale": 1,
-      "accountAccurate": false,
-      "_hypothetical": "NOT OWNED. Modelled 2026-08-12. Fusion broadblade support/healer. Kuro tracks exactly one stat for her: Energy Regen, target 250%.",
-      "talents": {
-        "basic": 6,
-        "skill": 6,
-        "liberation": 6,
-        "forte": 6,
-        "intro": 6
-      },
-      "forteNodes": false,
-      "weapon": {
-        "id": "starfield-calibrator",
-        "rank": 1,
-        "level": 70,
-        "atkOverride": 316.2,
-        "subOverride": {
-          "stat": "energyRegen",
-          "value": 63.4
-        },
-        "_note": "Lv90 413 ATK / 77% ER. Near-identical statline to Suisui's Firstlight's Herald (412.5 / 77.04), whose solved Lv70 is 315 / 63.7 — so this solve is corroborated by an owned weapon."
-      },
-      "echoes": [
-        {
-          "cost": 4,
-          "name": "(Cost-4 main)",
-          "set": "moonlit-clouds",
-          "main": "critRate",
-          "subs": [
-            [
-              "energyRegen",
-              10.1
-            ],
-            [
-              "critRate",
-              7.7
-            ],
-            [
-              "critDmg",
-              13.8
-            ],
-            [
-              "atkPct",
-              8.5
-            ],
-            [
-              "flatAtk",
-              46
-            ]
-          ]
-        },
-        {
-          "cost": 3,
-          "name": "(Cost-3)",
-          "set": "moonlit-clouds",
-          "main": "energyRegen",
-          "subs": [
-            [
-              "energyRegen",
-              10.1
-            ],
-            [
-              "critRate",
-              7.7
-            ],
-            [
-              "critDmg",
-              13.8
-            ],
-            [
-              "atkPct",
-              8.5
-            ],
-            [
-              "skillDmg",
-              8.8
-            ]
-          ]
-        },
-        {
-          "cost": 3,
-          "name": "(Cost-3)",
-          "set": "moonlit-clouds",
-          "main": "energyRegen",
-          "subs": [
-            [
-              "energyRegen",
-              10.1
-            ],
-            [
-              "critRate",
-              7.7
-            ],
-            [
-              "critDmg",
-              13.8
-            ],
-            [
-              "atkPct",
-              8.5
-            ],
-            [
-              "libDmg",
-              8.8
-            ]
-          ]
-        },
-        {
-          "cost": 1,
-          "name": "(Cost-1)",
-          "set": "moonlit-clouds",
-          "main": "atkPct",
-          "subs": [
-            [
-              "energyRegen",
-              10.1
-            ],
-            [
-              "critRate",
-              7.7
-            ],
-            [
-              "critDmg",
-              13.8
-            ],
-            [
-              "atkPct",
-              8.5
-            ],
-            [
-              "flatAtk",
-              46
-            ]
-          ]
-        },
-        {
-          "cost": 1,
-          "name": "(Cost-1)",
-          "set": "moonlit-clouds",
-          "main": "atkPct",
-          "subs": [
-            [
-              "energyRegen",
-              10.1
-            ],
-            [
-              "critRate",
-              7.7
-            ],
-            [
-              "critDmg",
-              13.8
-            ],
-            [
-              "atkPct",
-              8.5
-            ],
-            [
-              "flatAtk",
-              46
-            ]
-          ]
-        }
-      ],
-      "buffs": [
-        {
-          "id": "mornye.outro.recursion",
-          "name": "Outro: Recursion — team +25% All DMG Amplification (30s)",
-          "target": "team",
-          "kind": "amplify",
-          "attackType": "all",
-          "value": 25,
-          "default": true,
-          "_note": "Verbatim (roleGbId 1209): \"Resonators in the team gain 25% All DMG Amplification for 30s.\" Unconditional — no status, no mode, no stack requirement. This is the whole reason to run her."
-        },
-        {
-          "id": "mornye.sonata.moonlit-clouds-5pc",
-          "name": "Moonlit Clouds 5pc — incoming Resonator ATK +22.5% (15s)",
-          "target": "team",
-          "kind": "stat",
-          "stat": "atkPct",
-          "value": 22.5,
-          "default": true
-        },
-        {
-          "id": "mornye.inherent.blueprint",
-          "name": "Inherent: Blueprint — Energy Regen +10%",
-          "target": "self",
-          "owner": "mornye",
-          "kind": "stat",
-          "stat": "energyRegen",
-          "value": 10,
-          "panel": true,
-          "default": true
-        },
-        {
-          "id": "mornye.s1.interfered-marker",
-          "name": "S1 — Interfered Marker uptime and application (self/utility)",
-          "target": "self",
-          "owner": "mornye",
-          "kind": "stat",
-          "stat": "atkPct",
-          "value": 0,
-          "default": false,
-          "_note": "Modelled as zero. S1 is marker uptime and interrupt immunity — real in play, but it does not map to a stat the engine reads."
-        },
-        {
-          "id": "mornye.s2.team-crit-dmg",
-          "name": "S2 — team Crit DMG +30% vs Interfered Marker (0.2% per 1% ER over 100, cap 32%)",
-          "target": "team",
-          "kind": "stat",
-          "stat": "critDmg",
-          "value": 30,
-          "default": false,
-          "_note": "Verbatim: \"Every 1% of Mornye Energy Regen over 100% grants 0.2% Crit DMG increase, up to 32%.\" At her modelled 250% ER that is 0.2 x 150 = 30%. Conditional on the target carrying Interfered Marker, which she applies."
-        },
-        {
-          "id": "mornye.s3.concerto",
-          "name": "S3 — Concerto and Relative Momentum restore (utility)",
-          "target": "self",
-          "owner": "mornye",
-          "kind": "stat",
-          "stat": "energyRegen",
-          "value": 0,
-          "default": false,
-          "_note": "Modelled as zero — pure resource generation."
-        },
-        {
-          "id": "mornye.weapon.starfield-team-critdmg",
-          "name": "Starfield Calibrator R1 — team Crit DMG +20% (4s)",
-          "target": "team",
-          "kind": "stat",
-          "stat": "critDmg",
-          "value": 20,
-          "default": true,
-          "_note": "Also a team buff on a support weapon. Same correction as Denia's."
-        }
-      ]
+      "_unreconciled": "Every echo is +0 with zero substats and all skills are Lv1. Numbers here are near-worthless until he is built.",
+      "accountAccurate": false
     }
   }
 }

@@ -54,6 +54,24 @@ reference data does not carry.
 `buffs` lists ids from `characters.json`. A buff reaches a character only if it is
 `target: "team"` or owned by them. Delete an id to test without it.
 
+`windows` scopes a buff to a span of step numbers — `"buff.id": [12, 25]`, either end `null` for
+open. The numbers are the ones printed on the icon tiles.
+
+**Outro grants are not team auras.** "Resonators in the team gain X" reaches everyone and wants a
+plain `target: "team"`. "The incoming Resonator gains X" reaches one character, and a step window
+cannot express that once an off-field character has steps interleaved with the recipient's —
+Denia's Erosion Field ticks land in the middle of Aemeath's rotation. Write those as
+`"buff.id": { "from": 26, "only": "aemeath" }`.
+
+`kind: "retype"` changes an ability's attack type, for kits that declare a skill "is considered
+Resonance Liberation DMG" although the reference data types it as a Basic Attack. Not cosmetic:
+the type picks the DMG-bonus stat and the type-scoped amplify / DEF-ignore / RES-shred entries.
+
+**What lives where.** Supabase (`wuwa.docs`) holds ONLY `characters` and `rotations`, and the page
+reads it first, so build edits go live without a deploy. Everything else — `engine.js`, this page,
+`ref/`, the icons — is served from the repo by GitHub Pages and needs a push. A rotation that uses
+a new engine feature will render on a stale deploy with that feature silently ignored.
+
 ## The model
 
 A faithful reimplementation of the arabwuwa calculator, derived by reading

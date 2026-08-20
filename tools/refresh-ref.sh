@@ -5,9 +5,12 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
 
-CHARS="aemeath suisui augusta verina baizhi mortefi"
+# Every character the calculator can reach. arabwuwa 404s on ones it has not built yet
+# (2026-08-20: jingran, hsin, suoming), so a FAIL line here is information, not breakage.
+CHARS="aemeath augusta baizhi brant calcharo camellya cantarella carlotta cartethyia changli chisa ciaccona denia encore galbrena hiyuki iuno jianxin jinhsi jiyan lingyang lucilla lucy lupa luukherssen lynae mornye mortefi phoebe phrolova qingxiao qiuyuan rebecca roccia rover-aero rover-electro rover-havoc rover-spectro shorekeeper sigrika suisui verina xiangli-yao xuanling yinlin zani zhezhi"
 for c in $CHARS; do
-  curl -sf "https://arabwuwa.com/api/calculator-character-data.php?action=projection&id=$c" -o "$TMP/proj-$c.json"
+  curl -sf "https://arabwuwa.com/api/calculator-character-data.php?action=projection&id=$c" \
+    -o "$TMP/proj-$c.json" || { echo "  FAIL $c (no calculator data yet)"; continue; }
 done
 curl -sf "https://arabwuwa.com/data/weapons.json"     -o "$TMP/weapons.json"
 curl -sf "https://arabwuwa.com/data/sonata-sets.json" -o "$TMP/sonata-sets.json"

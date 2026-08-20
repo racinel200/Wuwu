@@ -234,6 +234,29 @@ console.log('\nPANEL MODE vs RECONSTRUCTION — same rotation, two independent s
   }
 }
 
+// BUCKET PARITY. buildState has two return paths — panel mode and reconstruction. Every
+// non-stat damage bucket must come out of BOTH. `retype` was once wired into the panel path
+// only, and the rebuilt Denia silently lost 10.8%. Caught then by a drift check, and only
+// because she happened to be in a rotation. This catches it structurally.
+console.log('\nBUCKET PARITY — the two buildState paths must expose the same buckets');
+{
+  const eng = loadEngine(read('data/characters.json'));
+  const probe = { id:'probe.retype', target:'self', kind:'retype', attackType:'liberation',
+                  abilities:['Basic Attack - Breakdown Form Stage 1 DMG'] };
+  const bare = JSON.parse(JSON.stringify(read('data/characters.json')));
+  delete bare.characters.denia.stats;
+  const rebuilt = loadEngine(bare).buildState('denia', [probe]);
+  const panel = eng.buildState('denia', [probe]);
+  const BUCKETS = ['amplify','defIgnore','resShred','mvPct','abilityCritDmg','vulnerability',
+                   'status','tuneBreak','retype'];
+  const missing = BUCKETS.filter(k => panel[k] === undefined || rebuilt[k] === undefined);
+  if (missing.length) fail(`buildState drops bucket(s) on one path: ${missing.join(', ')}`);
+  else console.log(`  all ${BUCKETS.length} buckets present on both paths`);
+  if (rebuilt.retype?.['Basic Attack - Breakdown Form Stage 1 DMG'] !== 'liberation')
+    fail('reconstruction path does not honour a retype buff');
+  else console.log('  retype survives the reconstruction path');
+}
+
 console.log('\nBUFF WIRING — the class of bug the damage loop cannot see');
 {
   const byId = new Map();

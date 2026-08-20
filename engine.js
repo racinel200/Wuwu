@@ -265,7 +265,8 @@ export class Engine {
 
     // buffs
     const buckets = this._applyBuffs(activeBuffs, add, charId);
-    const { amplify, defIgnore, resShred, mvPct, abilityCritDmg, vulnerability, status, tuneBreak } = buckets;
+    const { amplify, defIgnore, resShred, mvPct, abilityCritDmg, vulnerability, status, tuneBreak,
+            retype } = buckets;
 
     const hp = baseHP * (1 + (S.hpPct || 0) / 100) + (S.hp || 0);
     const atk = (baseATK + weaponATK) * (1 + (S.atkPct || 0) / 100) + (S.flatAtk || 0);
@@ -274,7 +275,7 @@ export class Engine {
     return {
       charId, element: proj.element, level: c.level, talents: c.talents,
       stats: S, hp, atk, def, baseHP, baseATK, baseDEF, weaponATK, tuneBreakPoints,
-      amplify, defIgnore, resShred, mvPct, abilityCritDmg, vulnerability, status, tuneBreak,
+      amplify, defIgnore, resShred, mvPct, abilityCritDmg, vulnerability, status, tuneBreak, retype,
     };
   }
 
@@ -323,7 +324,7 @@ export class Engine {
   /** Resolve a buff list into the non-stat damage buckets. Shared by both modes. */
   _applyBuffs(activeBuffs, add, charId) {
     const amplify = {}, defIgnore = {}, resShred = [], mvPct = {},
-          abilityCritDmg = {}, vulnerability = {}, status = {}, tuneBreak = {};
+          abilityCritDmg = {}, vulnerability = {}, status = {}, tuneBreak = {}, retype = {};
     const bumpScoped = (map, buff, v) => {
       const keys = buff.abilities && buff.abilities.length ? buff.abilities : [buff.attackType || 'all'];
       for (const k of keys) map[k] = (map[k] || 0) + v;
@@ -337,6 +338,10 @@ export class Engine {
         case 'defIgnore': defIgnore[b.attackType || 'all'] = (defIgnore[b.attackType || 'all'] || 0) + v; break;
         case 'resRed': resShred.push({ element: b.element || 'all', attackType: b.attackType || 'all', value: v }); break;
         case 'mvPct': for (const a of (b.abilities || [])) mvPct[a] = (mvPct[a] || 0) + v; break;
+        // RETYPE. Some kits declare a skill "is considered Resonance Liberation DMG" although the
+        // reference data types it as a Basic Attack. Not cosmetic: the attack type selects which
+        // DMG-bonus stat applies and which type-scoped amplify / DEF-ignore / RES-shred match.
+        case 'retype': for (const a of (b.abilities || [])) retype[a] = b.attackType; break;
         case 'abilityCritDmg': for (const a of (b.abilities || [])) abilityCritDmg[a] = (abilityCritDmg[a] || 0) + v; break;
         case 'status': {
           const st = (status[b.status] = status[b.status] || {});
@@ -346,7 +351,7 @@ export class Engine {
         default: this.warnings.push(`buff "${b.id}": unknown kind "${b.kind}"`);
       }
     }
-    return { amplify, defIgnore, resShred, mvPct, abilityCritDmg, vulnerability, status, tuneBreak };
+    return { amplify, defIgnore, resShred, mvPct, abilityCritDmg, vulnerability, status, tuneBreak, retype };
   }
 
   /**
@@ -412,7 +417,7 @@ export class Engine {
     const raw = (entry.values || [])[Math.max(0, Math.min(9, tl - 1))] || '';
     const scaling = entry.scaling || 'ATK';
     const dtypes = entry.damageType || [];
-    const dt = dtypes[0] || 'basic';
+    const dt = (state.retype && state.retype[entry.label]) || dtypes[0] || 'basic';
 
     // ---- negative status: no ATK anywhere on this path
     if (NEGATIVE_STATUS.includes(scaling)) {
@@ -598,6 +603,15 @@ export class Engine {
       return [b.fromStep ?? 1, b.untilStep ?? N];
     };
     const spanOf = (b) => { const [f, u] = rawSpan(b); return [Math.max(1, f), Math.min(N, u)]; };
+    // OUTRO SEMANTICS. A team buff reaches everyone, which is right for auras and wrong for Outro
+    // grants, which reach only the INCOMING Resonator. `{ "from": 26, "only": "aemeath" }` withholds
+    // it from everyone else even inside its window. Step windows alone cannot express this once an
+    // off-field character (Denia's Erosion Field) has steps interleaved with the recipient's.
+    const onlyFor = {};
+    for (const [bid, w] of Object.entries(rot.windows || {}))
+      if (w && !Array.isArray(w) && typeof w === 'object' && w.only) onlyFor[bid] = w.only;
+    const reaches = (b, cid) => (!onlyFor[b.id] || onlyFor[b.id] === cid)
+                             && (b.target === 'team' || b.owner === cid);
     for (const bid of Object.keys(rot.windows || {}))
       if (!chosen.some(b => b.id === bid))
         this.warnings.push(`rotation "${id}" has a window for "${bid}", which it does not list as a buff`);
@@ -617,7 +631,7 @@ export class Engine {
     // collapses to one state per character, so the no-windows path costs nothing.
     const stateCache = new Map();
     const stateFor = (cid, n) => {
-      const forThem = activeAt(n).filter(b => b.target === 'team' || b.owner === cid);
+      const forThem = activeAt(n).filter(b => reaches(b, cid));
       const key = `${cid}|${forThem.map(b => b.id).join(',')}`;
       if (!stateCache.has(key)) stateCache.set(key, this.buildState(cid, forThem));
       return stateCache.get(key);
@@ -625,7 +639,7 @@ export class Engine {
     // states[] keeps its old meaning: every buff this rotation lists, ignoring windows.
     const states = {};
     for (const cid of (rot.team || [])) {
-      states[cid] = this.buildState(cid, chosen.filter(b => b.target === 'team' || b.owner === cid));
+      states[cid] = this.buildState(cid, chosen.filter(b => reaches(b, cid)));
     }
     const buffWindows = chosen.map(b => {
       const [f, u] = spanOf(b);
@@ -679,8 +693,7 @@ export class Engine {
       steps.push({ ...step, hits, breakdown, noncrit, average, crit, counts: step._counts,
                    each: average, total: average, note: step.note || '',
                    n: step._n, _state: stepState,
-                   liveBuffs: activeAt(step._n).filter(b => b.target === 'team' || b.owner === step.char)
-                                              .map(b => b.id) });
+                   liveBuffs: activeAt(step._n).filter(b => reaches(b, step.char)).map(b => b.id) });
     }
 
     const panels = {};
