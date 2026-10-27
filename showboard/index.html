@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Showboard launcher · build 2026-10-27a -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Showboard</title>
+<meta name="apple-mobile-web-app-title" content="Showboard">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f131b">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<style>
+:root { --bg:#0f131b; --surface:#171c27; --ink:#e9ecf3; --muted:#a3abbd; --gold:#e6b45f; color-scheme:dark; }
+* { box-sizing:border-box; }
+html,body { height:100%; }
+body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 -apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  display:flex; align-items:center; justify-content:center;
+  padding: max(24px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+.card { max-width:360px; width:100%; display:flex; flex-direction:column; align-items:center; gap:14px; text-align:center; }
+img { width:96px; height:96px; border-radius:22px; }
+h1 { margin:0; font-size:1.6rem; }
+p { margin:0; color:var(--muted); }
+ol { text-align:left; margin:0; padding-left:1.2em; color:var(--ink); }
+a.btn { display:inline-block; background:var(--gold); color:var(--bg); font-weight:700; text-decoration:none; padding:12px 18px; border-radius:12px; }
+a.btn:focus-visible { outline:2px solid var(--ink); outline-offset:2px; }
+[hidden] { display:none !important; }
+</style>
+</head>
+<body>
+<main class="card">
+  <img src="apple-touch-icon.png" alt="">
+  <h1>Showboard</h1>
+  <div id="go" hidden><p>Opening Showboard…</p></div>
+  <div id="setup" class="card">
+    <p>Add this page to your Home Screen to get the Showboard icon.</p>
+    <ol>
+      <li>Tap the Share button.</li>
+      <li>Tap <b>Add to Home Screen</b>.</li>
+      <li>Keep the name <b>Showboard</b> and tap <b>Add</b>.</li>
+    </ol>
+    <p>Opening it from the Home Screen jumps straight to your tracker.</p>
+  </div>
+  <a class="btn" id="open" href="https://claude.ai/artifact/AthMGNAgjNDV2oBE4PiG4r">Open Showboard</a>
+</main>
+<script>
+(function () {
+  var target = document.getElementById("open").href;
+  var fromHome = window.navigator.standalone === true ||
+    (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) ||
+    location.hash === "#go";
+  if (fromHome) {
+    document.getElementById("setup").hidden = true;
+    document.getElementById("go").hidden = false;
+    location.replace(target);
+  }
+})();
+</script>
+</body>
+</html>
